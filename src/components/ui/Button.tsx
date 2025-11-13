@@ -1,7 +1,7 @@
 import { ButtonHTMLAttributes, ReactNode } from 'react';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'success' | 'neutral' | 'icon';
+  variant?: 'primary' | 'success' | 'neutral' | 'danger' | 'icon';
   children: ReactNode;
 }
 
@@ -14,6 +14,8 @@ export function Button({ variant = 'primary', children, className = '', ...props
       'px-5 py-2.5 bg-success-600 text-white hover:bg-success-700 focus:ring-2 focus:ring-success-500 focus:ring-offset-2',
     neutral:
       'px-5 py-2.5 bg-neutral-300 text-neutral-700 hover:bg-neutral-400 focus:ring-2 focus:ring-neutral-500 focus:ring-offset-2',
+    danger:
+      'px-5 py-2.5 bg-error-600 text-white hover:bg-error-700 focus:ring-2 focus:ring-error-500 focus:ring-offset-2',
     icon: 'p-1',
   };
 

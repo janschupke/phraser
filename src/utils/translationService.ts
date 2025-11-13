@@ -131,3 +131,11 @@ export const recordIncorrectAnswer = (id: string): boolean => {
   saveTranslations(translations);
   return true;
 };
+
+/**
+ * Resets all translations data
+ * WARNING: This permanently deletes all translations and cannot be undone
+ */
+export const resetAllTranslations = (): void => {
+  saveTranslations([]);
+};

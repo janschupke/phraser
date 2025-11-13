@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { PageTitle } from '../components/ui/PageTitle';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
+import { ConfirmModal } from '../components/ui/ConfirmModal';
 import { getSettings, updateSetting, Settings } from '../utils/settings';
-import { downloadTranslationsAsCSV, getTranslations } from '../utils/storage';
+import { downloadTranslationsAsCSV, getTranslations, resetAllTranslations } from '../utils/storage';
 import { useToast } from '../contexts/ToastContext';
 
 function SettingsPage() {
   const [settings, setSettings] = useState<Settings>(getSettings());
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
   const { showToast } = useToast();
 
   useEffect(() => {
@@ -40,6 +42,29 @@ function SettingsPage() {
     } catch (error) {
       showToast('error', 'Failed to export translations');
     }
+  };
+
+  const handleResetClick = () => {
+    const translations = getTranslations();
+    if (translations.length === 0) {
+      showToast('error', 'No translations to reset');
+      return;
+    }
+    setShowResetConfirm(true);
+  };
+
+  const handleResetConfirm = () => {
+    try {
+      resetAllTranslations();
+      setShowResetConfirm(false);
+      showToast('success', 'All translations have been reset');
+    } catch (error) {
+      showToast('error', 'Failed to reset translations');
+    }
+  };
+
+  const handleResetCancel = () => {
+    setShowResetConfirm(false);
   };
 
   return (
@@ -112,8 +137,39 @@ function SettingsPage() {
               </div>
             </div>
           </div>
+
+          <div className="pt-6 border-t border-error-200">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <h3 className="text-base font-medium text-error-700 mb-1">Danger Zone</h3>
+                <p className="text-sm text-error-600 mt-1">
+                  Permanently delete all translations. This action cannot be undone. Make sure to export your data first if you want to keep a backup.
+                </p>
+              </div>
+              <div className="ml-4">
+                <Button
+                  variant="danger"
+                  onClick={handleResetClick}
+                  className="px-5 py-2.5"
+                >
+                  Reset All Data
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
       </Card>
+
+      <ConfirmModal
+        isOpen={showResetConfirm}
+        title="Reset All Data"
+        message={`Are you sure you want to delete all ${getTranslations().length} translation(s)? This action cannot be undone.`}
+        confirmText="Reset All Data"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={handleResetConfirm}
+        onCancel={handleResetCancel}
+      />
     </div>
   );
 }

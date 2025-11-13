@@ -17,6 +17,7 @@ import {
   addBatchTranslations,
   recordCorrectAnswer,
   recordIncorrectAnswer,
+  resetAllTranslations,
 } from './translationService';
 import { selectRandomTranslation } from './probability';
 import { exportTranslationsToCSV as exportToCSV, downloadTranslationsAsCSV as downloadCSV } from './csvExport';
@@ -31,6 +32,7 @@ export {
   addBatchTranslations,
   recordCorrectAnswer,
   recordIncorrectAnswer,
+  resetAllTranslations,
 };
 
 /**
