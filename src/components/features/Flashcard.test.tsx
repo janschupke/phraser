@@ -41,14 +41,17 @@ describe('Flashcard', () => {
     expect(screen.getByText('ní hǎo')).toBeInTheDocument();
   });
 
-  it('calls onReveal when reveal button is clicked', async () => {
+  it('calls onReveal when card is clicked', async () => {
     const user = userEvent.setup();
     render(
       <Flashcard card={mockCard} showAnswer={false} onReveal={mockOnReveal} onNext={mockOnNext} />
     );
 
-    const revealButton = screen.getByText(/click to reveal/i);
-    await user.click(revealButton);
+    const card = screen.getByText('你好').closest('div[class*="cursor-pointer"]');
+    expect(card).toBeInTheDocument();
+    if (card) {
+      await user.click(card);
+    }
 
     expect(mockOnReveal).toHaveBeenCalled();
   });
@@ -61,6 +64,21 @@ describe('Flashcard', () => {
 
     const nextButton = screen.getByText(/next card/i);
     await user.click(nextButton);
+
+    expect(mockOnNext).toHaveBeenCalled();
+  });
+
+  it('calls onNext when card is clicked and answer is shown', async () => {
+    const user = userEvent.setup();
+    render(
+      <Flashcard card={mockCard} showAnswer={true} onReveal={mockOnReveal} onNext={mockOnNext} />
+    );
+
+    const card = screen.getByText('Hello').closest('div[class*="cursor-pointer"]');
+    expect(card).toBeInTheDocument();
+    if (card) {
+      await user.click(card);
+    }
 
     expect(mockOnNext).toHaveBeenCalled();
   });

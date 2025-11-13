@@ -1,14 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getRandomTranslation, getTranslations } from '../utils/storage';
+import { getRandomTranslation, getTranslations, updateTranslation, deleteTranslation } from '../utils/storage';
 import { PageTitle } from '../components/ui/PageTitle';
 import { Card } from '../components/ui/Card';
 import { Flashcard } from '../components/features/Flashcard';
+import { useToast } from '../contexts/ToastContext';
 
 function Flashcards() {
   const [currentCard, setCurrentCard] = useState(getRandomTranslation());
   const [showAnswer, setShowAnswer] = useState(false);
   const [cardCount, setCardCount] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const { showToast } = useToast();
 
   const loadRandomCard = useCallback(() => {
     const card = getRandomTranslation();
@@ -18,6 +20,39 @@ function Flashcards() {
       setCardCount(prev => prev + 1);
     }
   }, []);
+
+  const handleEdit = useCallback((id: string, mandarin: string, translation: string) => {
+    if (!mandarin.trim() || !translation.trim()) {
+      showToast('error', 'Please fill in both fields');
+      return;
+    }
+
+    if (updateTranslation(id, mandarin.trim(), translation.trim())) {
+      showToast('success', 'Translation updated successfully!');
+      // Reload the current card if it's the one being edited
+      if (currentCard && currentCard.id === id) {
+        const translations = getTranslations();
+        const updatedCard = translations.find(t => t.id === id);
+        if (updatedCard) {
+          setCurrentCard(updatedCard);
+        }
+      }
+    } else {
+      showToast('error', 'Failed to update translation');
+    }
+  }, [currentCard, showToast]);
+
+  const handleDelete = useCallback((id: string) => {
+    if (deleteTranslation(id)) {
+      showToast('success', 'Translation deleted successfully!');
+      // If the deleted card is the current card, load a new one
+      if (currentCard && currentCard.id === id) {
+        loadRandomCard();
+      }
+    } else {
+      showToast('error', 'Failed to delete translation');
+    }
+  }, [currentCard, loadRandomCard, showToast]);
 
   useEffect(() => {
     if (!currentCard) {
@@ -85,6 +120,8 @@ function Flashcards() {
           onReveal={handleReveal}
           onNext={handleNext}
           isTransitioning={isTransitioning}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
         />
       ) : (
         <Card className="p-8 sm:p-12 animate-fade-in">
