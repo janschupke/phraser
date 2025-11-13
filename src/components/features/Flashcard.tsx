@@ -16,6 +16,8 @@ interface FlashcardProps {
   onEdit?: (id: string, mandarin: string, translation: string) => void;
   onDelete?: (id: string) => void;
   activeInput?: boolean;
+  reverseMode?: boolean;
+  onScoreUpdate?: (correct: boolean) => void;
 }
 
 export function Flashcard({
@@ -27,6 +29,8 @@ export function Flashcard({
   onEdit,
   onDelete,
   activeInput = false,
+  reverseMode = false,
+  onScoreUpdate,
 }: FlashcardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [mandarin, setMandarin] = useState(card.mandarin);
@@ -65,7 +69,11 @@ export function Flashcard({
   useEffect(() => {
     if (showAnswer && activeInput && !hasRecordedScore) {
       // Validate even if input is empty (empty is considered incorrect)
-      const correct = validateTranslation(userInput, card.translation);
+      // In reverse mode, compare user input (Mandarin) with card.mandarin
+      // In normal mode, compare user input (translation) with card.translation
+      const correct = reverseMode
+        ? validateTranslation(userInput, card.mandarin)
+        : validateTranslation(userInput, card.translation);
       setIsCorrect(correct);
       
       // Record score only once per reveal when active input is enabled
@@ -74,12 +82,18 @@ export function Flashcard({
       } else {
         recordIncorrectAnswer(card.id);
       }
+      
+      // Notify parent component of score update
+      if (onScoreUpdate) {
+        onScoreUpdate(correct);
+      }
+      
       setHasRecordedScore(true);
     } else if (!showAnswer) {
       setIsCorrect(null);
       setHasRecordedScore(false);
     }
-  }, [showAnswer, userInput, card.translation, card.id, activeInput, hasRecordedScore]);
+  }, [showAnswer, userInput, card.translation, card.mandarin, card.id, activeInput, reverseMode, hasRecordedScore, onScoreUpdate]);
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -243,9 +257,11 @@ export function Flashcard({
           <>
             <div className="text-center mb-8 w-full">
               <div className="mb-6">
-                <div className="text-sm text-neutral-500 mb-3">Mandarin</div>
+                <div className="text-sm text-neutral-500 mb-3">
+                  {reverseMode ? 'Translation' : 'Mandarin'}
+                </div>
                 <div className="text-4xl sm:text-5xl font-bold text-neutral-800 break-words">
-                  {card.mandarin}
+                  {reverseMode ? card.translation : card.mandarin}
                 </div>
               </div>
 
@@ -255,7 +271,7 @@ export function Flashcard({
                     <div className="mt-8 pt-8 border-t border-neutral-200 w-full">
                       <div className="mb-4">
                         <label htmlFor={`translation-input-${card.id}`} className="block text-sm font-medium text-neutral-700 mb-2">
-                          Enter Translation
+                          {reverseMode ? 'Enter Mandarin' : 'Enter Translation'}
                         </label>
                         <Input
                           ref={translationInputRef}
@@ -266,7 +282,7 @@ export function Flashcard({
                             setUserInput(e.target.value);
                           }}
                           onKeyDown={handleInputKeyDown}
-                          placeholder="Type your translation here..."
+                          placeholder={reverseMode ? "Type Mandarin here..." : "Type your translation here..."}
                           className="text-lg"
                           onClick={(e) => e.stopPropagation()}
                         />
@@ -277,20 +293,41 @@ export function Flashcard({
                     </div>
                   ) : (
                     <div className="mt-8 pt-8 border-t border-neutral-200 w-full animate-fade-in">
-                      {card.pinyin && (
-                        <div className="mb-4">
-                          <div className="text-sm text-neutral-500 mb-2">Pinyin</div>
-                          <div className="text-xl sm:text-2xl text-neutral-600 font-normal break-words">
-                            {card.pinyin}
+                      {reverseMode ? (
+                        <>
+                          {card.pinyin && (
+                            <div className="mb-4">
+                              <div className="text-sm text-neutral-500 mb-2">Pinyin</div>
+                              <div className="text-xl sm:text-2xl text-neutral-600 font-normal break-words">
+                                {card.pinyin}
+                              </div>
+                            </div>
+                          )}
+                          <div className="mb-4">
+                            <div className="text-sm text-neutral-500 mb-2">Correct Answer</div>
+                            <div className="text-2xl sm:text-3xl text-neutral-700 break-words">
+                              {card.mandarin}
+                            </div>
                           </div>
-                        </div>
+                        </>
+                      ) : (
+                        <>
+                          {card.pinyin && (
+                            <div className="mb-4">
+                              <div className="text-sm text-neutral-500 mb-2">Pinyin</div>
+                              <div className="text-xl sm:text-2xl text-neutral-600 font-normal break-words">
+                                {card.pinyin}
+                              </div>
+                            </div>
+                          )}
+                          <div className="mb-4">
+                            <div className="text-sm text-neutral-500 mb-2">Correct Answer</div>
+                            <div className="text-2xl sm:text-3xl text-neutral-700 break-words">
+                              {card.translation}
+                            </div>
+                          </div>
+                        </>
                       )}
-                      <div className="mb-4">
-                        <div className="text-sm text-neutral-500 mb-2">Correct Answer</div>
-                        <div className="text-2xl sm:text-3xl text-neutral-700 break-words">
-                          {card.translation}
-                        </div>
-                      </div>
                       {isCorrect !== null && (
                         <div className={`mt-4 p-4 rounded-lg ${
                           isCorrect 
@@ -316,20 +353,41 @@ export function Flashcard({
                 <>
                   {showAnswer ? (
                     <div className="mt-8 pt-8 border-t border-neutral-200 w-full animate-fade-in">
-                      {card.pinyin && (
-                        <div className="mb-6">
-                          <div className="text-sm text-neutral-500 mb-2">Pinyin</div>
-                          <div className="text-xl sm:text-2xl text-neutral-600 font-normal break-words">
-                            {card.pinyin}
+                      {reverseMode ? (
+                        <>
+                          {card.pinyin && (
+                            <div className="mb-6">
+                              <div className="text-sm text-neutral-500 mb-2">Pinyin</div>
+                              <div className="text-xl sm:text-2xl text-neutral-600 font-normal break-words">
+                                {card.pinyin}
+                              </div>
+                            </div>
+                          )}
+                          <div>
+                            <div className="text-sm text-neutral-500 mb-2">Mandarin</div>
+                            <div className="text-2xl sm:text-3xl text-neutral-700 break-words">
+                              {card.mandarin}
+                            </div>
                           </div>
-                        </div>
+                        </>
+                      ) : (
+                        <>
+                          {card.pinyin && (
+                            <div className="mb-6">
+                              <div className="text-sm text-neutral-500 mb-2">Pinyin</div>
+                              <div className="text-xl sm:text-2xl text-neutral-600 font-normal break-words">
+                                {card.pinyin}
+                              </div>
+                            </div>
+                          )}
+                          <div>
+                            <div className="text-sm text-neutral-500 mb-2">Translation</div>
+                            <div className="text-2xl sm:text-3xl text-neutral-700 break-words">
+                              {card.translation}
+                            </div>
+                          </div>
+                        </>
                       )}
-                      <div>
-                        <div className="text-sm text-neutral-500 mb-2">Translation</div>
-                        <div className="text-2xl sm:text-3xl text-neutral-700 break-words">
-                          {card.translation}
-                        </div>
-                      </div>
                     </div>
                   ) : (
                     <div className="mt-8 pt-8 border-t border-neutral-200">

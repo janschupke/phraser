@@ -70,6 +70,29 @@ function SettingsPage() {
             </div>
           </div>
 
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <label htmlFor="reverse-mode" className="text-base font-medium text-neutral-800 cursor-pointer">
+                Reverse Mode
+              </label>
+              <p className="text-sm text-neutral-600 mt-1">
+                Show translations and expect Mandarin as input. Useful for practicing character recognition.
+              </p>
+            </div>
+            <div className="ml-4">
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  id="reverse-mode"
+                  type="checkbox"
+                  checked={settings.reverseMode}
+                  onChange={() => handleToggle('reverseMode')}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-neutral-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+              </label>
+            </div>
+          </div>
+
           <div className="pt-6 border-t border-neutral-200">
             <div className="flex items-center justify-between">
               <div className="flex-1">

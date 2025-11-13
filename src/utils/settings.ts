@@ -2,10 +2,12 @@ const SETTINGS_KEY = 'phraser-settings';
 
 export interface Settings {
   activeInput: boolean;
+  reverseMode: boolean;
 }
 
 const defaultSettings: Settings = {
   activeInput: false,
+  reverseMode: false,
 };
 
 export const getSettings = (): Settings => {

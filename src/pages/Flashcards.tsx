@@ -12,17 +12,30 @@ function Flashcards() {
   const [cardCount, setCardCount] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [activeInput, setActiveInput] = useState(getSettings().activeInput);
+  const [reverseMode, setReverseMode] = useState(getSettings().reverseMode);
+  const [sessionScore, setSessionScore] = useState({ correct: 0, incorrect: 0 });
   const { showToast } = useToast();
+
+  // Reset session score on unmount
+  useEffect(() => {
+    return () => {
+      setSessionScore({ correct: 0, incorrect: 0 });
+    };
+  }, []);
 
   useEffect(() => {
     // Listen for settings changes
     const handleStorageChange = () => {
-      setActiveInput(getSettings().activeInput);
+      const settings = getSettings();
+      setActiveInput(settings.activeInput);
+      setReverseMode(settings.reverseMode);
     };
     window.addEventListener('storage', handleStorageChange);
     // Also check periodically in case settings change in same window
     const interval = setInterval(() => {
-      setActiveInput(getSettings().activeInput);
+      const settings = getSettings();
+      setActiveInput(settings.activeInput);
+      setReverseMode(settings.reverseMode);
     }, 500);
     return () => {
       window.removeEventListener('storage', handleStorageChange);
@@ -131,12 +144,28 @@ function Flashcards() {
     );
   }
 
+  const handleScoreUpdate = useCallback((correct: boolean) => {
+    setSessionScore(prev => ({
+      correct: prev.correct + (correct ? 1 : 0),
+      incorrect: prev.incorrect + (correct ? 0 : 1),
+    }));
+  }, []);
+
   return (
     <div className="w-full max-w-2xl mx-auto page-transition-enter">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0 mb-6">
         <PageTitle className="mb-0">Flashcards</PageTitle>
-        <div className="text-sm text-neutral-500">
-          Card #{cardCount} • {translations.length} total
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-sm text-neutral-500">
+          <div>
+            Card #{cardCount} • {translations.length} total
+          </div>
+          {activeInput && (sessionScore.correct > 0 || sessionScore.incorrect > 0) && (
+            <div className="flex items-center gap-2">
+              <span className="text-success-600 font-medium">{sessionScore.correct}</span>
+              <span className="text-neutral-400">/</span>
+              <span className="text-error-600 font-medium">{sessionScore.incorrect}</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -150,6 +179,8 @@ function Flashcards() {
           onEdit={handleEdit}
           onDelete={handleDelete}
           activeInput={activeInput}
+          reverseMode={reverseMode}
+          onScoreUpdate={handleScoreUpdate}
         />
       ) : (
         <Card className="p-8 sm:p-12 animate-fade-in">
