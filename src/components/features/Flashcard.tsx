@@ -194,7 +194,13 @@ export function Flashcard({
             !isEditing
               ? 'hover:shadow-lg transition-shadow duration-200'
               : ''
-          }`}
+          } ${
+            showAnswer && activeInput && isCorrect !== null
+              ? isCorrect
+                ? 'bg-success-200 border-success-400'
+                : 'bg-error-200 border-error-400'
+              : ''
+          } transition-colors duration-300`}
           style={{ transformStyle: 'preserve-3d' }}
         >
         {/* Configure Icon */}
@@ -329,11 +335,7 @@ export function Flashcard({
                         </>
                       )}
                       {isCorrect !== null && (
-                        <div className={`mt-4 p-4 rounded-lg ${
-                          isCorrect 
-                            ? 'bg-success-50 border-2 border-success-500' 
-                            : 'bg-error-50 border-2 border-error-500'
-                        }`}>
+                        <div className="mt-4">
                           <div className={`text-lg font-semibold ${
                             isCorrect ? 'text-success-700' : 'text-error-700'
                           }`}>
