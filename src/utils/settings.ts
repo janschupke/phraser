@@ -1,4 +1,4 @@
-const SETTINGS_KEY = 'phraser-settings';
+import { storageManager } from './storageManager';
 
 export interface Settings {
   activeInput: boolean;
@@ -11,23 +11,15 @@ const defaultSettings: Settings = {
 };
 
 export const getSettings = (): Settings => {
-  try {
-    const stored = localStorage.getItem(SETTINGS_KEY);
-    if (stored) {
-      return { ...defaultSettings, ...JSON.parse(stored) };
-    }
-  } catch (error) {
-    console.error('Error reading settings from localStorage:', error);
+  const stored = storageManager.get<Settings>(storageManager.getSettingsKey());
+  if (stored) {
+    return { ...defaultSettings, ...stored };
   }
   return defaultSettings;
 };
 
 export const saveSettings = (settings: Settings): void => {
-  try {
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
-  } catch (error) {
-    console.error('Error saving settings to localStorage:', error);
-  }
+  storageManager.set(storageManager.getSettingsKey(), settings);
 };
 
 export const updateSetting = <K extends keyof Settings>(key: K, value: Settings[K]): void => {
