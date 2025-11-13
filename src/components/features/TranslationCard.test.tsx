@@ -46,7 +46,7 @@ describe('TranslationCard', () => {
     const deleteButton = screen.getByLabelText(/delete translation/i);
     await user.click(deleteButton);
 
-    expect(mockOnDelete).toHaveBeenCalledWith('1');
+    expect(mockOnDelete).toHaveBeenCalledWith(mockTranslation);
   });
 
   it('does not render pinyin when not available', () => {

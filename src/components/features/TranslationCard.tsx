@@ -5,7 +5,7 @@ import { Button } from '../ui/Button';
 interface TranslationCardProps {
   translation: Translation;
   onEdit: (translation: Translation) => void;
-  onDelete: (id: string) => void;
+  onDelete: (translation: Translation) => void;
 }
 
 export function TranslationCard({ translation, onEdit, onDelete }: TranslationCardProps) {
@@ -42,7 +42,7 @@ export function TranslationCard({ translation, onEdit, onDelete }: TranslationCa
         </Button>
         <Button
           variant="icon"
-          onClick={() => onDelete(translation.id)}
+          onClick={() => onDelete(translation)}
           aria-label="Delete translation"
           title="Delete"
           className="text-neutral-400 hover:text-error-600"

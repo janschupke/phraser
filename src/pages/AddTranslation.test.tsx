@@ -1,10 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { ToastProvider } from '../contexts/ToastContext';
 import AddTranslation from './AddTranslation';
 import * as storage from '../utils/storage';
 
 vi.mock('../utils/storage');
+
+const renderWithToast = (component: React.ReactElement) => {
+  return render(<ToastProvider>{component}</ToastProvider>);
+};
 
 describe('AddTranslation', () => {
   beforeEach(() => {
@@ -13,7 +18,7 @@ describe('AddTranslation', () => {
   });
 
   it('renders the form', () => {
-    render(<AddTranslation />);
+    renderWithToast(<AddTranslation />);
 
     expect(screen.getByRole('heading', { name: /add translation/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/mandarin/i)).toBeInTheDocument();
@@ -22,7 +27,7 @@ describe('AddTranslation', () => {
 
   it('adds translation when form is submitted', async () => {
     const user = userEvent.setup();
-    render(<AddTranslation />);
+    renderWithToast(<AddTranslation />);
 
     await user.type(screen.getByLabelText(/mandarin/i), '你好');
     await user.type(screen.getByLabelText(/english translation/i), 'Hello');

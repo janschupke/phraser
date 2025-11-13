@@ -7,11 +7,23 @@ interface FlashcardProps {
   showAnswer: boolean;
   onReveal: () => void;
   onNext: () => void;
+  isTransitioning?: boolean;
 }
 
-export function Flashcard({ card, showAnswer, onReveal, onNext }: FlashcardProps) {
+export function Flashcard({
+  card,
+  showAnswer,
+  onReveal,
+  onNext,
+  isTransitioning = false,
+}: FlashcardProps) {
   return (
-    <Card className="p-8 sm:p-12 min-h-[400px] sm:min-h-[500px] flex flex-col items-center justify-center">
+    <Card
+      className={`p-8 sm:p-12 min-h-[400px] sm:min-h-[500px] flex flex-col items-center justify-center transform-gpu ${
+        isTransitioning ? 'animate-flip-out' : 'animate-flip-in'
+      }`}
+      style={{ transformStyle: 'preserve-3d' }}
+    >
       <div className="text-center mb-8 w-full">
         <div className="mb-6">
           <div className="text-sm text-neutral-500 mb-3">Mandarin</div>
@@ -21,7 +33,7 @@ export function Flashcard({ card, showAnswer, onReveal, onNext }: FlashcardProps
         </div>
 
         {showAnswer ? (
-          <div className="mt-8 pt-8 border-t border-neutral-200 w-full">
+          <div className="mt-8 pt-8 border-t border-neutral-200 w-full animate-fade-in">
             {card.pinyin && (
               <div className="mb-6">
                 <div className="text-sm text-neutral-500 mb-2">Pinyin</div>
@@ -41,7 +53,7 @@ export function Flashcard({ card, showAnswer, onReveal, onNext }: FlashcardProps
           <div className="mt-8 pt-8 border-t border-neutral-200">
             <button
               onClick={onReveal}
-              className="text-primary-600 hover:text-primary-700 font-medium text-base sm:text-lg"
+              className="text-primary-600 hover:text-primary-700 font-medium text-base sm:text-lg transition-colors duration-200"
             >
               Click to reveal answer (or press Enter)
             </button>
@@ -50,7 +62,7 @@ export function Flashcard({ card, showAnswer, onReveal, onNext }: FlashcardProps
       </div>
 
       {showAnswer && (
-        <div className="flex gap-4 mt-8">
+        <div className="flex gap-4 mt-8 animate-fade-in">
           <Button variant="primary" onClick={onNext} className="px-8 py-3">
             Next Card (or press Enter)
           </Button>

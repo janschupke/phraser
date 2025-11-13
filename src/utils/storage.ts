@@ -1,7 +1,7 @@
 import { Translation } from '../types';
 import { pinyin } from 'pinyin-pro';
 
-const STORAGE_KEY = 'phraser-translations';
+const STORAGE_KEY = 'phraser';
 
 const generatePinyin = (mandarin: string): string => {
   try {

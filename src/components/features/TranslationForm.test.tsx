@@ -1,7 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { ToastProvider } from '../../contexts/ToastContext';
 import { TranslationForm } from './TranslationForm';
+
+const renderWithToast = (component: React.ReactElement) => {
+  return render(<ToastProvider>{component}</ToastProvider>);
+};
 
 describe('TranslationForm', () => {
   const mockOnSubmit = vi.fn();
@@ -11,7 +16,7 @@ describe('TranslationForm', () => {
   });
 
   it('renders form with inputs and submit button', () => {
-    render(<TranslationForm onSubmit={mockOnSubmit} />);
+    renderWithToast(<TranslationForm onSubmit={mockOnSubmit} />);
 
     expect(screen.getByLabelText(/mandarin/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/english translation/i)).toBeInTheDocument();
@@ -20,7 +25,7 @@ describe('TranslationForm', () => {
 
   it('calls onSubmit with trimmed values when form is submitted', async () => {
     const user = userEvent.setup();
-    render(<TranslationForm onSubmit={mockOnSubmit} />);
+    renderWithToast(<TranslationForm onSubmit={mockOnSubmit} />);
 
     await user.type(screen.getByLabelText(/mandarin/i), '  你好  ');
     await user.type(screen.getByLabelText(/english translation/i), '  Hello  ');
@@ -33,7 +38,7 @@ describe('TranslationForm', () => {
 
   it('shows error message when fields are empty', async () => {
     const user = userEvent.setup();
-    render(<TranslationForm onSubmit={mockOnSubmit} />);
+    renderWithToast(<TranslationForm onSubmit={mockOnSubmit} />);
 
     await user.click(screen.getByRole('button', { name: /add translation/i }));
 
@@ -43,7 +48,7 @@ describe('TranslationForm', () => {
 
   it('shows success message after successful submission', async () => {
     const user = userEvent.setup();
-    render(<TranslationForm onSubmit={mockOnSubmit} />);
+    renderWithToast(<TranslationForm onSubmit={mockOnSubmit} />);
 
     await user.type(screen.getByLabelText(/mandarin/i), '你好');
     await user.type(screen.getByLabelText(/english translation/i), 'Hello');
@@ -54,7 +59,7 @@ describe('TranslationForm', () => {
 
   it('clears form after submission when no initial values', async () => {
     const user = userEvent.setup();
-    render(<TranslationForm onSubmit={mockOnSubmit} />);
+    renderWithToast(<TranslationForm onSubmit={mockOnSubmit} />);
 
     const mandarinInput = screen.getByLabelText(/mandarin/i);
     const englishInput = screen.getByLabelText(/english translation/i);
@@ -71,7 +76,7 @@ describe('TranslationForm', () => {
 
   it('does not clear form when initial values are provided', async () => {
     const user = userEvent.setup();
-    render(
+    renderWithToast(
       <TranslationForm onSubmit={mockOnSubmit} initialMandarin="你好" initialEnglish="Hello" />
     );
 

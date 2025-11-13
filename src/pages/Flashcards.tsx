@@ -8,6 +8,7 @@ function Flashcards() {
   const [currentCard, setCurrentCard] = useState(getRandomTranslation());
   const [showAnswer, setShowAnswer] = useState(false);
   const [cardCount, setCardCount] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   const loadRandomCard = useCallback(() => {
     const card = getRandomTranslation();
@@ -29,7 +30,11 @@ function Flashcards() {
   }, []);
 
   const handleNext = useCallback(() => {
-    loadRandomCard();
+    setIsTransitioning(true);
+    setTimeout(() => {
+      loadRandomCard();
+      setIsTransitioning(false);
+    }, 150);
   }, [loadRandomCard]);
 
   useEffect(() => {
@@ -65,7 +70,7 @@ function Flashcards() {
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
+    <div className="w-full max-w-2xl mx-auto page-transition-enter">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0 mb-6">
         <PageTitle className="mb-0">Flashcards</PageTitle>
         <div className="text-sm text-neutral-500">
@@ -79,9 +84,10 @@ function Flashcards() {
           showAnswer={showAnswer}
           onReveal={handleReveal}
           onNext={handleNext}
+          isTransitioning={isTransitioning}
         />
       ) : (
-        <Card className="p-8 sm:p-12">
+        <Card className="p-8 sm:p-12 animate-fade-in">
           <p className="text-neutral-500 text-center">Loading...</p>
         </Card>
       )}

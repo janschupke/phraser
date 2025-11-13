@@ -9,10 +9,10 @@ function AddTranslation() {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
+    <div className="w-full max-w-2xl mx-auto page-transition-enter">
       <PageTitle>Add Translation</PageTitle>
       <Card className="p-6 sm:p-8">
-        <TranslationForm onSubmit={handleSubmit} />
+        <TranslationForm onSubmit={handleSubmit} autoFocus={true} />
       </Card>
     </div>
   );

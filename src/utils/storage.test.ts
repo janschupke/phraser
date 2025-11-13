@@ -24,12 +24,12 @@ describe('storage utilities', () => {
         { id: '1', mandarin: '你好', english: 'Hello' },
         { id: '2', mandarin: '谢谢', english: 'Thank you' },
       ];
-      localStorage.setItem('phraser-translations', JSON.stringify(translations));
+      localStorage.setItem('phraser', JSON.stringify(translations));
       expect(getTranslations()).toEqual(translations);
     });
 
     it('should return empty array on invalid JSON', () => {
-      localStorage.setItem('phraser-translations', 'invalid json');
+      localStorage.setItem('phraser', 'invalid json');
       expect(getTranslations()).toEqual([]);
     });
   });
@@ -38,7 +38,7 @@ describe('storage utilities', () => {
     it('should save translations to localStorage', () => {
       const translations: Translation[] = [{ id: '1', mandarin: '你好', english: 'Hello' }];
       saveTranslations(translations);
-      const stored = localStorage.getItem('phraser-translations');
+      const stored = localStorage.getItem('phraser');
       expect(stored).toBe(JSON.stringify(translations));
     });
   });
