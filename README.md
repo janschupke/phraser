@@ -121,6 +121,18 @@ src/
 3. Press `Enter` or click "Click to reveal answer" to see the translation and pinyin
 4. Press `Enter` again or click "Next Card" to move to the next random card
 
+### Active Input Mode
+
+Enable "Active Input Mode" in Settings to practice by typing translations:
+
+1. Go to Settings and enable "Active Input Mode"
+2. Return to Flashcards page
+3. Type your translation answer in the input field
+4. Press `Enter` or click "Check Answer" to see if you're correct
+5. Answers are validated case-insensitively, ignoring accents/diacritics and punctuation
+6. Your score is automatically tracked (correct/incorrect counts)
+7. Items you struggle with appear more frequently (see Probability System below)
+
 ### Managing Translations
 
 1. Visit "All Translations" to see all saved entries
@@ -162,6 +174,80 @@ The project includes a CI workflow (`.github/workflows/ci.yml`) that runs on pul
 - Type checking
 - Linting
 - Format checking
+
+## Scoring & Probability System
+
+Phraser includes an intelligent probability-based selection system that helps you focus on items you struggle with. This system only activates when **Active Input Mode** is enabled.
+
+### How Scoring Works
+
+- Each translation tracks two counters: `correctCount` and `incorrectCount`
+- Scores are only recorded when Active Input Mode is enabled and you check your answer
+- Empty answers are considered incorrect
+- Scores persist across sessions in local storage
+
+### Probability Formula
+
+The system uses a weighted random selection algorithm where items with lower success rates appear more frequently.
+
+#### Success Rate Calculation
+
+```
+success_rate = correctCount / (correctCount + incorrectCount)
+```
+
+**Special case**: Items with no attempts (both counts = 0) get a default success rate of **0.5 (50%)**.
+
+#### Weight Calculation
+
+```
+weight = 1 / (success_rate + 0.1)
+```
+
+The constant **0.1** prevents division by zero and ensures even perfect items still have a chance to appear.
+
+#### Weight Examples
+
+| Success Rate  | Correct | Incorrect | Weight | Relative Frequency |
+| ------------- | ------- | --------- | ------ | ------------------ |
+| 0.0 (0%)      | 0       | 10        | 10.0   | Highest            |
+| 0.2 (20%)     | 2       | 8         | 3.33   | High               |
+| 0.5 (50%)     | 5       | 5         | 1.67   | Medium             |
+| 0.8 (80%)     | 8       | 2         | 1.11   | Low                |
+| 1.0 (100%)    | 10      | 0         | 0.91   | Lowest             |
+| 0.5 (default) | 0       | 0         | 1.67   | Medium (new items) |
+
+#### Selection Algorithm
+
+1. Calculate weight for each translation using the formula above
+2. Sum all weights to get `totalWeight`
+3. Generate a random number between 0 and `totalWeight`
+4. Iterate through translations, subtracting each weight from the random number
+5. Select the translation where the cumulative weight exceeds the random number
+
+This ensures that:
+
+- Items with 0% success rate appear **~11x more often** than items with 100% success rate
+- New items (no attempts) appear at medium frequency
+- The system automatically adapts as you improve
+
+### Example Scenario
+
+If you have 3 translations:
+
+- **Item A**: 0 correct, 5 incorrect → success_rate = 0.0 → weight = 10.0
+- **Item B**: 5 correct, 5 incorrect → success_rate = 0.5 → weight = 1.67
+- **Item C**: 10 correct, 0 incorrect → success_rate = 1.0 → weight = 0.91
+
+Total weight = 12.58
+
+Selection probabilities:
+
+- **Item A**: 10.0 / 12.58 = **79.5%** chance
+- **Item B**: 1.67 / 12.58 = **13.3%** chance
+- **Item C**: 0.91 / 12.58 = **7.2%** chance
+
+As you improve Item A, its weight decreases and it appears less frequently, naturally shifting focus to items that still need practice.
 
 ## Technologies
 

@@ -3,4 +3,6 @@ export interface Translation {
   mandarin: string;
   translation: string;
   pinyin?: string;
+  correctCount?: number;
+  incorrectCount?: number;
 }

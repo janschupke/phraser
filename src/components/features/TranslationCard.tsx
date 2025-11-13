@@ -9,6 +9,11 @@ interface TranslationCardProps {
 }
 
 export function TranslationCard({ translation, onEdit, onDelete }: TranslationCardProps) {
+  const correctCount = translation.correctCount ?? 0;
+  const incorrectCount = translation.incorrectCount ?? 0;
+  const totalAttempts = correctCount + incorrectCount;
+  const successRate = totalAttempts > 0 ? Math.round((correctCount / totalAttempts) * 100) : null;
+
   return (
     <div className="flex justify-between items-start gap-4">
       <div className="flex-1 min-w-0">
@@ -29,6 +34,33 @@ export function TranslationCard({ translation, onEdit, onDelete }: TranslationCa
             {translation.translation}
           </div>
         </div>
+        {totalAttempts > 0 && (
+          <div className="mt-3 pt-3 border-t border-neutral-200">
+            <div className="flex items-center gap-4 text-sm">
+              <div className="flex items-center gap-1.5">
+                <span className="text-neutral-500">Score:</span>
+                <span className="font-medium text-success-600">{correctCount}</span>
+                <span className="text-neutral-400">/</span>
+                <span className="font-medium text-error-600">{incorrectCount}</span>
+              </div>
+              {successRate !== null && (
+                <>
+                  <span className="text-neutral-300">•</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-neutral-500">Success rate:</span>
+                    <span className={`font-medium ${
+                      successRate >= 80 ? 'text-success-600' :
+                      successRate >= 50 ? 'text-neutral-600' :
+                      'text-error-600'
+                    }`}>
+                      {successRate}%
+                    </span>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        )}
       </div>
       <div className="flex gap-3 sm:gap-4 flex-shrink-0">
         <Button

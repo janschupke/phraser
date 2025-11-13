@@ -5,6 +5,7 @@ import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
 import { HiOutlineCog, HiOutlineTrash } from 'react-icons/hi';
 import { validateTranslation } from '../../utils/stringComparison';
+import { recordCorrectAnswer, recordIncorrectAnswer } from '../../utils/storage';
 
 interface FlashcardProps {
   card: Translation;
@@ -33,6 +34,7 @@ export function Flashcard({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [userInput, setUserInput] = useState('');
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+  const [hasRecordedScore, setHasRecordedScore] = useState(false);
   const mandarinInputRef = useRef<HTMLInputElement>(null);
   const translationInputRef = useRef<HTMLInputElement>(null);
 
@@ -49,6 +51,7 @@ export function Flashcard({
     setTranslationText(card.translation);
     setUserInput('');
     setIsCorrect(null);
+    setHasRecordedScore(false);
   }, [card]);
 
   useEffect(() => {
@@ -60,14 +63,23 @@ export function Flashcard({
   }, [activeInput, showAnswer, card]);
 
   useEffect(() => {
-    if (showAnswer && activeInput) {
+    if (showAnswer && activeInput && !hasRecordedScore) {
       // Validate even if input is empty (empty is considered incorrect)
       const correct = validateTranslation(userInput, card.translation);
       setIsCorrect(correct);
+      
+      // Record score only once per reveal when active input is enabled
+      if (correct) {
+        recordCorrectAnswer(card.id);
+      } else {
+        recordIncorrectAnswer(card.id);
+      }
+      setHasRecordedScore(true);
     } else if (!showAnswer) {
       setIsCorrect(null);
+      setHasRecordedScore(false);
     }
-  }, [showAnswer, userInput, card.translation, activeInput]);
+  }, [showAnswer, userInput, card.translation, card.id, activeInput, hasRecordedScore]);
 
   const handleEditClick = () => {
     setIsEditing(true);
