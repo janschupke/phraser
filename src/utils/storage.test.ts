@@ -149,10 +149,10 @@ describe('storage utilities', () => {
     it('should export translations as CSV', () => {
       addTranslation('你好', 'Hello');
       addTranslation('谢谢', 'Thank you');
-      
+
       const csv = exportTranslationsToCSV();
       const lines = csv.split('\n');
-      
+
       expect(lines[0]).toBe('mandarin,translation,pinyin');
       expect(lines[1]).toContain('你好');
       expect(lines[1]).toContain('Hello');
@@ -162,10 +162,10 @@ describe('storage utilities', () => {
 
     it('should escape commas in CSV fields', () => {
       addTranslation('你好', 'Hello, world');
-      
+
       const csv = exportTranslationsToCSV();
       const lines = csv.split('\n');
-      
+
       // Should contain quoted field with English comma
       expect(lines[1]).toContain('"Hello, world"');
       // Chinese comma doesn't need escaping
@@ -174,10 +174,10 @@ describe('storage utilities', () => {
 
     it('should escape quotes in CSV fields', () => {
       addTranslation('他说"你好"', 'He said "hello"');
-      
+
       const csv = exportTranslationsToCSV();
       const lines = csv.split('\n');
-      
+
       // Should escape quotes by doubling them
       expect(lines[1]).toContain('""');
     });
@@ -186,7 +186,7 @@ describe('storage utilities', () => {
   describe('downloadTranslationsAsCSV', () => {
     it('should create download link and trigger download', () => {
       addTranslation('你好', 'Hello');
-      
+
       // Mock DOM methods
       const mockClick = vi.fn();
       const mockAppendChild = vi.fn();
@@ -195,25 +195,25 @@ describe('storage utilities', () => {
         setAttribute: vi.fn(),
         click: mockClick,
         style: {},
-      }));
-      
-      document.createElement = mockCreateElement as any;
-      document.body.appendChild = mockAppendChild as any;
-      document.body.removeChild = mockRemoveChild as any;
-      
+      })) as unknown as typeof document.createElement;
+
+      document.createElement = mockCreateElement;
+      document.body.appendChild = mockAppendChild as unknown as typeof document.body.appendChild;
+      document.body.removeChild = mockRemoveChild as unknown as typeof document.body.removeChild;
+
       // Mock URL.createObjectURL and revokeObjectURL
       const mockRevokeObjectURL = vi.fn();
       const originalCreateObjectURL = URL.createObjectURL;
       const originalRevokeObjectURL = URL.revokeObjectURL;
-      URL.createObjectURL = vi.fn(() => 'blob:mock-url') as any;
-      URL.revokeObjectURL = mockRevokeObjectURL as any;
-      
+      URL.createObjectURL = vi.fn(() => 'blob:mock-url') as unknown as typeof URL.createObjectURL;
+      URL.revokeObjectURL = mockRevokeObjectURL as unknown as typeof URL.revokeObjectURL;
+
       downloadTranslationsAsCSV();
-      
+
       expect(mockCreateElement).toHaveBeenCalledWith('a');
       expect(mockClick).toHaveBeenCalled();
       expect(mockRevokeObjectURL).toHaveBeenCalledWith('blob:mock-url');
-      
+
       // Restore original functions
       URL.createObjectURL = originalCreateObjectURL;
       URL.revokeObjectURL = originalRevokeObjectURL;
@@ -230,7 +230,7 @@ describe('storage utilities', () => {
     it('should record correct answers', () => {
       const translation = addTranslation('你好', 'Hello');
       recordCorrectAnswer(translation.id);
-      
+
       const updated = getTranslations().find(t => t.id === translation.id);
       expect(updated?.correctCount).toBe(1);
       expect(updated?.incorrectCount).toBe(0);
@@ -239,7 +239,7 @@ describe('storage utilities', () => {
     it('should record incorrect answers', () => {
       const translation = addTranslation('你好', 'Hello');
       recordIncorrectAnswer(translation.id);
-      
+
       const updated = getTranslations().find(t => t.id === translation.id);
       expect(updated?.correctCount).toBe(0);
       expect(updated?.incorrectCount).toBe(1);
@@ -250,7 +250,7 @@ describe('storage utilities', () => {
       recordCorrectAnswer(translation.id);
       recordCorrectAnswer(translation.id);
       recordCorrectAnswer(translation.id);
-      
+
       const updated = getTranslations().find(t => t.id === translation.id);
       expect(updated?.correctCount).toBe(3);
       expect(updated?.incorrectCount).toBe(0);
@@ -260,7 +260,7 @@ describe('storage utilities', () => {
       const translation = addTranslation('你好', 'Hello');
       recordIncorrectAnswer(translation.id);
       recordIncorrectAnswer(translation.id);
-      
+
       const updated = getTranslations().find(t => t.id === translation.id);
       expect(updated?.correctCount).toBe(0);
       expect(updated?.incorrectCount).toBe(2);
@@ -270,9 +270,9 @@ describe('storage utilities', () => {
       const translation = addTranslation('你好', 'Hello');
       recordCorrectAnswer(translation.id);
       recordIncorrectAnswer(translation.id);
-      
+
       updateTranslation(translation.id, '你好世界', 'Hello world');
-      
+
       const updated = getTranslations().find(t => t.id === translation.id);
       expect(updated?.correctCount).toBe(1);
       expect(updated?.incorrectCount).toBe(1);
@@ -290,14 +290,14 @@ describe('storage utilities', () => {
       addTranslation('你好', 'Hello');
       addTranslation('谢谢', 'Thank you');
       addTranslation('再见', 'Goodbye');
-      
+
       // All have default success rate of 0.5, so equal weights
       const selections = new Set<string>();
       for (let i = 0; i < 30; i++) {
         const card = getRandomTranslation();
         if (card) selections.add(card.id);
       }
-      
+
       // Should select all items (with some randomness)
       expect(selections.size).toBeGreaterThanOrEqual(1);
     });
@@ -306,7 +306,7 @@ describe('storage utilities', () => {
       const bad = addTranslation('难', 'Hard');
       const medium = addTranslation('中', 'Medium');
       const good = addTranslation('易', 'Easy');
-      
+
       // Set up scores: bad (0%), medium (50%), good (100%)
       for (let i = 0; i < 5; i++) {
         recordIncorrectAnswer(bad.id);
@@ -318,19 +318,19 @@ describe('storage utilities', () => {
       for (let i = 0; i < 10; i++) {
         recordCorrectAnswer(good.id);
       }
-      
+
       // Sample many times to reduce randomness
       const counts: Record<string, number> = { [bad.id]: 0, [medium.id]: 0, [good.id]: 0 };
       for (let i = 0; i < 1000; i++) {
         const card = getRandomTranslation();
         if (card) counts[card.id]++;
       }
-      
+
       // Bad item (weight 10.0) should appear most often
       // Medium item (weight 1.67) should appear more than good item (weight 0.91)
       expect(counts[bad.id]).toBeGreaterThan(counts[medium.id]);
       expect(counts[medium.id]).toBeGreaterThan(counts[good.id]);
-      
+
       // Verify bad item appears significantly more often (should be ~6x more than medium)
       expect(counts[bad.id]).toBeGreaterThan(counts[medium.id] * 3);
     });
@@ -338,17 +338,17 @@ describe('storage utilities', () => {
     it('should handle items with no attempts', () => {
       const newItem = addTranslation('新', 'New');
       const attempted = addTranslation('旧', 'Old');
-      
+
       recordCorrectAnswer(attempted.id);
       recordIncorrectAnswer(attempted.id);
-      
+
       // Both should be selectable
       const selections = new Set<string>();
       for (let i = 0; i < 20; i++) {
         const card = getRandomTranslation();
         if (card) selections.add(card.id);
       }
-      
+
       expect(selections.has(newItem.id)).toBe(true);
       expect(selections.has(attempted.id)).toBe(true);
     });
@@ -356,23 +356,23 @@ describe('storage utilities', () => {
     it('should favor new items with maximum weight', () => {
       const newItem = addTranslation('新', 'New');
       const medium = addTranslation('中', 'Medium');
-      
+
       // Set up medium item with 50% success rate (weight 1.67)
       for (let i = 0; i < 5; i++) {
         recordCorrectAnswer(medium.id);
         recordIncorrectAnswer(medium.id);
       }
-      
+
       // Sample many times
       const counts: Record<string, number> = { [newItem.id]: 0, [medium.id]: 0 };
       for (let i = 0; i < 1000; i++) {
         const card = getRandomTranslation();
         if (card) counts[card.id]++;
       }
-      
+
       // New item (weight 10.0) should appear more often than medium item (weight 1.67)
       expect(counts[newItem.id]).toBeGreaterThan(counts[medium.id]);
-      
+
       // New item should appear significantly more often (~6x more)
       expect(counts[newItem.id]).toBeGreaterThan(counts[medium.id] * 3);
     });

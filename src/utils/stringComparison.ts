@@ -34,6 +34,6 @@ export function validateTranslation(userInput: string, correctAnswer: string): b
   if (!userInput.trim()) {
     return false;
   }
-  
+
   return compareStrings(userInput, correctAnswer);
 }

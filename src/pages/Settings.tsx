@@ -35,11 +35,11 @@ function SettingsPage() {
       showToast('error', 'No translations to export');
       return;
     }
-    
+
     try {
       downloadTranslationsAsCSV();
       showToast('success', `Exported ${translations.length} translation(s) as CSV`);
-    } catch (error) {
+    } catch {
       showToast('error', 'Failed to export translations');
     }
   };
@@ -58,7 +58,7 @@ function SettingsPage() {
       resetAllTranslations();
       setShowResetConfirm(false);
       showToast('success', 'All translations have been reset');
-    } catch (error) {
+    } catch {
       showToast('error', 'Failed to reset translations');
     }
   };
@@ -74,11 +74,15 @@ function SettingsPage() {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              <label htmlFor="active-input" className="text-base font-medium text-neutral-800 cursor-pointer">
+              <label
+                htmlFor="active-input"
+                className="text-base font-medium text-neutral-800 cursor-pointer"
+              >
                 Active Input Mode
               </label>
               <p className="text-sm text-neutral-600 mt-1">
-                Enable text input for translations in flashcards. Your answers will be validated and shown as correct/incorrect.
+                Enable text input for translations in flashcards. Your answers will be validated and
+                shown as correct/incorrect.
               </p>
             </div>
             <div className="ml-4">
@@ -97,11 +101,15 @@ function SettingsPage() {
 
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              <label htmlFor="reverse-mode" className="text-base font-medium text-neutral-800 cursor-pointer">
+              <label
+                htmlFor="reverse-mode"
+                className="text-base font-medium text-neutral-800 cursor-pointer"
+              >
                 Reverse Mode
               </label>
               <p className="text-sm text-neutral-600 mt-1">
-                Show translations and expect Mandarin as input. Useful for practicing character recognition.
+                Show translations and expect Mandarin as input. Useful for practicing character
+                recognition.
               </p>
             </div>
             <div className="ml-4">
@@ -120,11 +128,15 @@ function SettingsPage() {
 
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              <label htmlFor="color-coded-cards" className="text-base font-medium text-neutral-800 cursor-pointer">
+              <label
+                htmlFor="color-coded-cards"
+                className="text-base font-medium text-neutral-800 cursor-pointer"
+              >
                 Color Coded Cards
               </label>
               <p className="text-sm text-neutral-600 mt-1">
-                Show green background for correct answers and red background for incorrect answers in active input mode.
+                Show green background for correct answers and red background for incorrect answers
+                in active input mode.
               </p>
             </div>
             <div className="ml-4">
@@ -150,11 +162,7 @@ function SettingsPage() {
                 </p>
               </div>
               <div className="ml-4">
-                <Button
-                  variant="primary"
-                  onClick={handleExport}
-                  className="px-5 py-2.5"
-                >
+                <Button variant="primary" onClick={handleExport} className="px-5 py-2.5">
                   Export CSV
                 </Button>
               </div>
@@ -166,15 +174,12 @@ function SettingsPage() {
               <div className="flex-1">
                 <h3 className="text-base font-medium text-error-700 mb-1">Danger Zone</h3>
                 <p className="text-sm text-error-600 mt-1">
-                  Permanently delete all translations. This action cannot be undone. Make sure to export your data first if you want to keep a backup.
+                  Permanently delete all translations. This action cannot be undone. Make sure to
+                  export your data first if you want to keep a backup.
                 </p>
               </div>
               <div className="ml-4">
-                <Button
-                  variant="danger"
-                  onClick={handleResetClick}
-                  className="px-5 py-2.5"
-                >
+                <Button variant="danger" onClick={handleResetClick} className="px-5 py-2.5">
                   Reset All Data
                 </Button>
               </div>

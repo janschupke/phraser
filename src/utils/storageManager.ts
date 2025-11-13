@@ -8,7 +8,7 @@ const STORAGE_KEYS = {
   SETTINGS: 'phraser-settings',
 } as const;
 
-type StorageKey = typeof STORAGE_KEYS[keyof typeof STORAGE_KEYS];
+type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];
 
 class StorageManager {
   /**

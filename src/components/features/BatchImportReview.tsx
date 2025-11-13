@@ -27,7 +27,7 @@ export function BatchImportReview({ entries, onSave, onCancel }: BatchImportRevi
 
   const handleSave = () => {
     const validEntries = editedEntries.filter(
-      (entry) => entry.mandarin.trim() && entry.translation.trim()
+      entry => entry.mandarin.trim() && entry.translation.trim()
     );
 
     if (validEntries.length === 0) {
@@ -63,7 +63,7 @@ export function BatchImportReview({ entries, onSave, onCancel }: BatchImportRevi
                   <span className="text-xs font-medium text-neutral-500 w-8">#{index + 1}</span>
                   <Input
                     value={entry.mandarin}
-                    onChange={(e) => handleEntryChange(index, 'mandarin', e.target.value)}
+                    onChange={e => handleEntryChange(index, 'mandarin', e.target.value)}
                     placeholder="Mandarin (中文)"
                     className="flex-1"
                   />
@@ -72,7 +72,7 @@ export function BatchImportReview({ entries, onSave, onCancel }: BatchImportRevi
                   <span className="text-xs font-medium text-neutral-500 w-8"></span>
                   <Input
                     value={entry.translation}
-                    onChange={(e) => handleEntryChange(index, 'translation', e.target.value)}
+                    onChange={e => handleEntryChange(index, 'translation', e.target.value)}
                     placeholder="Translation"
                     className="flex-1"
                   />
@@ -84,12 +84,7 @@ export function BatchImportReview({ entries, onSave, onCancel }: BatchImportRevi
                 className="text-error-600 hover:text-error-700 hover:bg-error-50"
                 type="button"
               >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"

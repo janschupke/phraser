@@ -77,25 +77,35 @@ export function Flashcard({
         ? validateTranslation(userInput, card.mandarin)
         : validateTranslation(userInput, card.translation);
       setIsCorrect(correct);
-      
+
       // Record score only once per reveal when active input is enabled
       if (correct) {
         recordCorrectAnswer(card.id);
       } else {
         recordIncorrectAnswer(card.id);
       }
-      
+
       // Notify parent component of score update
       if (onScoreUpdate) {
         onScoreUpdate(correct);
       }
-      
+
       setHasRecordedScore(true);
     } else if (!showAnswer) {
       setIsCorrect(null);
       setHasRecordedScore(false);
     }
-  }, [showAnswer, userInput, card.translation, card.mandarin, card.id, activeInput, reverseMode, hasRecordedScore, onScoreUpdate]);
+  }, [
+    showAnswer,
+    userInput,
+    card.translation,
+    card.mandarin,
+    card.id,
+    activeInput,
+    reverseMode,
+    hasRecordedScore,
+    onScoreUpdate,
+  ]);
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -111,12 +121,12 @@ export function Flashcard({
     setIsEditing(false);
   }, [mandarin, translationText, card.id, onEdit]);
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     setMandarin(card.mandarin);
     setTranslationText(card.translation);
     setIsEditing(false);
     setShowDeleteConfirm(false);
-  };
+  }, [card.mandarin, card.translation]);
 
   const handleDeleteClick = () => {
     setShowDeleteConfirm(true);
@@ -148,7 +158,7 @@ export function Flashcard({
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isEditing]);
+  }, [isEditing, handleCancel]);
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -168,7 +178,7 @@ export function Flashcard({
     if (activeInput && (e.target as HTMLElement).closest('input')) {
       return;
     }
-    
+
     if (!isEditing && !showAnswer) {
       onReveal();
     } else if (!isEditing && showAnswer && !activeInput) {
@@ -185,18 +195,11 @@ export function Flashcard({
 
   return (
     <>
-      <div
-        onClick={handleCardClick}
-        className={!isEditing ? 'cursor-pointer' : ''}
-      >
+      <div onClick={handleCardClick} className={!isEditing ? 'cursor-pointer' : ''}>
         <Card
           className={`p-8 sm:p-12 min-h-[400px] sm:min-h-[500px] flex flex-col items-center justify-center transform-gpu relative ${
             isTransitioning ? 'animate-flip-out' : 'animate-flip-in'
-          } ${
-            !isEditing
-              ? 'hover:shadow-lg transition-shadow duration-200'
-              : ''
-          } ${
+          } ${!isEditing ? 'hover:shadow-lg transition-shadow duration-200' : ''} ${
             showAnswer && activeInput && isCorrect !== null && colorCodedCards
               ? isCorrect
                 ? 'bg-success-200 border-success-400'
@@ -205,235 +208,249 @@ export function Flashcard({
           } transition-colors duration-300`}
           style={{ transformStyle: 'preserve-3d' }}
         >
-        {/* Configure Icon */}
-        {!isEditing && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleEditClick();
-            }}
-            className="absolute top-4 right-4 p-2 text-neutral-400 hover:text-primary-600 transition-colors duration-200 z-10"
-            aria-label="Edit flashcard"
-            title="Edit flashcard"
-          >
-            <HiOutlineCog className="w-6 h-6" />
-          </button>
-        )}
+          {/* Configure Icon */}
+          {!isEditing && (
+            <button
+              onClick={e => {
+                e.stopPropagation();
+                handleEditClick();
+              }}
+              className="absolute top-4 right-4 p-2 text-neutral-400 hover:text-primary-600 transition-colors duration-200 z-10"
+              aria-label="Edit flashcard"
+              title="Edit flashcard"
+            >
+              <HiOutlineCog className="w-6 h-6" />
+            </button>
+          )}
 
-        {isEditing ? (
-          <form onSubmit={handleFormSubmit} className="w-full space-y-6 animate-fade-in">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-neutral-800">Edit Translation</h3>
-              {onDelete && (
-                <button
+          {isEditing ? (
+            <form onSubmit={handleFormSubmit} className="w-full space-y-6 animate-fade-in">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-neutral-800">Edit Translation</h3>
+                {onDelete && (
+                  <button
+                    type="button"
+                    onClick={handleDeleteClick}
+                    className="p-2 text-error-600 hover:text-error-700 hover:bg-error-50 rounded-lg transition-colors duration-200"
+                    aria-label="Delete translation"
+                    title="Delete"
+                  >
+                    <HiOutlineTrash className="w-5 h-5" />
+                  </button>
+                )}
+              </div>
+
+              <Input
+                ref={mandarinInputRef}
+                id={`flashcard-mandarin-${card.id}`}
+                label="Mandarin (中文)"
+                value={mandarin}
+                onChange={e => setMandarin(e.target.value)}
+                className="text-base"
+              />
+              <Input
+                id={`flashcard-translation-${card.id}`}
+                label="Translation"
+                value={translationText}
+                onChange={e => setTranslationText(e.target.value)}
+                className="text-base"
+              />
+              <div className="flex gap-3">
+                <Button type="submit" variant="success" className="px-5 py-2.5">
+                  Save
+                </Button>
+                <Button
                   type="button"
-                  onClick={handleDeleteClick}
-                  className="p-2 text-error-600 hover:text-error-700 hover:bg-error-50 rounded-lg transition-colors duration-200"
-                  aria-label="Delete translation"
-                  title="Delete"
+                  variant="neutral"
+                  onClick={handleCancel}
+                  className="px-5 py-2.5"
                 >
-                  <HiOutlineTrash className="w-5 h-5" />
-                </button>
-              )}
-            </div>
-
-            <Input
-              ref={mandarinInputRef}
-              id={`flashcard-mandarin-${card.id}`}
-              label="Mandarin (中文)"
-              value={mandarin}
-              onChange={e => setMandarin(e.target.value)}
-              className="text-base"
-            />
-            <Input
-              id={`flashcard-translation-${card.id}`}
-              label="Translation"
-              value={translationText}
-              onChange={e => setTranslationText(e.target.value)}
-              className="text-base"
-            />
-            <div className="flex gap-3">
-              <Button type="submit" variant="success" className="px-5 py-2.5">
-                Save
-              </Button>
-              <Button type="button" variant="neutral" onClick={handleCancel} className="px-5 py-2.5">
-                Cancel
-              </Button>
-            </div>
-          </form>
-        ) : (
-          <>
-            <div className="text-center mb-8 w-full">
-              <div className="mb-6">
-                <div className="text-sm text-neutral-500 mb-3">
-                  {reverseMode ? 'Translation' : 'Mandarin'}
-                </div>
-                <div className="text-4xl sm:text-5xl font-bold text-neutral-800 break-words">
-                  {reverseMode ? card.translation : card.mandarin}
-                </div>
+                  Cancel
+                </Button>
               </div>
+            </form>
+          ) : (
+            <>
+              <div className="text-center mb-8 w-full">
+                <div className="mb-6">
+                  <div className="text-sm text-neutral-500 mb-3">
+                    {reverseMode ? 'Translation' : 'Mandarin'}
+                  </div>
+                  <div className="text-4xl sm:text-5xl font-bold text-neutral-800 break-words">
+                    {reverseMode ? card.translation : card.mandarin}
+                  </div>
+                </div>
 
-              {activeInput ? (
-                <>
-                  {!showAnswer ? (
-                    <div className="mt-8 pt-8 border-t border-neutral-200 w-full">
-                      <div className="mb-4">
-                        <label htmlFor={`translation-input-${card.id}`} className="block text-sm font-medium text-neutral-700 mb-2">
-                          {reverseMode ? 'Enter Mandarin' : 'Enter Translation'}
-                        </label>
-                        <Input
-                          ref={translationInputRef}
-                          id={`translation-input-${card.id}`}
-                          value={userInput}
-                          onChange={(e) => {
-                            e.stopPropagation();
-                            setUserInput(e.target.value);
-                          }}
-                          onKeyDown={handleInputKeyDown}
-                          placeholder={reverseMode ? "Type Mandarin here..." : "Type your translation here..."}
-                          className="text-lg"
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                        <p className="text-xs text-neutral-500 mt-2">
-                          Press Enter to check your answer
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="mt-8 pt-8 border-t border-neutral-200 w-full animate-fade-in">
-                      {reverseMode ? (
-                        <>
-                          {card.pinyin && (
-                            <div className="mb-4">
-                              <div className="text-sm text-neutral-500 mb-2">Pinyin</div>
-                              <div className="text-xl sm:text-2xl text-neutral-600 font-normal break-words">
-                                {card.pinyin}
-                              </div>
-                            </div>
-                          )}
-                          <div className="mb-4">
-                            <div className="text-sm text-neutral-500 mb-2">Correct Answer</div>
-                            <div className="text-2xl sm:text-3xl text-neutral-700 break-words">
-                              {card.mandarin}
-                            </div>
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          {card.pinyin && (
-                            <div className="mb-4">
-                              <div className="text-sm text-neutral-500 mb-2">Pinyin</div>
-                              <div className="text-xl sm:text-2xl text-neutral-600 font-normal break-words">
-                                {card.pinyin}
-                              </div>
-                            </div>
-                          )}
-                          <div className="mb-4">
-                            <div className="text-sm text-neutral-500 mb-2">Correct Answer</div>
-                            <div className="text-2xl sm:text-3xl text-neutral-700 break-words">
-                              {card.translation}
-                            </div>
-                          </div>
-                        </>
-                      )}
-                      {isCorrect !== null && (
-                        <div className="mt-4">
-                          <div className={`text-lg font-semibold ${
-                            isCorrect ? 'text-success-700' : 'text-error-700'
-                          }`}>
-                            {isCorrect ? '✓ Correct' : '✗ Incorrect'}
-                          </div>
-                          {!isCorrect && userInput.trim() && (
-                            <div className="text-sm text-error-600 mt-2">
-                              Your answer: "{userInput}"
-                            </div>
-                          )}
+                {activeInput ? (
+                  <>
+                    {!showAnswer ? (
+                      <div className="mt-8 pt-8 border-t border-neutral-200 w-full">
+                        <div className="mb-4">
+                          <label
+                            htmlFor={`translation-input-${card.id}`}
+                            className="block text-sm font-medium text-neutral-700 mb-2"
+                          >
+                            {reverseMode ? 'Enter Mandarin' : 'Enter Translation'}
+                          </label>
+                          <Input
+                            ref={translationInputRef}
+                            id={`translation-input-${card.id}`}
+                            value={userInput}
+                            onChange={e => {
+                              e.stopPropagation();
+                              setUserInput(e.target.value);
+                            }}
+                            onKeyDown={handleInputKeyDown}
+                            placeholder={
+                              reverseMode
+                                ? 'Type Mandarin here...'
+                                : 'Type your translation here...'
+                            }
+                            className="text-lg"
+                            onClick={e => e.stopPropagation()}
+                          />
+                          <p className="text-xs text-neutral-500 mt-2">
+                            Press Enter to check your answer
+                          </p>
                         </div>
-                      )}
-                    </div>
-                  )}
-                </>
-              ) : (
-                <>
-                  {showAnswer ? (
-                    <div className="mt-8 pt-8 border-t border-neutral-200 w-full animate-fade-in">
-                      {reverseMode ? (
-                        <>
-                          {card.pinyin && (
-                            <div className="mb-6">
-                              <div className="text-sm text-neutral-500 mb-2">Pinyin</div>
-                              <div className="text-xl sm:text-2xl text-neutral-600 font-normal break-words">
-                                {card.pinyin}
-                              </div>
-                            </div>
-                          )}
-                          <div>
-                            <div className="text-sm text-neutral-500 mb-2">Mandarin</div>
-                            <div className="text-2xl sm:text-3xl text-neutral-700 break-words">
-                              {card.mandarin}
-                            </div>
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          {card.pinyin && (
-                            <div className="mb-6">
-                              <div className="text-sm text-neutral-500 mb-2">Pinyin</div>
-                              <div className="text-xl sm:text-2xl text-neutral-600 font-normal break-words">
-                                {card.pinyin}
-                              </div>
-                            </div>
-                          )}
-                          <div>
-                            <div className="text-sm text-neutral-500 mb-2">Translation</div>
-                            <div className="text-2xl sm:text-3xl text-neutral-700 break-words">
-                              {card.translation}
-                            </div>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="mt-8 pt-8 border-t border-neutral-200">
-                      <div className="text-primary-600 font-medium text-base sm:text-lg transition-colors duration-200">
-                        Click anywhere to reveal answer (or press Enter)
                       </div>
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
+                    ) : (
+                      <div className="mt-8 pt-8 border-t border-neutral-200 w-full animate-fade-in">
+                        {reverseMode ? (
+                          <>
+                            {card.pinyin && (
+                              <div className="mb-4">
+                                <div className="text-sm text-neutral-500 mb-2">Pinyin</div>
+                                <div className="text-xl sm:text-2xl text-neutral-600 font-normal break-words">
+                                  {card.pinyin}
+                                </div>
+                              </div>
+                            )}
+                            <div className="mb-4">
+                              <div className="text-sm text-neutral-500 mb-2">Correct Answer</div>
+                              <div className="text-2xl sm:text-3xl text-neutral-700 break-words">
+                                {card.mandarin}
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            {card.pinyin && (
+                              <div className="mb-4">
+                                <div className="text-sm text-neutral-500 mb-2">Pinyin</div>
+                                <div className="text-xl sm:text-2xl text-neutral-600 font-normal break-words">
+                                  {card.pinyin}
+                                </div>
+                              </div>
+                            )}
+                            <div className="mb-4">
+                              <div className="text-sm text-neutral-500 mb-2">Correct Answer</div>
+                              <div className="text-2xl sm:text-3xl text-neutral-700 break-words">
+                                {card.translation}
+                              </div>
+                            </div>
+                          </>
+                        )}
+                        {isCorrect !== null && (
+                          <div className="mt-4">
+                            <div
+                              className={`text-lg font-semibold ${
+                                isCorrect ? 'text-success-700' : 'text-error-700'
+                              }`}
+                            >
+                              {isCorrect ? '✓ Correct' : '✗ Incorrect'}
+                            </div>
+                            {!isCorrect && userInput.trim() && (
+                              <div className="text-sm text-error-600 mt-2">
+                                Your answer: "{userInput}"
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {showAnswer ? (
+                      <div className="mt-8 pt-8 border-t border-neutral-200 w-full animate-fade-in">
+                        {reverseMode ? (
+                          <>
+                            {card.pinyin && (
+                              <div className="mb-6">
+                                <div className="text-sm text-neutral-500 mb-2">Pinyin</div>
+                                <div className="text-xl sm:text-2xl text-neutral-600 font-normal break-words">
+                                  {card.pinyin}
+                                </div>
+                              </div>
+                            )}
+                            <div>
+                              <div className="text-sm text-neutral-500 mb-2">Mandarin</div>
+                              <div className="text-2xl sm:text-3xl text-neutral-700 break-words">
+                                {card.mandarin}
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            {card.pinyin && (
+                              <div className="mb-6">
+                                <div className="text-sm text-neutral-500 mb-2">Pinyin</div>
+                                <div className="text-xl sm:text-2xl text-neutral-600 font-normal break-words">
+                                  {card.pinyin}
+                                </div>
+                              </div>
+                            )}
+                            <div>
+                              <div className="text-sm text-neutral-500 mb-2">Translation</div>
+                              <div className="text-2xl sm:text-3xl text-neutral-700 break-words">
+                                {card.translation}
+                              </div>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="mt-8 pt-8 border-t border-neutral-200">
+                        <div className="text-primary-600 font-medium text-base sm:text-lg transition-colors duration-200">
+                          Click anywhere to reveal answer (or press Enter)
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
 
-            {showAnswer && (
-              <div className="flex gap-4 mt-8 animate-fade-in">
-                <Button
-                  variant="primary"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onNext();
-                  }}
-                  className="px-8 py-3"
-                >
-                  Next Card (or press Enter)
-                </Button>
-              </div>
-            )}
-            {activeInput && !showAnswer && (
-              <div className="flex gap-4 mt-4">
-                <Button
-                  variant="primary"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onReveal();
-                  }}
-                  className="px-8 py-3"
-                >
-                  Check Answer (or press Enter)
-                </Button>
-              </div>
-            )}
-          </>
-        )}
+              {showAnswer && (
+                <div className="flex gap-4 mt-8 animate-fade-in">
+                  <Button
+                    variant="primary"
+                    onClick={e => {
+                      e.stopPropagation();
+                      onNext();
+                    }}
+                    className="px-8 py-3"
+                  >
+                    Next Card (or press Enter)
+                  </Button>
+                </div>
+              )}
+              {activeInput && !showAnswer && (
+                <div className="flex gap-4 mt-4">
+                  <Button
+                    variant="primary"
+                    onClick={e => {
+                      e.stopPropagation();
+                      onReveal();
+                    }}
+                    className="px-8 py-3"
+                  >
+                    Check Answer (or press Enter)
+                  </Button>
+                </div>
+              )}
+            </>
+          )}
         </Card>
       </div>
 

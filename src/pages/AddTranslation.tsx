@@ -11,7 +11,10 @@ type TabType = 'single' | 'batch';
 
 function AddTranslation() {
   const [activeTab, setActiveTab] = useState<TabType>('single');
-  const [reviewEntries, setReviewEntries] = useState<Array<{ mandarin: string; translation: string }> | null>(null);
+  const [reviewEntries, setReviewEntries] = useState<Array<{
+    mandarin: string;
+    translation: string;
+  }> | null>(null);
   const { showToast } = useToast();
 
   const handleSingleSubmit = (mandarin: string, translation: string) => {
@@ -28,7 +31,7 @@ function AddTranslation() {
       showToast('success', `Successfully imported ${saved.length} translation(s)!`);
       setReviewEntries(null);
       setActiveTab('single');
-    } catch (error) {
+    } catch {
       showToast('error', 'Failed to save translations');
     }
   };
@@ -40,7 +43,7 @@ function AddTranslation() {
   return (
     <div className="w-full max-w-4xl mx-auto page-transition-enter">
       <PageTitle>Add Translation</PageTitle>
-      
+
       {/* Tabs */}
       <div className="flex gap-2 mb-6 border-b border-neutral-300">
         <button

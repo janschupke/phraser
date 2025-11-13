@@ -32,7 +32,7 @@ export function TranslationCard({ translation, onEdit, onDelete }: TranslationCa
   };
 
   return (
-    <div 
+    <div
       className="flex justify-between items-start gap-4 cursor-pointer -m-6 sm:-m-8 p-6 sm:p-8"
       onClick={handleCardClick}
     >
@@ -58,9 +58,7 @@ export function TranslationCard({ translation, onEdit, onDelete }: TranslationCa
               </div>
             </div>
             {isExpanded && (
-              <div 
-                className="overflow-hidden animate-fade-in"
-              >
+              <div className="overflow-hidden animate-fade-in">
                 <div className="pt-0">
                   {translation.pinyin && (
                     <div className="mb-3 sm:mb-4">
@@ -89,11 +87,15 @@ export function TranslationCard({ translation, onEdit, onDelete }: TranslationCa
                             <span className="text-neutral-300">•</span>
                             <div className="flex items-center gap-1.5">
                               <span className="text-neutral-500">Success rate:</span>
-                              <span className={`font-medium ${
-                                successRate >= 80 ? 'text-success-600' :
-                                successRate >= 50 ? 'text-neutral-600' :
-                                'text-error-600'
-                              }`}>
+                              <span
+                                className={`font-medium ${
+                                  successRate >= 80
+                                    ? 'text-success-600'
+                                    : successRate >= 50
+                                      ? 'text-neutral-600'
+                                      : 'text-error-600'
+                                }`}
+                              >
                                 {successRate}%
                               </span>
                             </div>
@@ -111,7 +113,7 @@ export function TranslationCard({ translation, onEdit, onDelete }: TranslationCa
       <div className="flex gap-3 sm:gap-4 flex-shrink-0" onClick={handleActionClick}>
         <Button
           variant="icon"
-          onClick={(e) => {
+          onClick={e => {
             handleActionClick(e);
             onEdit(translation);
           }}
@@ -123,7 +125,7 @@ export function TranslationCard({ translation, onEdit, onDelete }: TranslationCa
         </Button>
         <Button
           variant="icon"
-          onClick={(e) => {
+          onClick={e => {
             handleActionClick(e);
             onDelete(translation);
           }}

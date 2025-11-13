@@ -21,7 +21,7 @@ const escapeCsvField = (field: string): string => {
 export const exportTranslationsToCSV = (translations: Translation[]): string => {
   // Header row
   const header = 'mandarin,translation,pinyin';
-  
+
   // Data rows
   const rows = translations.map(t => {
     const mandarin = escapeCsvField(t.mandarin);
@@ -29,7 +29,7 @@ export const exportTranslationsToCSV = (translations: Translation[]): string => 
     const pinyin = escapeCsvField(t.pinyin || '');
     return `${mandarin},${translation},${pinyin}`;
   });
-  
+
   return [header, ...rows].join('\n');
 };
 
@@ -41,9 +41,12 @@ export const downloadTranslationsAsCSV = (translations: Translation[]): void => 
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const link = document.createElement('a');
   const url = URL.createObjectURL(blob);
-  
+
   link.setAttribute('href', url);
-  link.setAttribute('download', `phraser-translations-${new Date().toISOString().split('T')[0]}.csv`);
+  link.setAttribute(
+    'download',
+    `phraser-translations-${new Date().toISOString().split('T')[0]}.csv`
+  );
   link.style.visibility = 'hidden';
   document.body.appendChild(link);
   link.click();

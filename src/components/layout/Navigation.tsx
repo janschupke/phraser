@@ -19,15 +19,15 @@ export function Navigation() {
     const updateCount = () => {
       setTranslationCount(getTranslations().length);
     };
-    
+
     updateCount();
-    
+
     // Listen for storage changes
     window.addEventListener('storage', updateCount);
-    
+
     // Also check periodically in case translations change in same window
     const interval = setInterval(updateCount, 500);
-    
+
     return () => {
       window.removeEventListener('storage', updateCount);
       clearInterval(interval);

@@ -89,7 +89,9 @@ export const deleteTranslation = (id: string): boolean => {
 /**
  * Adds multiple translations in batch
  */
-export const addBatchTranslations = (entries: Array<{ mandarin: string; translation: string }>): Translation[] => {
+export const addBatchTranslations = (
+  entries: Array<{ mandarin: string; translation: string }>
+): Translation[] => {
   const existingTranslations = getTranslations();
   const newTranslations: Translation[] = entries.map(({ mandarin, translation }) =>
     createTranslation(mandarin, translation)

@@ -1,5 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getRandomTranslation, getTranslations, updateTranslation, deleteTranslation } from '../utils/storage';
+import {
+  getRandomTranslation,
+  getTranslations,
+  updateTranslation,
+  deleteTranslation,
+} from '../utils/storage';
 import { getSettings } from '../utils/settings';
 import { PageTitle } from '../components/ui/PageTitle';
 import { Card } from '../components/ui/Card';
@@ -55,38 +60,44 @@ function Flashcards() {
     }
   }, []);
 
-  const handleEdit = useCallback((id: string, mandarin: string, translation: string) => {
-    if (!mandarin.trim() || !translation.trim()) {
-      showToast('error', 'Please fill in both fields');
-      return;
-    }
+  const handleEdit = useCallback(
+    (id: string, mandarin: string, translation: string) => {
+      if (!mandarin.trim() || !translation.trim()) {
+        showToast('error', 'Please fill in both fields');
+        return;
+      }
 
-    if (updateTranslation(id, mandarin.trim(), translation.trim())) {
-      showToast('success', 'Translation updated successfully!');
-      // Reload the current card if it's the one being edited
-      if (currentCard && currentCard.id === id) {
-        const translations = getTranslations();
-        const updatedCard = translations.find(t => t.id === id);
-        if (updatedCard) {
-          setCurrentCard(updatedCard);
+      if (updateTranslation(id, mandarin.trim(), translation.trim())) {
+        showToast('success', 'Translation updated successfully!');
+        // Reload the current card if it's the one being edited
+        if (currentCard && currentCard.id === id) {
+          const translations = getTranslations();
+          const updatedCard = translations.find(t => t.id === id);
+          if (updatedCard) {
+            setCurrentCard(updatedCard);
+          }
         }
+      } else {
+        showToast('error', 'Failed to update translation');
       }
-    } else {
-      showToast('error', 'Failed to update translation');
-    }
-  }, [currentCard, showToast]);
+    },
+    [currentCard, showToast]
+  );
 
-  const handleDelete = useCallback((id: string) => {
-    if (deleteTranslation(id)) {
-      showToast('success', 'Translation deleted successfully!');
-      // If the deleted card is the current card, load a new one
-      if (currentCard && currentCard.id === id) {
-        loadRandomCard();
+  const handleDelete = useCallback(
+    (id: string) => {
+      if (deleteTranslation(id)) {
+        showToast('success', 'Translation deleted successfully!');
+        // If the deleted card is the current card, load a new one
+        if (currentCard && currentCard.id === id) {
+          loadRandomCard();
+        }
+      } else {
+        showToast('error', 'Failed to delete translation');
       }
-    } else {
-      showToast('error', 'Failed to delete translation');
-    }
-  }, [currentCard, loadRandomCard, showToast]);
+    },
+    [currentCard, loadRandomCard, showToast]
+  );
 
   useEffect(() => {
     if (!currentCard) {
@@ -109,13 +120,10 @@ function Flashcards() {
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       // Don't handle Enter if user is typing in an input
-      if (
-        e.target instanceof HTMLInputElement ||
-        e.target instanceof HTMLTextAreaElement
-      ) {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
         return;
       }
-      
+
       if (e.key === 'Enter') {
         if (showAnswer) {
           handleNext();
@@ -132,6 +140,13 @@ function Flashcards() {
     };
   }, [showAnswer, handleNext, handleReveal, activeInput]);
 
+  const handleScoreUpdate = useCallback((correct: boolean) => {
+    setSessionScore(prev => ({
+      correct: prev.correct + (correct ? 1 : 0),
+      incorrect: prev.incorrect + (correct ? 0 : 1),
+    }));
+  }, []);
+
   const translations = getTranslations();
   const hasTranslations = translations.length > 0;
 
@@ -146,13 +161,6 @@ function Flashcards() {
       </div>
     );
   }
-
-  const handleScoreUpdate = useCallback((correct: boolean) => {
-    setSessionScore(prev => ({
-      correct: prev.correct + (correct ? 1 : 0),
-      incorrect: prev.incorrect + (correct ? 0 : 1),
-    }));
-  }, []);
 
   return (
     <div className="w-full max-w-2xl mx-auto page-transition-enter">

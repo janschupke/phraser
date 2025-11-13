@@ -1,7 +1,7 @@
 /**
  * Storage utilities - backward compatibility layer
  * Re-exports from refactored modules
- * 
+ *
  * @deprecated This file is maintained for backward compatibility.
  * New code should import directly from:
  * - translationService.ts for translation operations
@@ -20,7 +20,10 @@ import {
   resetAllTranslations,
 } from './translationService';
 import { selectRandomTranslation } from './probability';
-import { exportTranslationsToCSV as exportToCSV, downloadTranslationsAsCSV as downloadCSV } from './csvExport';
+import {
+  exportTranslationsToCSV as exportToCSV,
+  downloadTranslationsAsCSV as downloadCSV,
+} from './csvExport';
 import { storageManager } from './storageManager';
 
 // Re-export translation service functions

@@ -78,10 +78,10 @@ describe('stringComparison utilities', () => {
       expect(validateTranslation('hello-world', 'hello-world')).toBe(true);
       expect(validateTranslation('HELLO-WORLD', 'hello-world')).toBe(true);
       // Punctuation is ignored, so "don't" == "dont"
-      expect(validateTranslation("don't", "dont")).toBe(true);
+      expect(validateTranslation("don't", 'dont')).toBe(true);
       expect(validateTranslation("don't", "Don't")).toBe(true);
-      expect(validateTranslation("hello, world!", "hello world")).toBe(true);
-      expect(validateTranslation("Hello.", "hello")).toBe(true);
+      expect(validateTranslation('hello, world!', 'hello world')).toBe(true);
+      expect(validateTranslation('Hello.', 'hello')).toBe(true);
     });
   });
 });

@@ -13,20 +13,28 @@ export function BatchImportForm({ onImport }: BatchImportFormProps) {
   const { showToast } = useToast();
 
   const parseCSV = (text: string): Array<{ mandarin: string; translation: string }> => {
-    const lines = text.trim().split('\n').filter(line => line.trim());
+    const lines = text
+      .trim()
+      .split('\n')
+      .filter(line => line.trim());
     const entries: Array<{ mandarin: string; translation: string }> = [];
-    
+
     lines.forEach((line, index) => {
       // Skip header row if it looks like headers
-      if (index === 0 && (line.toLowerCase().includes('mandarin') || line.toLowerCase().includes('translation') || line.toLowerCase().includes('english'))) {
+      if (
+        index === 0 &&
+        (line.toLowerCase().includes('mandarin') ||
+          line.toLowerCase().includes('translation') ||
+          line.toLowerCase().includes('english'))
+      ) {
         return;
       }
-      
+
       // Handle CSV parsing - split by comma, but handle quoted values
       const parts: string[] = [];
       let current = '';
       let inQuotes = false;
-      
+
       for (let i = 0; i < line.length; i++) {
         const char = line[i];
         if (char === '"') {
@@ -39,7 +47,7 @@ export function BatchImportForm({ onImport }: BatchImportFormProps) {
         }
       }
       parts.push(current.trim());
-      
+
       if (parts.length >= 2) {
         const mandarin = parts[0].replace(/^"|"$/g, '');
         const translation = parts.slice(1).join(',').replace(/^"|"$/g, '');
@@ -48,25 +56,25 @@ export function BatchImportForm({ onImport }: BatchImportFormProps) {
         }
       }
     });
-    
+
     return entries;
   };
 
   const handleFileRead = (file: File) => {
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = e => {
       const text = e.target?.result as string;
       if (!text) {
         showToast('error', 'Failed to read file');
         return;
       }
-      
+
       const entries = parseCSV(text);
       if (entries.length === 0) {
         showToast('error', 'No valid entries found in CSV file');
         return;
       }
-      
+
       onImport(entries);
       setCsvText('');
     };
@@ -79,12 +87,12 @@ export function BatchImportForm({ onImport }: BatchImportFormProps) {
   const handleFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    
+
     if (!file.name.endsWith('.csv')) {
       showToast('error', 'Please select a CSV file');
       return;
     }
-    
+
     handleFileRead(file);
     // Reset input
     if (fileInputRef.current) {
@@ -108,15 +116,15 @@ export function BatchImportForm({ onImport }: BatchImportFormProps) {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
-    
+
     const file = e.dataTransfer.files?.[0];
     if (!file) return;
-    
+
     if (!file.name.endsWith('.csv')) {
       showToast('error', 'Please drop a CSV file');
       return;
     }
-    
+
     handleFileRead(file);
   };
 
@@ -125,13 +133,13 @@ export function BatchImportForm({ onImport }: BatchImportFormProps) {
       showToast('error', 'Please enter CSV data');
       return;
     }
-    
+
     const entries = parseCSV(csvText);
     if (entries.length === 0) {
       showToast('error', 'No valid entries found in CSV text');
       return;
     }
-    
+
     onImport(entries);
     setCsvText('');
   };
@@ -140,9 +148,7 @@ export function BatchImportForm({ onImport }: BatchImportFormProps) {
     <div className="space-y-6">
       {/* File Upload Section */}
       <div>
-        <label className="block text-sm font-medium text-neutral-700 mb-2">
-          Upload CSV File
-        </label>
+        <label className="block text-sm font-medium text-neutral-700 mb-2">Upload CSV File</label>
         <div
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
@@ -210,7 +216,7 @@ export function BatchImportForm({ onImport }: BatchImportFormProps) {
         <textarea
           id="csv-textarea"
           value={csvText}
-          onChange={(e) => setCsvText(e.target.value)}
+          onChange={e => setCsvText(e.target.value)}
           placeholder="mandarin,translation&#10;你好,Hello&#10;谢谢,Thank you"
           className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-colors duration-200 font-mono text-sm min-h-[120px]"
           rows={6}

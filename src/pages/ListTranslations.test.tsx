@@ -25,12 +25,25 @@ describe('ListTranslations', () => {
     vi.mocked(storage.deleteTranslation).mockReturnValue(true);
   });
 
-  it('renders all translations', () => {
+  it('renders all translations', async () => {
+    const user = userEvent.setup();
     renderWithToast(<ListTranslations />);
 
+    // Cards are collapsed by default, so only mandarin should be visible
     expect(screen.getByText('你好')).toBeInTheDocument();
-    expect(screen.getByText('Hello')).toBeInTheDocument();
+    expect(screen.queryByText('Hello')).not.toBeInTheDocument();
     expect(screen.getByText('谢谢')).toBeInTheDocument();
+    expect(screen.queryByText('Thank you')).not.toBeInTheDocument();
+
+    // Expand first card
+    const expandButtons = screen.getAllByLabelText(/expand/i);
+    await user.click(expandButtons[0]);
+
+    // Now translation should be visible
+    expect(screen.getByText('Hello')).toBeInTheDocument();
+
+    // Expand second card
+    await user.click(expandButtons[1]);
     expect(screen.getByText('Thank you')).toBeInTheDocument();
   });
 
