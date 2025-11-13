@@ -80,3 +80,53 @@ export const addBatchTranslations = (translations: Array<{ mandarin: string; tra
   saveTranslations(existingTranslations);
   return newTranslations;
 };
+
+/**
+ * Escapes a CSV field value, wrapping in quotes if necessary
+ */
+const escapeCsvField = (field: string): string => {
+  // If field contains comma, quote, or newline, wrap in quotes and escape quotes
+  if (field.includes(',') || field.includes('"') || field.includes('\n')) {
+    return `"${field.replace(/"/g, '""')}"`;
+  }
+  return field;
+};
+
+/**
+ * Exports translations to CSV format
+ * @returns CSV string with header row: mandarin,translation,pinyin
+ */
+export const exportTranslationsToCSV = (): string => {
+  const translations = getTranslations();
+  
+  // Header row
+  const header = 'mandarin,translation,pinyin';
+  
+  // Data rows
+  const rows = translations.map(t => {
+    const mandarin = escapeCsvField(t.mandarin);
+    const translation = escapeCsvField(t.translation);
+    const pinyin = escapeCsvField(t.pinyin || '');
+    return `${mandarin},${translation},${pinyin}`;
+  });
+  
+  return [header, ...rows].join('\n');
+};
+
+/**
+ * Downloads translations as a CSV file
+ */
+export const downloadTranslationsAsCSV = (): void => {
+  const csv = exportTranslationsToCSV();
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  
+  link.setAttribute('href', url);
+  link.setAttribute('download', `phraser-translations-${new Date().toISOString().split('T')[0]}.csv`);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+};
