@@ -3,11 +3,13 @@ import { storageManager } from './storageManager';
 export interface Settings {
   activeInput: boolean;
   reverseMode: boolean;
+  colorCodedCards: boolean;
 }
 
 const defaultSettings: Settings = {
   activeInput: false,
   reverseMode: false,
+  colorCodedCards: true,
 };
 
 export const getSettings = (): Settings => {

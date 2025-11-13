@@ -13,6 +13,7 @@ function Flashcards() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [activeInput, setActiveInput] = useState(getSettings().activeInput);
   const [reverseMode, setReverseMode] = useState(getSettings().reverseMode);
+  const [colorCodedCards, setColorCodedCards] = useState(getSettings().colorCodedCards);
   const [sessionScore, setSessionScore] = useState({ correct: 0, incorrect: 0 });
   const { showToast } = useToast();
 
@@ -29,6 +30,7 @@ function Flashcards() {
       const settings = getSettings();
       setActiveInput(settings.activeInput);
       setReverseMode(settings.reverseMode);
+      setColorCodedCards(settings.colorCodedCards);
     };
     window.addEventListener('storage', handleStorageChange);
     // Also check periodically in case settings change in same window
@@ -36,6 +38,7 @@ function Flashcards() {
       const settings = getSettings();
       setActiveInput(settings.activeInput);
       setReverseMode(settings.reverseMode);
+      setColorCodedCards(settings.colorCodedCards);
     }, 500);
     return () => {
       window.removeEventListener('storage', handleStorageChange);
@@ -180,6 +183,7 @@ function Flashcards() {
           onDelete={handleDelete}
           activeInput={activeInput}
           reverseMode={reverseMode}
+          colorCodedCards={colorCodedCards}
           onScoreUpdate={handleScoreUpdate}
         />
       ) : (

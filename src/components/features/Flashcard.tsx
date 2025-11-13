@@ -17,6 +17,7 @@ interface FlashcardProps {
   onDelete?: (id: string) => void;
   activeInput?: boolean;
   reverseMode?: boolean;
+  colorCodedCards?: boolean;
   onScoreUpdate?: (correct: boolean) => void;
 }
 
@@ -30,6 +31,7 @@ export function Flashcard({
   onDelete,
   activeInput = false,
   reverseMode = false,
+  colorCodedCards = true,
   onScoreUpdate,
 }: FlashcardProps) {
   const [isEditing, setIsEditing] = useState(false);
@@ -195,7 +197,7 @@ export function Flashcard({
               ? 'hover:shadow-lg transition-shadow duration-200'
               : ''
           } ${
-            showAnswer && activeInput && isCorrect !== null
+            showAnswer && activeInput && isCorrect !== null && colorCodedCards
               ? isCorrect
                 ? 'bg-success-200 border-success-400'
                 : 'bg-error-200 border-error-400'

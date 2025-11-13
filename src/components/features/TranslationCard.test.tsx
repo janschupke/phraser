@@ -15,11 +15,28 @@ describe('TranslationCard', () => {
   const mockOnEdit = vi.fn();
   const mockOnDelete = vi.fn();
 
-  it('renders translation data', () => {
+  it('renders mandarin in collapsed state', () => {
     render(
       <TranslationCard translation={mockTranslation} onEdit={mockOnEdit} onDelete={mockOnDelete} />
     );
 
+    expect(screen.getByText('你好')).toBeInTheDocument();
+    // Translation and pinyin should not be visible when collapsed
+    expect(screen.queryByText('Hello')).not.toBeInTheDocument();
+    expect(screen.queryByText('ní hǎo')).not.toBeInTheDocument();
+  });
+
+  it('shows full details when expanded', async () => {
+    const user = userEvent.setup();
+    render(
+      <TranslationCard translation={mockTranslation} onEdit={mockOnEdit} onDelete={mockOnDelete} />
+    );
+
+    // Expand the card
+    const expandButton = screen.getByLabelText(/expand/i);
+    await user.click(expandButton);
+
+    // Now all details should be visible
     expect(screen.getByText('你好')).toBeInTheDocument();
     expect(screen.getByText('Hello')).toBeInTheDocument();
     expect(screen.getByText('ní hǎo')).toBeInTheDocument();
@@ -49,7 +66,8 @@ describe('TranslationCard', () => {
     expect(mockOnDelete).toHaveBeenCalledWith(mockTranslation);
   });
 
-  it('does not render pinyin when not available', () => {
+  it('does not render pinyin when not available', async () => {
+    const user = userEvent.setup();
     const translationWithoutPinyin: Translation = {
       id: '2',
       mandarin: '谢谢',
@@ -65,7 +83,31 @@ describe('TranslationCard', () => {
     );
 
     expect(screen.getByText('谢谢')).toBeInTheDocument();
+    // Translation should not be visible when collapsed
+    expect(screen.queryByText('Thank you')).not.toBeInTheDocument();
+
+    // Expand to see translation
+    const expandButton = screen.getByLabelText(/expand/i);
+    await user.click(expandButton);
+
     expect(screen.getByText('Thank you')).toBeInTheDocument();
     expect(screen.queryByText(/pinyin/i)).not.toBeInTheDocument();
+  });
+
+  it('can collapse after expanding', async () => {
+    const user = userEvent.setup();
+    render(
+      <TranslationCard translation={mockTranslation} onEdit={mockOnEdit} onDelete={mockOnDelete} />
+    );
+
+    // Expand
+    const expandButton = screen.getByLabelText(/expand/i);
+    await user.click(expandButton);
+    expect(screen.getByText('Hello')).toBeInTheDocument();
+
+    // Collapse
+    const collapseButton = screen.getByLabelText(/collapse/i);
+    await user.click(collapseButton);
+    expect(screen.queryByText('Hello')).not.toBeInTheDocument();
   });
 });
