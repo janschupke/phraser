@@ -196,26 +196,31 @@ The system uses a weighted random selection algorithm where items with lower suc
 success_rate = correctCount / (correctCount + incorrectCount)
 ```
 
-**Special case**: Items with no attempts (both counts = 0) get a default success rate of **0.5 (50%)**.
+**Special case**: Items with no attempts (both counts = 0) get **maximum weight (10.0)** to ensure they appear frequently for initial practice.
 
 #### Weight Calculation
 
 ```
-weight = 1 / (success_rate + 0.1)
+if (total_attempts === 0):
+  weight = 10.0  // Maximum weight for new items
+else:
+  weight = 1 / (success_rate + 0.1)
 ```
 
-The constant **0.1** prevents division by zero and ensures even perfect items still have a chance to appear.
+**Special handling**: New items (no attempts) get **maximum weight (10.0)** directly, ensuring they appear most frequently.
+
+The constant **0.1** in the formula prevents division by zero and ensures even perfect items still have a chance to appear.
 
 #### Weight Examples
 
-| Success Rate  | Correct | Incorrect | Weight | Relative Frequency |
-| ------------- | ------- | --------- | ------ | ------------------ |
-| 0.0 (0%)      | 0       | 10        | 10.0   | Highest            |
-| 0.2 (20%)     | 2       | 8         | 3.33   | High               |
-| 0.5 (50%)     | 5       | 5         | 1.67   | Medium             |
-| 0.8 (80%)     | 8       | 2         | 1.11   | Low                |
-| 1.0 (100%)    | 10      | 0         | 0.91   | Lowest             |
-| 0.5 (default) | 0       | 0         | 1.67   | Medium (new items) |
+| Success Rate     | Correct | Incorrect | Weight | Relative Frequency |
+| ---------------- | ------- | --------- | ------ | ------------------ |
+| New (0 attempts) | 0       | 0         | 10.0   | Maximum (highest)  |
+| 0.0 (0%)         | 0       | 10        | 10.0   | Highest            |
+| 0.2 (20%)        | 2       | 8         | 3.33   | High               |
+| 0.5 (50%)        | 5       | 5         | 1.67   | Medium             |
+| 0.8 (80%)        | 8       | 2         | 1.11   | Low                |
+| 1.0 (100%)       | 10      | 0         | 0.91   | Lowest             |
 
 #### Selection Algorithm
 
@@ -228,26 +233,28 @@ The constant **0.1** prevents division by zero and ensures even perfect items st
 This ensures that:
 
 - Items with 0% success rate appear **~11x more often** than items with 100% success rate
-- New items (no attempts) appear at medium frequency
+- New items (no attempts) get **maximum weight** and appear most frequently, ensuring all new entries are practiced
 - The system automatically adapts as you improve
 
 ### Example Scenario
 
-If you have 3 translations:
+If you have 4 translations:
 
-- **Item A**: 0 correct, 5 incorrect → success_rate = 0.0 → weight = 10.0
-- **Item B**: 5 correct, 5 incorrect → success_rate = 0.5 → weight = 1.67
-- **Item C**: 10 correct, 0 incorrect → success_rate = 1.0 → weight = 0.91
+- **Item A (New)**: 0 correct, 0 incorrect → weight = 10.0 (maximum)
+- **Item B**: 0 correct, 5 incorrect → success_rate = 0.0 → weight = 10.0
+- **Item C**: 5 correct, 5 incorrect → success_rate = 0.5 → weight = 1.67
+- **Item D**: 10 correct, 0 incorrect → success_rate = 1.0 → weight = 0.91
 
-Total weight = 12.58
+Total weight = 22.58
 
 Selection probabilities:
 
-- **Item A**: 10.0 / 12.58 = **79.5%** chance
-- **Item B**: 1.67 / 12.58 = **13.3%** chance
-- **Item C**: 0.91 / 12.58 = **7.2%** chance
+- **Item A (New)**: 10.0 / 22.58 = **44.3%** chance
+- **Item B**: 10.0 / 22.58 = **44.3%** chance
+- **Item C**: 1.67 / 22.58 = **7.4%** chance
+- **Item D**: 0.91 / 22.58 = **4.0%** chance
 
-As you improve Item A, its weight decreases and it appears less frequently, naturally shifting focus to items that still need practice.
+New items and items with 0% success rate share the highest probability. As you practice and improve items, their weights decrease and they appear less frequently, naturally shifting focus to items that still need practice.
 
 ## Technologies
 

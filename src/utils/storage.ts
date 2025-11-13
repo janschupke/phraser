@@ -125,12 +125,24 @@ const calculateSuccessRate = (translation: Translation): number => {
  * Lower success rates get higher weights (shown more often)
  * Formula: weight = 1 / (success_rate + 0.1)
  * 
+ * New items (no attempts) get maximum weight (10.0) to ensure they appear frequently
+ * 
  * Examples:
+ * - New item (0 attempts) → weight = 10.0 (maximum)
  * - Success rate 0.0 (0%) → weight = 1 / (0.0 + 0.1) = 10.0
  * - Success rate 0.5 (50%) → weight = 1 / (0.5 + 0.1) = 1.67
  * - Success rate 1.0 (100%) → weight = 1 / (1.0 + 0.1) = 0.91
  */
 const calculateWeight = (translation: Translation): number => {
+  const correct = translation.correctCount ?? 0;
+  const incorrect = translation.incorrectCount ?? 0;
+  const total = correct + incorrect;
+  
+  // New items with no attempts get maximum weight
+  if (total === 0) {
+    return 10.0;
+  }
+  
   const successRate = calculateSuccessRate(translation);
   return 1 / (successRate + 0.1);
 };

@@ -352,5 +352,29 @@ describe('storage utilities', () => {
       expect(selections.has(newItem.id)).toBe(true);
       expect(selections.has(attempted.id)).toBe(true);
     });
+
+    it('should favor new items with maximum weight', () => {
+      const newItem = addTranslation('新', 'New');
+      const medium = addTranslation('中', 'Medium');
+      
+      // Set up medium item with 50% success rate (weight 1.67)
+      for (let i = 0; i < 5; i++) {
+        recordCorrectAnswer(medium.id);
+        recordIncorrectAnswer(medium.id);
+      }
+      
+      // Sample many times
+      const counts: Record<string, number> = { [newItem.id]: 0, [medium.id]: 0 };
+      for (let i = 0; i < 1000; i++) {
+        const card = getRandomTranslation();
+        if (card) counts[card.id]++;
+      }
+      
+      // New item (weight 10.0) should appear more often than medium item (weight 1.67)
+      expect(counts[newItem.id]).toBeGreaterThan(counts[medium.id]);
+      
+      // New item should appear significantly more often (~6x more)
+      expect(counts[newItem.id]).toBeGreaterThan(counts[medium.id] * 3);
+    });
   });
 });
