@@ -4,6 +4,7 @@ import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
 import { HiOutlineCog, HiOutlineTrash } from 'react-icons/hi';
+import { validateTranslation } from '../../utils/stringComparison';
 
 interface FlashcardProps {
   card: Translation;
@@ -13,6 +14,7 @@ interface FlashcardProps {
   isTransitioning?: boolean;
   onEdit?: (id: string, mandarin: string, translation: string) => void;
   onDelete?: (id: string) => void;
+  activeInput?: boolean;
 }
 
 export function Flashcard({
@@ -23,12 +25,16 @@ export function Flashcard({
   isTransitioning = false,
   onEdit,
   onDelete,
+  activeInput = false,
 }: FlashcardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [mandarin, setMandarin] = useState(card.mandarin);
   const [translationText, setTranslationText] = useState(card.translation);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [userInput, setUserInput] = useState('');
+  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const mandarinInputRef = useRef<HTMLInputElement>(null);
+  const translationInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isEditing && mandarinInputRef.current) {
@@ -41,7 +47,27 @@ export function Flashcard({
   useEffect(() => {
     setMandarin(card.mandarin);
     setTranslationText(card.translation);
+    setUserInput('');
+    setIsCorrect(null);
   }, [card]);
+
+  useEffect(() => {
+    if (activeInput && translationInputRef.current && !showAnswer) {
+      setTimeout(() => {
+        translationInputRef.current?.focus();
+      }, 100);
+    }
+  }, [activeInput, showAnswer, card]);
+
+  useEffect(() => {
+    if (showAnswer && activeInput) {
+      // Validate even if input is empty (empty is considered incorrect)
+      const correct = validateTranslation(userInput, card.translation);
+      setIsCorrect(correct);
+    } else if (!showAnswer) {
+      setIsCorrect(null);
+    }
+  }, [showAnswer, userInput, card.translation, activeInput]);
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -110,11 +136,22 @@ export function Flashcard({
     if ((e.target as HTMLElement).closest('button[class*="px-8"]')) {
       return;
     }
+    // Don't trigger if clicking on input fields when active input is enabled
+    if (activeInput && (e.target as HTMLElement).closest('input')) {
+      return;
+    }
     
     if (!isEditing && !showAnswer) {
       onReveal();
-    } else if (!isEditing && showAnswer) {
+    } else if (!isEditing && showAnswer && !activeInput) {
       onNext();
+    }
+  };
+
+  const handleInputKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !showAnswer) {
+      e.preventDefault();
+      onReveal();
     }
   };
 
@@ -200,29 +237,96 @@ export function Flashcard({
                 </div>
               </div>
 
-              {showAnswer ? (
-                <div className="mt-8 pt-8 border-t border-neutral-200 w-full animate-fade-in">
-                  {card.pinyin && (
-                    <div className="mb-6">
-                      <div className="text-sm text-neutral-500 mb-2">Pinyin</div>
-                      <div className="text-xl sm:text-2xl text-neutral-600 font-normal break-words">
-                        {card.pinyin}
+              {activeInput ? (
+                <>
+                  {!showAnswer ? (
+                    <div className="mt-8 pt-8 border-t border-neutral-200 w-full">
+                      <div className="mb-4">
+                        <label htmlFor={`translation-input-${card.id}`} className="block text-sm font-medium text-neutral-700 mb-2">
+                          Enter Translation
+                        </label>
+                        <Input
+                          ref={translationInputRef}
+                          id={`translation-input-${card.id}`}
+                          value={userInput}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            setUserInput(e.target.value);
+                          }}
+                          onKeyDown={handleInputKeyDown}
+                          placeholder="Type your translation here..."
+                          className="text-lg"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                        <p className="text-xs text-neutral-500 mt-2">
+                          Press Enter to check your answer
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="mt-8 pt-8 border-t border-neutral-200 w-full animate-fade-in">
+                      {card.pinyin && (
+                        <div className="mb-4">
+                          <div className="text-sm text-neutral-500 mb-2">Pinyin</div>
+                          <div className="text-xl sm:text-2xl text-neutral-600 font-normal break-words">
+                            {card.pinyin}
+                          </div>
+                        </div>
+                      )}
+                      <div className="mb-4">
+                        <div className="text-sm text-neutral-500 mb-2">Correct Answer</div>
+                        <div className="text-2xl sm:text-3xl text-neutral-700 break-words">
+                          {card.translation}
+                        </div>
+                      </div>
+                      {isCorrect !== null && (
+                        <div className={`mt-4 p-4 rounded-lg ${
+                          isCorrect 
+                            ? 'bg-success-50 border-2 border-success-500' 
+                            : 'bg-error-50 border-2 border-error-500'
+                        }`}>
+                          <div className={`text-lg font-semibold ${
+                            isCorrect ? 'text-success-700' : 'text-error-700'
+                          }`}>
+                            {isCorrect ? '✓ Correct' : '✗ Incorrect'}
+                          </div>
+                          {!isCorrect && userInput.trim() && (
+                            <div className="text-sm text-error-600 mt-2">
+                              Your answer: "{userInput}"
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  {showAnswer ? (
+                    <div className="mt-8 pt-8 border-t border-neutral-200 w-full animate-fade-in">
+                      {card.pinyin && (
+                        <div className="mb-6">
+                          <div className="text-sm text-neutral-500 mb-2">Pinyin</div>
+                          <div className="text-xl sm:text-2xl text-neutral-600 font-normal break-words">
+                            {card.pinyin}
+                          </div>
+                        </div>
+                      )}
+                      <div>
+                        <div className="text-sm text-neutral-500 mb-2">Translation</div>
+                        <div className="text-2xl sm:text-3xl text-neutral-700 break-words">
+                          {card.translation}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="mt-8 pt-8 border-t border-neutral-200">
+                      <div className="text-primary-600 font-medium text-base sm:text-lg transition-colors duration-200">
+                        Click anywhere to reveal answer (or press Enter)
                       </div>
                     </div>
                   )}
-                  <div>
-                    <div className="text-sm text-neutral-500 mb-2">Translation</div>
-                    <div className="text-2xl sm:text-3xl text-neutral-700 break-words">
-                      {card.translation}
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="mt-8 pt-8 border-t border-neutral-200">
-                  <div className="text-primary-600 font-medium text-base sm:text-lg transition-colors duration-200">
-                    Click anywhere to reveal answer (or press Enter)
-                  </div>
-                </div>
+                </>
               )}
             </div>
 
@@ -237,6 +341,20 @@ export function Flashcard({
                   className="px-8 py-3"
                 >
                   Next Card (or press Enter)
+                </Button>
+              </div>
+            )}
+            {activeInput && !showAnswer && (
+              <div className="flex gap-4 mt-4">
+                <Button
+                  variant="primary"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onReveal();
+                  }}
+                  className="px-8 py-3"
+                >
+                  Check Answer (or press Enter)
                 </Button>
               </div>
             )}

@@ -5,6 +5,7 @@ const navLinks = [
   { path: '/', label: 'Add Translation' },
   { path: '/flashcards', label: 'Flashcards' },
   { path: '/list', label: 'All Translations' },
+  { path: '/settings', label: 'Settings' },
 ];
 
 export function Navigation() {

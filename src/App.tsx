@@ -5,6 +5,7 @@ import { Footer } from './components/layout/Footer';
 import AddTranslation from './pages/AddTranslation';
 import Flashcards from './pages/Flashcards';
 import ListTranslations from './pages/ListTranslations';
+import Settings from './pages/Settings';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
                 <Route path="/" element={<AddTranslation />} />
                 <Route path="/flashcards" element={<Flashcards />} />
                 <Route path="/list" element={<ListTranslations />} />
+                <Route path="/settings" element={<Settings />} />
               </Routes>
             </div>
           </main>

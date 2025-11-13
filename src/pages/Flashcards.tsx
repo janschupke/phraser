@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getRandomTranslation, getTranslations, updateTranslation, deleteTranslation } from '../utils/storage';
+import { getSettings } from '../utils/settings';
 import { PageTitle } from '../components/ui/PageTitle';
 import { Card } from '../components/ui/Card';
 import { Flashcard } from '../components/features/Flashcard';
@@ -10,7 +11,24 @@ function Flashcards() {
   const [showAnswer, setShowAnswer] = useState(false);
   const [cardCount, setCardCount] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [activeInput, setActiveInput] = useState(getSettings().activeInput);
   const { showToast } = useToast();
+
+  useEffect(() => {
+    // Listen for settings changes
+    const handleStorageChange = () => {
+      setActiveInput(getSettings().activeInput);
+    };
+    window.addEventListener('storage', handleStorageChange);
+    // Also check periodically in case settings change in same window
+    const interval = setInterval(() => {
+      setActiveInput(getSettings().activeInput);
+    }, 500);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, []);
 
   const loadRandomCard = useCallback(() => {
     const card = getRandomTranslation();
@@ -74,10 +92,19 @@ function Flashcards() {
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
+      // Don't handle Enter if user is typing in an input
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement
+      ) {
+        return;
+      }
+      
       if (e.key === 'Enter') {
         if (showAnswer) {
           handleNext();
-        } else {
+        } else if (!activeInput) {
+          // Only auto-reveal if active input is disabled
           handleReveal();
         }
       }
@@ -87,7 +114,7 @@ function Flashcards() {
     return () => {
       window.removeEventListener('keydown', handleKeyPress);
     };
-  }, [showAnswer, handleNext, handleReveal]);
+  }, [showAnswer, handleNext, handleReveal, activeInput]);
 
   const translations = getTranslations();
   const hasTranslations = translations.length > 0;
@@ -122,6 +149,7 @@ function Flashcards() {
           isTransitioning={isTransitioning}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          activeInput={activeInput}
         />
       ) : (
         <Card className="p-8 sm:p-12 animate-fade-in">
