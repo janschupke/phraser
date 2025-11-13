@@ -22,7 +22,7 @@ describe('AddTranslation', () => {
 
     expect(screen.getByRole('heading', { name: /add translation/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/mandarin/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/english translation/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/translation/i)).toBeInTheDocument();
   });
 
   it('adds translation when form is submitted', async () => {
@@ -30,7 +30,7 @@ describe('AddTranslation', () => {
     renderWithToast(<AddTranslation />);
 
     await user.type(screen.getByLabelText(/mandarin/i), '你好');
-    await user.type(screen.getByLabelText(/english translation/i), 'Hello');
+    await user.type(screen.getByLabelText(/translation/i), 'Hello');
     await user.click(screen.getByRole('button', { name: /add translation/i }));
 
     await waitFor(() => {

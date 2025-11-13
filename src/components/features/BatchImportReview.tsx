@@ -5,8 +5,8 @@ import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
 
 interface BatchImportReviewProps {
-  entries: Array<{ mandarin: string; english: string }>;
-  onSave: (entries: Array<{ mandarin: string; english: string }>) => void;
+  entries: Array<{ mandarin: string; translation: string }>;
+  onSave: (entries: Array<{ mandarin: string; translation: string }>) => void;
   onCancel: () => void;
 }
 
@@ -14,7 +14,7 @@ export function BatchImportReview({ entries, onSave, onCancel }: BatchImportRevi
   const [editedEntries, setEditedEntries] = useState(entries);
   const { showToast } = useToast();
 
-  const handleEntryChange = (index: number, field: 'mandarin' | 'english', value: string) => {
+  const handleEntryChange = (index: number, field: 'mandarin' | 'translation', value: string) => {
     const updated = [...editedEntries];
     updated[index] = { ...updated[index], [field]: value };
     setEditedEntries(updated);
@@ -27,7 +27,7 @@ export function BatchImportReview({ entries, onSave, onCancel }: BatchImportRevi
 
   const handleSave = () => {
     const validEntries = editedEntries.filter(
-      (entry) => entry.mandarin.trim() && entry.english.trim()
+      (entry) => entry.mandarin.trim() && entry.translation.trim()
     );
 
     if (validEntries.length === 0) {
@@ -49,7 +49,7 @@ export function BatchImportReview({ entries, onSave, onCancel }: BatchImportRevi
             Cancel
           </Button>
           <Button variant="success" onClick={handleSave}>
-            Save All ({editedEntries.filter(e => e.mandarin.trim() && e.english.trim()).length})
+            Save All ({editedEntries.filter(e => e.mandarin.trim() && e.translation.trim()).length})
           </Button>
         </div>
       </div>
@@ -71,9 +71,9 @@ export function BatchImportReview({ entries, onSave, onCancel }: BatchImportRevi
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-medium text-neutral-500 w-8"></span>
                   <Input
-                    value={entry.english}
-                    onChange={(e) => handleEntryChange(index, 'english', e.target.value)}
-                    placeholder="English Translation"
+                    value={entry.translation}
+                    onChange={(e) => handleEntryChange(index, 'translation', e.target.value)}
+                    placeholder="Translation"
                     className="flex-1"
                   />
                 </div>

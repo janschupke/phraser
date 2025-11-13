@@ -43,9 +43,9 @@ export function Flashcard({
               </div>
             )}
             <div>
-              <div className="text-sm text-neutral-500 mb-2">English</div>
+              <div className="text-sm text-neutral-500 mb-2">Translation</div>
               <div className="text-2xl sm:text-3xl text-neutral-700 break-words">
-                {card.english}
+                {card.translation}
               </div>
             </div>
           </div>

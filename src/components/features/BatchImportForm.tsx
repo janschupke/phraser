@@ -3,7 +3,7 @@ import { useToast } from '../../contexts/ToastContext';
 import { Button } from '../ui/Button';
 
 interface BatchImportFormProps {
-  onImport: (entries: Array<{ mandarin: string; english: string }>) => void;
+  onImport: (entries: Array<{ mandarin: string; translation: string }>) => void;
 }
 
 export function BatchImportForm({ onImport }: BatchImportFormProps) {
@@ -12,13 +12,13 @@ export function BatchImportForm({ onImport }: BatchImportFormProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { showToast } = useToast();
 
-  const parseCSV = (text: string): Array<{ mandarin: string; english: string }> => {
+  const parseCSV = (text: string): Array<{ mandarin: string; translation: string }> => {
     const lines = text.trim().split('\n').filter(line => line.trim());
-    const entries: Array<{ mandarin: string; english: string }> = [];
+    const entries: Array<{ mandarin: string; translation: string }> = [];
     
     lines.forEach((line, index) => {
       // Skip header row if it looks like headers
-      if (index === 0 && (line.toLowerCase().includes('mandarin') || line.toLowerCase().includes('english'))) {
+      if (index === 0 && (line.toLowerCase().includes('mandarin') || line.toLowerCase().includes('translation') || line.toLowerCase().includes('english'))) {
         return;
       }
       
@@ -42,9 +42,9 @@ export function BatchImportForm({ onImport }: BatchImportFormProps) {
       
       if (parts.length >= 2) {
         const mandarin = parts[0].replace(/^"|"$/g, '');
-        const english = parts.slice(1).join(',').replace(/^"|"$/g, '');
-        if (mandarin && english) {
-          entries.push({ mandarin, english });
+        const translation = parts.slice(1).join(',').replace(/^"|"$/g, '');
+        if (mandarin && translation) {
+          entries.push({ mandarin, translation });
         }
       }
     });
@@ -186,7 +186,7 @@ export function BatchImportForm({ onImport }: BatchImportFormProps) {
               </button>
             </p>
             <p className="text-xs text-neutral-500">
-              CSV format: mandarin,english (one entry per line)
+              CSV format: mandarin,translation (one entry per line)
             </p>
           </div>
         </div>
@@ -211,12 +211,12 @@ export function BatchImportForm({ onImport }: BatchImportFormProps) {
           id="csv-textarea"
           value={csvText}
           onChange={(e) => setCsvText(e.target.value)}
-          placeholder="mandarin,english&#10;你好,Hello&#10;谢谢,Thank you"
+          placeholder="mandarin,translation&#10;你好,Hello&#10;谢谢,Thank you"
           className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-colors duration-200 font-mono text-sm min-h-[120px]"
           rows={6}
         />
         <p className="mt-1 text-xs text-neutral-500">
-          Format: mandarin,english (one entry per line)
+          Format: mandarin,translation (one entry per line)
         </p>
         <Button
           type="button"

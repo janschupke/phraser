@@ -14,8 +14,8 @@ const renderWithToast = (component: React.ReactElement) => {
 
 describe('ListTranslations', () => {
   const mockTranslations: Translation[] = [
-    { id: '1', mandarin: '你好', english: 'Hello', pinyin: 'ní hǎo' },
-    { id: '2', mandarin: '谢谢', english: 'Thank you', pinyin: 'xiè xie' },
+    { id: '1', mandarin: '你好', translation: 'Hello', pinyin: 'ní hǎo' },
+    { id: '2', mandarin: '谢谢', translation: 'Thank you', pinyin: 'xiè xie' },
   ];
 
   beforeEach(() => {

@@ -19,7 +19,7 @@ describe('TranslationForm', () => {
     renderWithToast(<TranslationForm onSubmit={mockOnSubmit} />);
 
     expect(screen.getByLabelText(/mandarin/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/english translation/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/translation/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /add translation/i })).toBeInTheDocument();
   });
 
@@ -28,7 +28,7 @@ describe('TranslationForm', () => {
     renderWithToast(<TranslationForm onSubmit={mockOnSubmit} />);
 
     await user.type(screen.getByLabelText(/mandarin/i), '  你好  ');
-    await user.type(screen.getByLabelText(/english translation/i), '  Hello  ');
+    await user.type(screen.getByLabelText(/translation/i), '  Hello  ');
     await user.click(screen.getByRole('button', { name: /add translation/i }));
 
     await waitFor(() => {
@@ -51,7 +51,7 @@ describe('TranslationForm', () => {
     renderWithToast(<TranslationForm onSubmit={mockOnSubmit} />);
 
     await user.type(screen.getByLabelText(/mandarin/i), '你好');
-    await user.type(screen.getByLabelText(/english translation/i), 'Hello');
+    await user.type(screen.getByLabelText(/translation/i), 'Hello');
     await user.click(screen.getByRole('button', { name: /add translation/i }));
 
     expect(await screen.findByText(/translation saved successfully/i)).toBeInTheDocument();
@@ -62,29 +62,29 @@ describe('TranslationForm', () => {
     renderWithToast(<TranslationForm onSubmit={mockOnSubmit} />);
 
     const mandarinInput = screen.getByLabelText(/mandarin/i);
-    const englishInput = screen.getByLabelText(/english translation/i);
+    const translationInput = screen.getByLabelText(/translation/i);
 
     await user.type(mandarinInput, '你好');
-    await user.type(englishInput, 'Hello');
+    await user.type(translationInput, 'Hello');
     await user.click(screen.getByRole('button', { name: /add translation/i }));
 
     await waitFor(() => {
       expect(mandarinInput).toHaveValue('');
-      expect(englishInput).toHaveValue('');
+      expect(translationInput).toHaveValue('');
     });
   });
 
   it('does not clear form when initial values are provided', async () => {
     const user = userEvent.setup();
     renderWithToast(
-      <TranslationForm onSubmit={mockOnSubmit} initialMandarin="你好" initialEnglish="Hello" />
+      <TranslationForm onSubmit={mockOnSubmit} initialMandarin="你好" initialTranslation="Hello" />
     );
 
     await user.click(screen.getByRole('button', { name: /add translation/i }));
 
     await waitFor(() => {
       expect(screen.getByLabelText(/mandarin/i)).toHaveValue('你好');
-      expect(screen.getByLabelText(/english translation/i)).toHaveValue('Hello');
+      expect(screen.getByLabelText(/translation/i)).toHaveValue('Hello');
     });
   });
 });

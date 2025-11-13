@@ -29,12 +29,12 @@ export const saveTranslations = (translations: Translation[]): void => {
   }
 };
 
-export const addTranslation = (mandarin: string, english: string): Translation => {
+export const addTranslation = (mandarin: string, translation: string): Translation => {
   const translations = getTranslations();
   const newTranslation: Translation = {
     id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
     mandarin,
-    english,
+    translation,
     pinyin: generatePinyin(mandarin),
   };
   translations.push(newTranslation);
@@ -42,12 +42,12 @@ export const addTranslation = (mandarin: string, english: string): Translation =
   return newTranslation;
 };
 
-export const updateTranslation = (id: string, mandarin: string, english: string): boolean => {
+export const updateTranslation = (id: string, mandarin: string, translation: string): boolean => {
   const translations = getTranslations();
   const index = translations.findIndex(t => t.id === id);
   if (index === -1) return false;
 
-  translations[index] = { id, mandarin, english, pinyin: generatePinyin(mandarin) };
+  translations[index] = { id, mandarin, translation, pinyin: generatePinyin(mandarin) };
   saveTranslations(translations);
   return true;
 };
@@ -67,12 +67,12 @@ export const getRandomTranslation = (): Translation | null => {
   return translations[Math.floor(Math.random() * translations.length)];
 };
 
-export const addBatchTranslations = (translations: Array<{ mandarin: string; english: string }>): Translation[] => {
+export const addBatchTranslations = (translations: Array<{ mandarin: string; translation: string }>): Translation[] => {
   const existingTranslations = getTranslations();
-  const newTranslations: Translation[] = translations.map(({ mandarin, english }) => ({
+  const newTranslations: Translation[] = translations.map(({ mandarin, translation }) => ({
     id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
     mandarin: mandarin.trim(),
-    english: english.trim(),
+    translation: translation.trim(),
     pinyin: generatePinyin(mandarin.trim()),
   }));
   

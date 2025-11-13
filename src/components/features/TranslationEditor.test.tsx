@@ -8,7 +8,7 @@ describe('TranslationEditor', () => {
   const mockTranslation: Translation = {
     id: '1',
     mandarin: '你好',
-    english: 'Hello',
+    translation: 'Hello',
     pinyin: 'ní hǎo',
   };
 
@@ -25,7 +25,7 @@ describe('TranslationEditor', () => {
     );
 
     expect(screen.getByLabelText(/mandarin/i)).toHaveValue('你好');
-    expect(screen.getByLabelText(/english translation/i)).toHaveValue('Hello');
+    expect(screen.getByLabelText(/translation/i)).toHaveValue('Hello');
   });
 
   it('calls onSave with updated values when save is clicked', async () => {
@@ -39,12 +39,12 @@ describe('TranslationEditor', () => {
     );
 
     const mandarinInput = screen.getByLabelText(/mandarin/i);
-    const englishInput = screen.getByLabelText(/english translation/i);
+    const translationInput = screen.getByLabelText(/translation/i);
 
     await user.clear(mandarinInput);
     await user.type(mandarinInput, '你好吗');
-    await user.clear(englishInput);
-    await user.type(englishInput, 'How are you');
+    await user.clear(translationInput);
+    await user.type(translationInput, 'How are you');
     await user.click(screen.getByRole('button', { name: /save/i }));
 
     await waitFor(() => {
@@ -79,7 +79,7 @@ describe('TranslationEditor', () => {
     const newTranslation: Translation = {
       id: '2',
       mandarin: '谢谢',
-      english: 'Thank you',
+      translation: 'Thank you',
     };
 
     rerender(
@@ -87,6 +87,6 @@ describe('TranslationEditor', () => {
     );
 
     expect(screen.getByLabelText(/mandarin/i)).toHaveValue('谢谢');
-    expect(screen.getByLabelText(/english translation/i)).toHaveValue('Thank you');
+    expect(screen.getByLabelText(/translation/i)).toHaveValue('Thank you');
   });
 });

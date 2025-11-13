@@ -1,6 +1,6 @@
 export interface Translation {
   id: string;
   mandarin: string;
-  english: string;
+  translation: string;
   pinyin?: string;
 }

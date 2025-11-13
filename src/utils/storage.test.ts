@@ -21,8 +21,8 @@ describe('storage utilities', () => {
 
     it('should return translations from localStorage', () => {
       const translations: Translation[] = [
-        { id: '1', mandarin: '你好', english: 'Hello' },
-        { id: '2', mandarin: '谢谢', english: 'Thank you' },
+        { id: '1', mandarin: '你好', translation: 'Hello' },
+        { id: '2', mandarin: '谢谢', translation: 'Thank you' },
       ];
       localStorage.setItem('phraser', JSON.stringify(translations));
       expect(getTranslations()).toEqual(translations);
@@ -36,7 +36,7 @@ describe('storage utilities', () => {
 
   describe('saveTranslations', () => {
     it('should save translations to localStorage', () => {
-      const translations: Translation[] = [{ id: '1', mandarin: '你好', english: 'Hello' }];
+      const translations: Translation[] = [{ id: '1', mandarin: '你好', translation: 'Hello' }];
       saveTranslations(translations);
       const stored = localStorage.getItem('phraser');
       expect(stored).toBe(JSON.stringify(translations));
@@ -47,7 +47,7 @@ describe('storage utilities', () => {
     it('should add a new translation with pinyin', () => {
       const translation = addTranslation('你好', 'Hello');
       expect(translation.mandarin).toBe('你好');
-      expect(translation.english).toBe('Hello');
+      expect(translation.translation).toBe('Hello');
       expect(translation.id).toBeDefined();
       expect(translation.pinyin).toBeDefined();
       expect(translation.pinyin).toBeTruthy();
@@ -73,7 +73,7 @@ describe('storage utilities', () => {
 
       const translations = getTranslations();
       expect(translations[0].mandarin).toBe('你好吗');
-      expect(translations[0].english).toBe('How are you');
+      expect(translations[0].translation).toBe('How are you');
       expect(translations[0].pinyin).toBeDefined();
       expect(translations[0].pinyin).toBeTruthy();
     });
@@ -113,7 +113,7 @@ describe('storage utilities', () => {
       const random = getRandomTranslation();
       expect(random).not.toBeNull();
       expect(random?.mandarin).toBe('你好');
-      expect(random?.english).toBe('Hello');
+      expect(random?.translation).toBe('Hello');
     });
 
     it('should return one of the existing translations', () => {

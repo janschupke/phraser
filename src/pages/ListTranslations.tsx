@@ -26,13 +26,13 @@ function ListTranslations() {
     setEditingId(translation.id);
   };
 
-  const handleSave = (id: string, mandarin: string, english: string) => {
-    if (!mandarin.trim() || !english.trim()) {
+  const handleSave = (id: string, mandarin: string, translation: string) => {
+    if (!mandarin.trim() || !translation.trim()) {
       showToast('error', 'Please fill in both fields');
       return;
     }
 
-    if (updateTranslation(id, mandarin.trim(), english.trim())) {
+    if (updateTranslation(id, mandarin.trim(), translation.trim())) {
       setEditingId(null);
       loadTranslations();
       showToast('success', 'Translation updated successfully!');

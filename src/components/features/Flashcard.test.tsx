@@ -8,7 +8,7 @@ describe('Flashcard', () => {
   const mockCard: Translation = {
     id: '1',
     mandarin: '你好',
-    english: 'Hello',
+    translation: 'Hello',
     pinyin: 'ní hǎo',
   };
 
@@ -69,7 +69,7 @@ describe('Flashcard', () => {
     const cardWithoutPinyin: Translation = {
       id: '2',
       mandarin: '谢谢',
-      english: 'Thank you',
+      translation: 'Thank you',
     };
 
     render(

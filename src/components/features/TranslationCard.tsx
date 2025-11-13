@@ -24,9 +24,9 @@ export function TranslationCard({ translation, onEdit, onDelete }: TranslationCa
           )}
         </div>
         <div>
-          <span className="text-sm text-neutral-500">English:</span>
+          <span className="text-sm text-neutral-500">Translation:</span>
           <div className="text-lg sm:text-xl text-neutral-700 mt-1 break-words">
-            {translation.english}
+            {translation.translation}
           </div>
         </div>
       </div>

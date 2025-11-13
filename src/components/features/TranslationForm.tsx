@@ -4,9 +4,9 @@ import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 
 interface TranslationFormProps {
-  onSubmit: (mandarin: string, english: string) => void;
+  onSubmit: (mandarin: string, translation: string) => void;
   initialMandarin?: string;
-  initialEnglish?: string;
+  initialTranslation?: string;
   submitLabel?: string;
   autoFocus?: boolean;
 }
@@ -14,15 +14,15 @@ interface TranslationFormProps {
 export function TranslationForm({
   onSubmit,
   initialMandarin = '',
-  initialEnglish = '',
+  initialTranslation = '',
   submitLabel = 'Add Translation',
   autoFocus = false,
 }: TranslationFormProps) {
   const [mandarin, setMandarin] = useState(initialMandarin);
-  const [english, setEnglish] = useState(initialEnglish);
+  const [translation, setTranslation] = useState(initialTranslation);
   const { showToast } = useToast();
   const mandarinInputRef = useRef<HTMLInputElement>(null);
-  const englishInputRef = useRef<HTMLInputElement>(null);
+  const translationInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (autoFocus && mandarinInputRef.current) {
@@ -57,17 +57,17 @@ export function TranslationForm({
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
 
-    if (!mandarin.trim() || !english.trim()) {
+    if (!mandarin.trim() || !translation.trim()) {
       showToast('error', 'Please fill in both fields');
       return;
     }
 
     try {
-      onSubmit(mandarin.trim(), english.trim());
+      onSubmit(mandarin.trim(), translation.trim());
       showToast('success', 'Translation saved successfully!');
-      if (!initialMandarin && !initialEnglish) {
+      if (!initialMandarin && !initialTranslation) {
         setMandarin('');
-        setEnglish('');
+        setTranslation('');
       }
     } catch {
       showToast('error', 'Failed to save translation');
@@ -86,12 +86,12 @@ export function TranslationForm({
       />
 
       <Input
-        ref={englishInputRef}
-        id="english"
-        label="English Translation"
-        value={english}
-        onChange={e => setEnglish(e.target.value)}
-        placeholder="Enter English translation"
+        ref={translationInputRef}
+        id="translation"
+        label="Translation"
+        value={translation}
+        onChange={e => setTranslation(e.target.value)}
+        placeholder="Enter translation"
       />
 
       <Button type="submit" variant="primary" className="w-full py-3">

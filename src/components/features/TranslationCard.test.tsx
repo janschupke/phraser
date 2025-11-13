@@ -8,7 +8,7 @@ describe('TranslationCard', () => {
   const mockTranslation: Translation = {
     id: '1',
     mandarin: '你好',
-    english: 'Hello',
+    translation: 'Hello',
     pinyin: 'ní hǎo',
   };
 
@@ -53,7 +53,7 @@ describe('TranslationCard', () => {
     const translationWithoutPinyin: Translation = {
       id: '2',
       mandarin: '谢谢',
-      english: 'Thank you',
+      translation: 'Thank you',
     };
 
     render(

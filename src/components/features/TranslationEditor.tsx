@@ -5,18 +5,18 @@ import { Button } from '../ui/Button';
 
 interface TranslationEditorProps {
   translation: Translation;
-  onSave: (id: string, mandarin: string, english: string) => void;
+  onSave: (id: string, mandarin: string, translation: string) => void;
   onCancel: () => void;
 }
 
 export function TranslationEditor({ translation, onSave, onCancel }: TranslationEditorProps) {
   const [mandarin, setMandarin] = useState(translation.mandarin);
-  const [english, setEnglish] = useState(translation.english);
+  const [translationText, setTranslationText] = useState(translation.translation);
   const mandarinInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setMandarin(translation.mandarin);
-    setEnglish(translation.english);
+    setTranslationText(translation.translation);
     // Focus the first input when editor opens
     setTimeout(() => {
       mandarinInputRef.current?.focus();
@@ -24,11 +24,11 @@ export function TranslationEditor({ translation, onSave, onCancel }: Translation
   }, [translation]);
 
   const handleSave = useCallback(() => {
-    if (!mandarin.trim() || !english.trim()) {
+    if (!mandarin.trim() || !translationText.trim()) {
       return;
     }
-    onSave(translation.id, mandarin.trim(), english.trim());
-  }, [mandarin, english, translation.id, onSave]);
+    onSave(translation.id, mandarin.trim(), translationText.trim());
+  }, [mandarin, translationText, translation.id, onSave]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -60,10 +60,10 @@ export function TranslationEditor({ translation, onSave, onCancel }: Translation
         className="text-base"
       />
       <Input
-        id={`edit-english-${translation.id}`}
-        label="English Translation"
-        value={english}
-        onChange={e => setEnglish(e.target.value)}
+        id={`edit-translation-${translation.id}`}
+        label="Translation"
+        value={translationText}
+        onChange={e => setTranslationText(e.target.value)}
         className="text-base"
       />
       <div className="flex gap-3">
