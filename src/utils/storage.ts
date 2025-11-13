@@ -66,3 +66,17 @@ export const getRandomTranslation = (): Translation | null => {
   if (translations.length === 0) return null;
   return translations[Math.floor(Math.random() * translations.length)];
 };
+
+export const addBatchTranslations = (translations: Array<{ mandarin: string; english: string }>): Translation[] => {
+  const existingTranslations = getTranslations();
+  const newTranslations: Translation[] = translations.map(({ mandarin, english }) => ({
+    id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+    mandarin: mandarin.trim(),
+    english: english.trim(),
+    pinyin: generatePinyin(mandarin.trim()),
+  }));
+  
+  existingTranslations.push(...newTranslations);
+  saveTranslations(existingTranslations);
+  return newTranslations;
+};
