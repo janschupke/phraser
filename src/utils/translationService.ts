@@ -5,21 +5,15 @@
 import type { Translation } from '../types';
 import { storageManager } from './storageManager';
 import { generatePinyin } from './pinyin';
+import { createId } from './id';
 import { selectRandomTranslation } from './probability';
-
-/**
- * Generates a unique ID for a translation
- */
-const generateId = (): string => {
-  return Date.now().toString() + Math.random().toString(36).slice(2, 11);
-};
 
 /**
  * Creates a new translation object with default values
  */
 const createTranslation = (mandarin: string, translation: string): Translation => {
   return {
-    id: generateId(),
+    id: createId(),
     mandarin: mandarin.trim(),
     translation: translation.trim(),
     pinyin: generatePinyin(mandarin.trim()),

@@ -1,7 +1,8 @@
 /* eslint-disable react-refresh/only-export-components */
 import type { ReactNode } from 'react';
 import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
-import type { Toast } from '../components/ui/Toast';
+import { ToastItem, type Toast } from '../components/ui/Toast';
+import { createId } from '../utils/id';
 
 interface ToastContextType {
   showToast: (type: 'success' | 'error', message: string) => void;
@@ -14,7 +15,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const timersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
   const showToast = useCallback((type: 'success' | 'error', message: string) => {
-    const id = Date.now().toString() + Math.random().toString(36).slice(2, 11);
+    const id = createId();
     const newToast: Toast = { id, type, message };
     setToasts(prev => [...prev, newToast]);
 
@@ -48,28 +49,15 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
-      <div className="fixed top-20 right-4 z-50 flex flex-col items-end gap-3">
+      <div
+        className="fixed inset-x-4 bottom-4 z-60 flex flex-col items-stretch gap-3 sm:inset-x-auto sm:right-4 sm:bottom-auto sm:top-20 sm:items-end"
+        role="status"
+        aria-live="polite"
+        aria-atomic="false"
+      >
         {toasts.map(toast => (
-          <div key={toast.id} className="animate-slide-in-right min-w-[300px] max-w-md">
-            <div
-              className={`p-4 rounded-lg shadow-lg ${
-                toast.type === 'success'
-                  ? 'bg-success-100 text-success-800 border border-success-200'
-                  : 'bg-error-100 text-error-800 border border-error-200'
-              }`}
-              role="alert"
-            >
-              <div className="flex justify-between items-center">
-                <span>{toast.message}</span>
-                <button
-                  onClick={() => dismissToast(toast.id)}
-                  className="ml-4 text-current opacity-70 hover:opacity-100 text-xl leading-none"
-                  aria-label="Dismiss"
-                >
-                  ×
-                </button>
-              </div>
-            </div>
+          <div key={toast.id} className="animate-slide-in-right sm:min-w-[300px] sm:max-w-md">
+            <ToastItem toast={toast} onDismiss={dismissToast} />
           </div>
         ))}
       </div>
