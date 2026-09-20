@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
-import { getTranslations, updateTranslation, deleteTranslation } from '../utils/translationService';
+import { useState } from 'react';
+import { updateTranslation, deleteTranslation } from '../utils/translationService';
+import { useTranslations } from '../hooks/useStoredState';
 import type { Translation } from '../types';
 import { useToast } from '../contexts/ToastContext';
 import { PageTitle } from '../components/ui/PageTitle';
@@ -9,18 +10,10 @@ import { TranslationCard } from '../components/features/TranslationCard';
 import { TranslationEditor } from '../components/features/TranslationEditor';
 
 function ListTranslations() {
-  const [translations, setTranslations] = useState<Translation[]>([]);
+  const translations = useTranslations();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; mandarin: string } | null>(null);
   const { showToast } = useToast();
-
-  useEffect(() => {
-    loadTranslations();
-  }, []);
-
-  const loadTranslations = () => {
-    setTranslations(getTranslations());
-  };
 
   const handleEdit = (translation: Translation) => {
     setEditingId(translation.id);
@@ -34,7 +27,6 @@ function ListTranslations() {
 
     if (updateTranslation(id, mandarin.trim(), translation.trim())) {
       setEditingId(null);
-      loadTranslations();
       showToast('success', 'Translation updated successfully!');
     } else {
       showToast('error', 'Failed to update translation');
@@ -52,7 +44,6 @@ function ListTranslations() {
   const handleDeleteConfirm = () => {
     if (deleteConfirm) {
       if (deleteTranslation(deleteConfirm.id)) {
-        loadTranslations();
         showToast('success', 'Translation deleted successfully!');
       } else {
         showToast('error', 'Failed to delete translation');

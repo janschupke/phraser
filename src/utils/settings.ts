@@ -12,12 +12,19 @@ const defaultSettings: Settings = {
   colorCodedCards: true,
 };
 
+// getSettings merges over defaults, which would allocate a new object on every
+// call. Memoizing against the (referentially stable) stored value keeps the
+// snapshot identity intact between writes.
+let merged: { stored: Settings | null; value: Settings } | null = null;
+
 export const getSettings = (): Settings => {
   const stored = storageManager.get<Settings>(storageManager.getSettingsKey());
-  if (stored) {
-    return { ...defaultSettings, ...stored };
+  if (merged?.stored === stored) {
+    return merged.value;
   }
-  return defaultSettings;
+  const value = stored ? { ...defaultSettings, ...stored } : defaultSettings;
+  merged = { stored, value };
+  return value;
 };
 
 export const saveSettings = (settings: Settings): void => {

@@ -5,7 +5,7 @@ import {
   updateTranslation,
   deleteTranslation,
 } from '../utils/translationService';
-import { getSettings } from '../utils/settings';
+import { useSettings, useTranslations } from '../hooks/useStoredState';
 import { PageTitle } from '../components/ui/PageTitle';
 import { Card } from '../components/ui/Card';
 import { Flashcard } from '../components/features/Flashcard';
@@ -16,40 +16,10 @@ function Flashcards() {
   const [showAnswer, setShowAnswer] = useState(false);
   const [cardCount, setCardCount] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [activeInput, setActiveInput] = useState(getSettings().activeInput);
-  const [reverseMode, setReverseMode] = useState(getSettings().reverseMode);
-  const [colorCodedCards, setColorCodedCards] = useState(getSettings().colorCodedCards);
+  const { activeInput, reverseMode, colorCodedCards } = useSettings();
+  const translations = useTranslations();
   const [sessionScore, setSessionScore] = useState({ correct: 0, incorrect: 0 });
   const { showToast } = useToast();
-
-  // Reset session score on unmount
-  useEffect(() => {
-    return () => {
-      setSessionScore({ correct: 0, incorrect: 0 });
-    };
-  }, []);
-
-  useEffect(() => {
-    // Listen for settings changes
-    const handleStorageChange = () => {
-      const settings = getSettings();
-      setActiveInput(settings.activeInput);
-      setReverseMode(settings.reverseMode);
-      setColorCodedCards(settings.colorCodedCards);
-    };
-    window.addEventListener('storage', handleStorageChange);
-    // Also check periodically in case settings change in same window
-    const interval = setInterval(() => {
-      const settings = getSettings();
-      setActiveInput(settings.activeInput);
-      setReverseMode(settings.reverseMode);
-      setColorCodedCards(settings.colorCodedCards);
-    }, 500);
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      clearInterval(interval);
-    };
-  }, []);
 
   const loadRandomCard = useCallback(() => {
     const card = getRandomTranslation();
@@ -71,8 +41,7 @@ function Flashcards() {
         showToast('success', 'Translation updated successfully!');
         // Reload the current card if it's the one being edited
         if (currentCard?.id === id) {
-          const translations = getTranslations();
-          const updatedCard = translations.find(t => t.id === id);
+          const updatedCard = getTranslations().find(t => t.id === id);
           if (updatedCard) {
             setCurrentCard(updatedCard);
           }
@@ -147,7 +116,6 @@ function Flashcards() {
     }));
   }, []);
 
-  const translations = getTranslations();
   const hasTranslations = translations.length > 0;
 
   if (!hasTranslations) {

@@ -25,9 +25,13 @@ const createTranslation = (mandarin: string, translation: string): Translation =
 /**
  * Gets all translations from storage
  */
+// A single frozen instance, so that "no translations yet" is referentially
+// stable across reads -- a fresh [] each call would defeat useSyncExternalStore.
+const NO_TRANSLATIONS: readonly Translation[] = Object.freeze([]);
+
 export const getTranslations = (): Translation[] => {
   const stored = storageManager.get<Translation[]>(storageManager.getTranslationsKey());
-  return stored ?? [];
+  return stored ?? (NO_TRANSLATIONS as Translation[]);
 };
 
 /**
@@ -41,10 +45,8 @@ const saveTranslations = (translations: Translation[]): void => {
  * Adds a new translation
  */
 export const addTranslation = (mandarin: string, translation: string): Translation => {
-  const translations = getTranslations();
   const newTranslation = createTranslation(mandarin, translation);
-  translations.push(newTranslation);
-  saveTranslations(translations);
+  saveTranslations([...getTranslations(), newTranslation]);
   return newTranslation;
 };
 
@@ -59,7 +61,8 @@ export const updateTranslation = (id: string, mandarin: string, translation: str
   const existing = translations[index];
   if (!existing) return false;
 
-  translations[index] = {
+  const updated = [...translations];
+  updated[index] = {
     id,
     mandarin: mandarin.trim(),
     translation: translation.trim(),
@@ -67,7 +70,7 @@ export const updateTranslation = (id: string, mandarin: string, translation: str
     correctCount: existing.correctCount ?? 0,
     incorrectCount: existing.incorrectCount ?? 0,
   };
-  saveTranslations(translations);
+  saveTranslations(updated);
   return true;
 };
 
@@ -89,13 +92,11 @@ export const deleteTranslation = (id: string): boolean => {
 export const addBatchTranslations = (
   entries: { mandarin: string; translation: string }[]
 ): Translation[] => {
-  const existingTranslations = getTranslations();
   const newTranslations: Translation[] = entries.map(({ mandarin, translation }) =>
     createTranslation(mandarin, translation)
   );
 
-  existingTranslations.push(...newTranslations);
-  saveTranslations(existingTranslations);
+  saveTranslations([...getTranslations(), ...newTranslations]);
   return newTranslations;
 };
 
@@ -108,11 +109,12 @@ export const recordCorrectAnswer = (id: string): boolean => {
   const existing = translations[index];
   if (!existing) return false;
 
-  translations[index] = {
+  const updated = [...translations];
+  updated[index] = {
     ...existing,
     correctCount: (existing.correctCount ?? 0) + 1,
   };
-  saveTranslations(translations);
+  saveTranslations(updated);
   return true;
 };
 
@@ -125,11 +127,12 @@ export const recordIncorrectAnswer = (id: string): boolean => {
   const existing = translations[index];
   if (!existing) return false;
 
-  translations[index] = {
+  const updated = [...translations];
+  updated[index] = {
     ...existing,
     incorrectCount: (existing.incorrectCount ?? 0) + 1,
   };
-  saveTranslations(translations);
+  saveTranslations(updated);
   return true;
 };
 

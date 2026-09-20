@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useEffect, useRef, useState } from 'react';
-import { getTranslations } from '../../utils/translationService';
+import { useEffect, useRef } from 'react';
+import { useTranslations } from '../../hooks/useStoredState';
 
 const navLinks = [
   { path: '/', label: 'Add Translation' },
@@ -13,26 +13,7 @@ export function Navigation() {
   const location = useLocation();
   const navigate = useNavigate();
   const navRefs = useRef<(HTMLAnchorElement | null)[]>([]);
-  const [translationCount, setTranslationCount] = useState(0);
-
-  useEffect(() => {
-    const updateCount = () => {
-      setTranslationCount(getTranslations().length);
-    };
-
-    updateCount();
-
-    // Listen for storage changes
-    window.addEventListener('storage', updateCount);
-
-    // Also check periodically in case translations change in same window
-    const interval = setInterval(updateCount, 500);
-
-    return () => {
-      window.removeEventListener('storage', updateCount);
-      clearInterval(interval);
-    };
-  }, []);
+  const translationCount = useTranslations().length;
 
   const navLinkClass = (path: string) => {
     const baseClass = 'px-4 py-2 rounded-lg transition-colors duration-200';

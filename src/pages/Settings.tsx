@@ -1,37 +1,25 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { PageTitle } from '../components/ui/PageTitle';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { ConfirmModal } from '../components/ui/ConfirmModal';
-import { getSettings, updateSetting, type Settings } from '../utils/settings';
-import { getTranslations, resetAllTranslations } from '../utils/translationService';
+import { updateSetting, type Settings } from '../utils/settings';
+import { useSettings, useTranslations } from '../hooks/useStoredState';
+import { resetAllTranslations } from '../utils/translationService';
 import { downloadTranslationsAsCSV } from '../utils/csvExport';
 import { useToast } from '../contexts/ToastContext';
 
 function SettingsPage() {
-  const [settings, setSettings] = useState<Settings>(getSettings());
+  const settings = useSettings();
+  const translations = useTranslations();
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const { showToast } = useToast();
 
-  useEffect(() => {
-    // Sync with localStorage in case it changes elsewhere
-    const handleStorageChange = () => {
-      setSettings(getSettings());
-    };
-    window.addEventListener('storage', handleStorageChange);
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
-  }, []);
-
   const handleToggle = (key: keyof Settings) => {
-    const newValue = !settings[key];
-    updateSetting(key, newValue);
-    setSettings({ ...settings, [key]: newValue });
+    updateSetting(key, !settings[key]);
   };
 
   const handleExport = () => {
-    const translations = getTranslations();
     if (translations.length === 0) {
       showToast('error', 'No translations to export');
       return;
@@ -46,7 +34,6 @@ function SettingsPage() {
   };
 
   const handleResetClick = () => {
-    const translations = getTranslations();
     if (translations.length === 0) {
       showToast('error', 'No translations to reset');
       return;
@@ -192,7 +179,7 @@ function SettingsPage() {
       <ConfirmModal
         isOpen={showResetConfirm}
         title="Reset All Data"
-        message={`Are you sure you want to delete all ${getTranslations().length} translation(s)? This action cannot be undone.`}
+        message={`Are you sure you want to delete all ${translations.length} translation(s)? This action cannot be undone.`}
         confirmText="Reset All Data"
         cancelText="Cancel"
         variant="danger"
