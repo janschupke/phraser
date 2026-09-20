@@ -84,4 +84,38 @@ describe('stringComparison utilities', () => {
       expect(validateTranslation('Hello.', 'hello')).toBe(true);
     });
   });
+
+  describe('CJK handling', () => {
+    // Regression: normalizeString used [^\w\s] without the `u` flag. \w is
+    // ASCII-only, so every CJK string normalized to '' and compared equal to
+    // every other. In reverse mode with active input -- the mode where the user
+    // types Mandarin -- that graded any non-empty answer as correct, and the
+    // inflated correctCount then skewed the weighted card selection.
+    it('keeps distinct Han strings distinct', () => {
+      expect(normalizeString('你好')).toBe('你好');
+      expect(normalizeString('猫')).toBe('猫');
+      expect(compareStrings('你好', '猫')).toBe(false);
+      expect(compareStrings('謝謝', '再見')).toBe(false);
+    });
+
+    it('still matches identical Han strings', () => {
+      expect(compareStrings('你好', '你好')).toBe(true);
+      expect(validateTranslation('你好', '你好')).toBe(true);
+      expect(validateTranslation('你好 ', '你好')).toBe(true);
+    });
+
+    it('grades a wrong Mandarin answer as incorrect', () => {
+      expect(validateTranslation('猫', '你好')).toBe(false);
+      expect(validateTranslation('random', '你好')).toBe(false);
+    });
+
+    it('ignores full-width punctuation', () => {
+      expect(validateTranslation('你好！', '你好')).toBe(true);
+      expect(validateTranslation('你好，世界', '你好世界')).toBe(true);
+    });
+
+    it('matches pinyin regardless of tone marks', () => {
+      expect(compareStrings('ní hǎo', 'ni hao')).toBe(true);
+    });
+  });
 });

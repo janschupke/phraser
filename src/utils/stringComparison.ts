@@ -3,12 +3,17 @@
  * This allows for case-insensitive, accent-insensitive, and punctuation-insensitive comparison
  */
 export function normalizeString(str: string): string {
-  return str
-    .normalize('NFD') // Decompose characters into base + combining marks
-    .replace(/[\u0300-\u036f]/g, '') // Remove combining diacritical marks
-    .replace(/[^\w\s]/g, '') // Remove all punctuation (keep only word characters and whitespace)
-    .toLowerCase()
-    .trim();
+  return (
+    str
+      .normalize('NFD') // Decompose characters into base + combining marks
+      .replace(/[\u0300-\u036f]/g, '') // Remove combining diacritical marks
+      // Keep letters, numbers and whitespace; drop everything else (punctuation).
+      // The `u` flag and \p{L}/\p{N} matter: the old [^\w\s] was ASCII-only, so
+      // every CJK string collapsed to '' and any two of them compared equal.
+      .replace(/[^\p{L}\p{N}\s]/gu, '')
+      .toLowerCase()
+      .trim()
+  );
 }
 
 /**
@@ -36,4 +41,15 @@ export function validateTranslation(userInput: string, correctAnswer: string): b
   }
 
   return compareStrings(userInput, correctAnswer);
+}
+
+/**
+ * Normalizes a string for searching.
+ *
+ * Deliberately a separate export from the comparison path even though the two
+ * currently agree: search can be tuned (looser matching, pinyin syllable
+ * handling) without quietly changing how answers are graded.
+ */
+export function normalizeForSearch(str: string): string {
+  return normalizeString(str);
 }
