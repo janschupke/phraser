@@ -86,29 +86,6 @@ function Flashcards() {
     }, 150);
   }, [loadRandomCard]);
 
-  useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      // Don't handle Enter if user is typing in an input
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
-        return;
-      }
-
-      if (e.key === 'Enter') {
-        if (showAnswer) {
-          handleNext();
-        } else if (!activeInput) {
-          // Only auto-reveal if active input is disabled
-          handleReveal();
-        }
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyPress);
-    return () => {
-      window.removeEventListener('keydown', handleKeyPress);
-    };
-  }, [showAnswer, handleNext, handleReveal, activeInput]);
-
   const handleScoreUpdate = useCallback((correct: boolean) => {
     setSessionScore(prev => ({
       correct: prev.correct + (correct ? 1 : 0),
@@ -131,8 +108,8 @@ function Flashcards() {
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto page-transition-enter">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0 mb-6">
+    <div className="w-full max-w-2xl mx-auto flex-1 min-h-0 flex flex-col page-transition-enter">
+      <div className="shrink-0 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0 mb-4">
         <PageTitle className="mb-0">Flashcards</PageTitle>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-sm text-neutral-500">
           <div>

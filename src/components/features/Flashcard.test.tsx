@@ -41,46 +41,101 @@ describe('Flashcard', () => {
     expect(screen.getByText('ní hǎo')).toBeInTheDocument();
   });
 
-  it('calls onReveal when card is clicked', async () => {
+  it('reveals via the action button', async () => {
     const user = userEvent.setup();
+    const onReveal = vi.fn();
     render(
-      <Flashcard card={mockCard} showAnswer={false} onReveal={mockOnReveal} onNext={mockOnNext} />
+      <Flashcard card={mockCard} showAnswer={false} onReveal={onReveal} onNext={mockOnNext} />
     );
 
-    const card = screen.getByText('你好').closest('div[class*="cursor-pointer"]');
-    expect(card).toBeInTheDocument();
-    if (card) {
-      await user.click(card);
-    }
-
-    expect(mockOnReveal).toHaveBeenCalled();
+    await user.click(screen.getByRole('button', { name: /reveal answer/i }));
+    expect(onReveal).toHaveBeenCalledOnce();
   });
 
-  it('calls onNext when next button is clicked', async () => {
+  it('advances via the action button once the answer is shown', async () => {
     const user = userEvent.setup();
-    render(
-      <Flashcard card={mockCard} showAnswer={true} onReveal={mockOnReveal} onNext={mockOnNext} />
-    );
+    const onNext = vi.fn();
+    render(<Flashcard card={mockCard} showAnswer={true} onReveal={mockOnReveal} onNext={onNext} />);
 
-    const nextButton = screen.getByText(/next card/i);
-    await user.click(nextButton);
-
-    expect(mockOnNext).toHaveBeenCalled();
+    await user.click(screen.getByRole('button', { name: /next card/i }));
+    expect(onNext).toHaveBeenCalledOnce();
   });
 
-  it('calls onNext when card is clicked and answer is shown', async () => {
+  it('reveals on Space and on Enter', async () => {
     const user = userEvent.setup();
+    for (const key of [' ', '{Enter}']) {
+      const onReveal = vi.fn();
+      const { unmount } = render(
+        <Flashcard card={mockCard} showAnswer={false} onReveal={onReveal} onNext={mockOnNext} />
+      );
+      await user.keyboard(key);
+      expect(onReveal, key).toHaveBeenCalledOnce();
+      unmount();
+    }
+  });
+
+  it('advances on Space and on Enter once the answer is shown', async () => {
+    const user = userEvent.setup();
+    for (const key of [' ', '{Enter}']) {
+      const onNext = vi.fn();
+      const { unmount } = render(
+        <Flashcard card={mockCard} showAnswer={true} onReveal={mockOnReveal} onNext={onNext} />
+      );
+      await user.keyboard(key);
+      expect(onNext, key).toHaveBeenCalledOnce();
+      unmount();
+    }
+  });
+
+  it('advances exactly once when the action button has focus', async () => {
+    // The button activates natively on Space/Enter; the hotkey must stand down
+    // or the card advances twice and one is skipped.
+    const user = userEvent.setup();
+    const onNext = vi.fn();
+    render(<Flashcard card={mockCard} showAnswer={true} onReveal={mockOnReveal} onNext={onNext} />);
+
+    screen.getByRole('button', { name: /next card/i }).focus();
+    await user.keyboard(' ');
+    expect(onNext).toHaveBeenCalledOnce();
+  });
+
+  it('lets Space type a space in the answer field instead of revealing', async () => {
+    const user = userEvent.setup();
+    const onReveal = vi.fn();
     render(
-      <Flashcard card={mockCard} showAnswer={true} onReveal={mockOnReveal} onNext={mockOnNext} />
+      <Flashcard
+        card={mockCard}
+        showAnswer={false}
+        onReveal={onReveal}
+        onNext={mockOnNext}
+        activeInput
+      />
     );
 
-    const card = screen.getByText('Hello').closest('div[class*="cursor-pointer"]');
-    expect(card).toBeInTheDocument();
-    if (card) {
-      await user.click(card);
-    }
+    const field = screen.getByLabelText(/enter translation/i);
+    await user.click(field);
+    await user.type(field, 'hello there');
 
-    expect(mockOnNext).toHaveBeenCalled();
+    expect(field).toHaveValue('hello there');
+    expect(onReveal).not.toHaveBeenCalled();
+  });
+
+  it('does not react to Space or Enter while editing', async () => {
+    const user = userEvent.setup();
+    const onReveal = vi.fn();
+    render(
+      <Flashcard
+        card={mockCard}
+        showAnswer={false}
+        onReveal={onReveal}
+        onNext={mockOnNext}
+        onEdit={vi.fn()}
+      />
+    );
+
+    await user.click(screen.getByRole('button', { name: /edit flashcard/i }));
+    await user.keyboard('{Enter}');
+    expect(onReveal).not.toHaveBeenCalled();
   });
 
   it('does not show pinyin when not available', () => {

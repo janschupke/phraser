@@ -176,6 +176,14 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-#root {
-  min-height: 100vh;
+/*
+ * Height is set per route by AppLayout, not globally, so the viewport-fit route
+ * can be exactly one viewport tall while other routes grow.
+ */
+
+/* Stop iOS rubber-banding the document on the fit route, where nothing scrolls. */
+html[data-fit],
+html[data-fit] body {
+  overflow: hidden;
+  overscroll-behavior: none;
 }

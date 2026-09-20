@@ -1,13 +1,15 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { useHotkeys } from '../../hooks/useHotkeys';
-import type { FormSubmitHandler, Translation } from '../../types';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { HiOutlineCog } from 'react-icons/hi';
+import type { Translation } from '../../types';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { ConfirmModal } from '../ui/ConfirmModal';
 import { Input } from '../ui/Input';
-import { HiOutlineCog, HiOutlineTrash } from 'react-icons/hi';
+import { useHotkeys } from '../../hooks/useHotkeys';
 import { validateTranslation } from '../../utils/stringComparison';
 import { recordCorrectAnswer, recordIncorrectAnswer } from '../../utils/translationService';
+import { FlashcardFace } from './FlashcardFace';
+import { TranslationEditor } from './TranslationEditor';
 
 interface FlashcardProps {
   card: Translation;
@@ -37,410 +39,179 @@ export function Flashcard({
   onScoreUpdate,
 }: FlashcardProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [mandarin, setMandarin] = useState(card.mandarin);
-  const [translationText, setTranslationText] = useState(card.translation);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [userInput, setUserInput] = useState('');
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
-  const [hasRecordedScore, setHasRecordedScore] = useState(false);
-  const mandarinInputRef = useRef<HTMLInputElement>(null);
-  const translationInputRef = useRef<HTMLInputElement>(null);
+  const answerInputRef = useRef<HTMLInputElement>(null);
+  // Guards against double-recording under StrictMode's double-invoked effects.
+  const recordedForCardRef = useRef<string | null>(null);
+
+  // Resolve the orientation once, so the markup below does not branch on it.
+  const prompt = reverseMode ? card.translation : card.mandarin;
+  const answer = reverseMode ? card.mandarin : card.translation;
+  const promptLabel = reverseMode ? 'Translation' : 'Mandarin';
+  const answerLabel = reverseMode ? 'Mandarin' : 'Translation';
 
   useEffect(() => {
-    if (isEditing && mandarinInputRef.current) {
-      setTimeout(() => {
-        mandarinInputRef.current?.focus();
-      }, 100);
-    }
-  }, [isEditing]);
-
-  useEffect(() => {
-    setMandarin(card.mandarin);
-    setTranslationText(card.translation);
     setUserInput('');
     setIsCorrect(null);
-    setHasRecordedScore(false);
-  }, [card]);
+    recordedForCardRef.current = null;
+  }, [card.id]);
 
   useEffect(() => {
-    if (activeInput && translationInputRef.current && !showAnswer) {
-      setTimeout(() => {
-        translationInputRef.current?.focus();
-      }, 100);
+    if (activeInput && !showAnswer) {
+      answerInputRef.current?.focus();
     }
-  }, [activeInput, showAnswer, card]);
+  }, [activeInput, showAnswer, card.id]);
 
+  // Grade once per reveal, when active input is on.
   useEffect(() => {
-    if (showAnswer && activeInput && !hasRecordedScore) {
-      // Validate even if input is empty (empty is considered incorrect)
-      // In reverse mode, compare user input (Mandarin) with card.mandarin
-      // In normal mode, compare user input (translation) with card.translation
-      const correct = reverseMode
-        ? validateTranslation(userInput, card.mandarin)
-        : validateTranslation(userInput, card.translation);
-      setIsCorrect(correct);
+    if (!showAnswer || !activeInput) return;
+    if (recordedForCardRef.current === card.id) return;
+    recordedForCardRef.current = card.id;
 
-      // Record score only once per reveal when active input is enabled
-      if (correct) {
-        recordCorrectAnswer(card.id);
-      } else {
-        recordIncorrectAnswer(card.id);
-      }
-
-      // Notify parent component of score update
-      if (onScoreUpdate) {
-        onScoreUpdate(correct);
-      }
-
-      setHasRecordedScore(true);
-    } else if (!showAnswer) {
-      setIsCorrect(null);
-      setHasRecordedScore(false);
+    const correct = validateTranslation(userInput, answer);
+    setIsCorrect(correct);
+    if (correct) {
+      recordCorrectAnswer(card.id);
+    } else {
+      recordIncorrectAnswer(card.id);
     }
-  }, [
-    showAnswer,
-    userInput,
-    card.translation,
-    card.mandarin,
-    card.id,
-    activeInput,
-    reverseMode,
-    hasRecordedScore,
-    onScoreUpdate,
-  ]);
-
-  const handleEditClick = () => {
-    setIsEditing(true);
-  };
-
-  const handleSave = useCallback(() => {
-    if (!mandarin.trim() || !translationText.trim()) {
-      return;
-    }
-    if (onEdit) {
-      onEdit(card.id, mandarin.trim(), translationText.trim());
-    }
-    setIsEditing(false);
-  }, [mandarin, translationText, card.id, onEdit]);
+    onScoreUpdate?.(correct);
+  }, [showAnswer, activeInput, card.id, answer, userInput, onScoreUpdate]);
 
   const handleCancel = useCallback(() => {
-    setMandarin(card.mandarin);
-    setTranslationText(card.translation);
     setIsEditing(false);
     setShowDeleteConfirm(false);
-  }, [card.mandarin, card.translation]);
+  }, []);
 
-  const handleDeleteClick = () => {
-    setShowDeleteConfirm(true);
-  };
+  const handleSave = useCallback(
+    (id: string, mandarin: string, translation: string) => {
+      onEdit?.(id, mandarin, translation);
+      setIsEditing(false);
+    },
+    [onEdit]
+  );
 
-  const handleDeleteConfirm = () => {
-    if (onDelete) {
-      onDelete(card.id);
-    }
+  const handleDeleteConfirm = useCallback(() => {
+    onDelete?.(card.id);
     setShowDeleteConfirm(false);
     setIsEditing(false);
-  };
+  }, [card.id, onDelete]);
 
-  const handleDeleteCancel = () => {
-    setShowDeleteConfirm(false);
-  };
-
-  useHotkeys({ Escape: handleCancel }, { enabled: isEditing, allowInEditable: true });
-
-  const handleFormSubmit: FormSubmitHandler = e => {
-    e.preventDefault();
-    handleSave();
-  };
-
-  const handleCardClick = (e: React.MouseEvent) => {
-    // Don't trigger if clicking on the configure icon or its parent button
-    if ((e.target as HTMLElement).closest('button[aria-label="Edit flashcard"]')) {
-      return;
-    }
-    // Don't trigger if clicking on the next button
-    if ((e.target as HTMLElement).closest('button[class*="px-8"]')) {
-      return;
-    }
-    // Don't trigger if clicking on input fields when active input is enabled
-    if (activeInput && (e.target as HTMLElement).closest('input')) {
-      return;
-    }
-
-    if (!isEditing && !showAnswer) {
-      onReveal();
-    } else if (!isEditing && showAnswer && !activeInput) {
+  // Space mirrors Enter exactly. Both are ignored while editing, and while the
+  // caret is in a text field -- which is what lets Space type a literal space
+  // in the answer box, and keeps a pinyin IME's candidate-commit working.
+  const advance = useCallback(() => {
+    if (showAnswer) {
       onNext();
-    }
-  };
-
-  const handleInputKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !showAnswer) {
-      e.preventDefault();
+    } else {
       onReveal();
     }
-  };
+  }, [showAnswer, onNext, onReveal]);
+
+  useHotkeys({ Enter: advance, Space: advance }, { enabled: !isEditing && !showDeleteConfirm });
+
+  const actionLabel = showAnswer ? 'Next card' : activeInput ? 'Check answer' : 'Reveal answer';
 
   return (
     <>
-      <div onClick={handleCardClick} className={!isEditing ? 'cursor-pointer' : ''}>
-        <Card
-          className={`p-8 sm:p-12 min-h-[400px] sm:min-h-[500px] flex flex-col items-center justify-center transform-gpu relative ${
-            isTransitioning ? 'animate-flip-out' : 'animate-flip-in'
-          } ${!isEditing ? 'hover:shadow-lg transition-shadow duration-200' : ''} ${
-            showAnswer && activeInput && isCorrect !== null && colorCodedCards
-              ? isCorrect
-                ? 'bg-success-200 border-success-400'
-                : 'bg-error-200 border-error-400'
-              : ''
-          } transition-colors duration-300`}
-          style={{ transformStyle: 'preserve-3d' }}
-        >
-          {/* Configure Icon */}
-          {!isEditing && (
-            <button
-              onClick={e => {
-                e.stopPropagation();
-                handleEditClick();
-              }}
-              className="absolute top-4 right-4 p-2 text-neutral-400 hover:text-primary-600 transition-colors duration-200 z-10"
-              aria-label="Edit flashcard"
-              title="Edit flashcard"
-            >
-              <HiOutlineCog className="w-6 h-6" />
-            </button>
-          )}
+      <Card
+        className={`p-6 sm:p-10 flex-1 min-h-0 flex flex-col transform-gpu relative overflow-hidden ${
+          isTransitioning ? 'animate-flip-out' : 'animate-flip-in'
+        } ${
+          showAnswer && activeInput && isCorrect !== null && colorCodedCards
+            ? isCorrect
+              ? 'bg-success-200 border-success-400'
+              : 'bg-error-200 border-error-400'
+            : ''
+        } transition-colors duration-300`}
+        style={{ transformStyle: 'preserve-3d' }}
+      >
+        {!isEditing && (
+          <Button
+            variant="icon"
+            onClick={() => setIsEditing(true)}
+            className="absolute top-3 right-3 text-neutral-500 hover:text-primary-600 z-10"
+            aria-label="Edit flashcard"
+            title="Edit flashcard"
+          >
+            <HiOutlineCog className="w-6 h-6" />
+          </Button>
+        )}
 
-          {isEditing ? (
-            <form onSubmit={handleFormSubmit} className="w-full space-y-6 animate-fade-in">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-neutral-800">Edit Translation</h3>
-                {onDelete && (
-                  <button
-                    type="button"
-                    onClick={handleDeleteClick}
-                    className="p-2 text-error-600 hover:text-error-700 hover:bg-error-50 rounded-lg transition-colors duration-200"
-                    aria-label="Delete translation"
-                    title="Delete"
-                  >
-                    <HiOutlineTrash className="w-5 h-5" />
-                  </button>
-                )}
-              </div>
-
-              <Input
-                ref={mandarinInputRef}
-                id={`flashcard-mandarin-${card.id}`}
-                label="Mandarin (中文)"
-                value={mandarin}
-                onChange={e => setMandarin(e.target.value)}
-                className="text-base"
+        {isEditing ? (
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            <TranslationEditor
+              translation={card}
+              title="Edit Translation"
+              onSave={handleSave}
+              onCancel={handleCancel}
+              {...(onDelete ? { onDelete: () => setShowDeleteConfirm(true) } : {})}
+            />
+          </div>
+        ) : (
+          <>
+            {/*
+              The scroller, so a long phrase scrolls inside the card instead of
+              growing the page. Centring is via my-auto on the child rather than
+              justify-center here: justify-center on a scroll container clips the
+              top of overflowing content and makes it unreachable.
+            */}
+            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain flex">
+              <FlashcardFace
+                prompt={prompt}
+                promptLabel={promptLabel}
+                answer={answer}
+                answerLabel={answerLabel}
+                pinyin={card.pinyin}
+                showAnswer={showAnswer}
+                promptLang={reverseMode ? undefined : 'zh-Hans'}
+                answerLang={reverseMode ? 'zh-Hans' : undefined}
               />
-              <Input
-                id={`flashcard-translation-${card.id}`}
-                label="Translation"
-                value={translationText}
-                onChange={e => setTranslationText(e.target.value)}
-                className="text-base"
-              />
-              <div className="flex gap-3">
-                <Button type="submit" variant="success" className="px-5 py-2.5">
-                  Save
-                </Button>
-                <Button
-                  type="button"
-                  variant="neutral"
-                  onClick={handleCancel}
-                  className="px-5 py-2.5"
-                >
-                  Cancel
-                </Button>
-              </div>
-            </form>
-          ) : (
-            <>
-              <div className="text-center mb-8 w-full">
-                <div className="mb-6">
-                  <div className="text-sm text-neutral-500 mb-3">
-                    {reverseMode ? 'Translation' : 'Mandarin'}
-                  </div>
-                  <div className="text-4xl sm:text-5xl font-bold text-neutral-800 break-words">
-                    {reverseMode ? card.translation : card.mandarin}
-                  </div>
-                </div>
+            </div>
 
-                {activeInput ? (
-                  <>
-                    {!showAnswer ? (
-                      <div className="mt-8 pt-8 border-t border-neutral-200 w-full">
-                        <div className="mb-4">
-                          <label
-                            htmlFor={`translation-input-${card.id}`}
-                            className="block text-sm font-medium text-neutral-700 mb-2"
-                          >
-                            {reverseMode ? 'Enter Mandarin' : 'Enter Translation'}
-                          </label>
-                          <Input
-                            ref={translationInputRef}
-                            id={`translation-input-${card.id}`}
-                            value={userInput}
-                            onChange={e => {
-                              e.stopPropagation();
-                              setUserInput(e.target.value);
-                            }}
-                            onKeyDown={handleInputKeyDown}
-                            placeholder={
-                              reverseMode
-                                ? 'Type Mandarin here...'
-                                : 'Type your translation here...'
-                            }
-                            className="text-lg"
-                            onClick={e => e.stopPropagation()}
-                          />
-                          <p className="text-xs text-neutral-500 mt-2">
-                            Press Enter to check your answer
-                          </p>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="mt-8 pt-8 border-t border-neutral-200 w-full animate-fade-in">
-                        {reverseMode ? (
-                          <>
-                            {card.pinyin && (
-                              <div className="mb-4">
-                                <div className="text-sm text-neutral-500 mb-2">Pinyin</div>
-                                <div className="text-xl sm:text-2xl text-neutral-600 font-normal break-words">
-                                  {card.pinyin}
-                                </div>
-                              </div>
-                            )}
-                            <div className="mb-4">
-                              <div className="text-sm text-neutral-500 mb-2">Correct Answer</div>
-                              <div className="text-2xl sm:text-3xl text-neutral-700 break-words">
-                                {card.mandarin}
-                              </div>
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            {card.pinyin && (
-                              <div className="mb-4">
-                                <div className="text-sm text-neutral-500 mb-2">Pinyin</div>
-                                <div className="text-xl sm:text-2xl text-neutral-600 font-normal break-words">
-                                  {card.pinyin}
-                                </div>
-                              </div>
-                            )}
-                            <div className="mb-4">
-                              <div className="text-sm text-neutral-500 mb-2">Correct Answer</div>
-                              <div className="text-2xl sm:text-3xl text-neutral-700 break-words">
-                                {card.translation}
-                              </div>
-                            </div>
-                          </>
-                        )}
-                        {isCorrect !== null && (
-                          <div className="mt-4">
-                            <div
-                              className={`text-lg font-semibold ${
-                                isCorrect ? 'text-success-700' : 'text-error-700'
-                              }`}
-                            >
-                              {isCorrect ? '✓ Correct' : '✗ Incorrect'}
-                            </div>
-                            {!isCorrect && userInput.trim() && (
-                              <div className="text-sm text-error-600 mt-2">
-                                Your answer: "{userInput}"
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    {showAnswer ? (
-                      <div className="mt-8 pt-8 border-t border-neutral-200 w-full animate-fade-in">
-                        {reverseMode ? (
-                          <>
-                            {card.pinyin && (
-                              <div className="mb-6">
-                                <div className="text-sm text-neutral-500 mb-2">Pinyin</div>
-                                <div className="text-xl sm:text-2xl text-neutral-600 font-normal break-words">
-                                  {card.pinyin}
-                                </div>
-                              </div>
-                            )}
-                            <div>
-                              <div className="text-sm text-neutral-500 mb-2">Mandarin</div>
-                              <div className="text-2xl sm:text-3xl text-neutral-700 break-words">
-                                {card.mandarin}
-                              </div>
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            {card.pinyin && (
-                              <div className="mb-6">
-                                <div className="text-sm text-neutral-500 mb-2">Pinyin</div>
-                                <div className="text-xl sm:text-2xl text-neutral-600 font-normal break-words">
-                                  {card.pinyin}
-                                </div>
-                              </div>
-                            )}
-                            <div>
-                              <div className="text-sm text-neutral-500 mb-2">Translation</div>
-                              <div className="text-2xl sm:text-3xl text-neutral-700 break-words">
-                                {card.translation}
-                              </div>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="mt-8 pt-8 border-t border-neutral-200">
-                        <div className="text-primary-600 font-medium text-base sm:text-lg transition-colors duration-200">
-                          Click anywhere to reveal answer (or press Enter)
-                        </div>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-
-              {showAnswer && (
-                <div className="flex gap-4 mt-8 animate-fade-in">
-                  <Button
-                    variant="primary"
-                    onClick={e => {
-                      e.stopPropagation();
-                      onNext();
-                    }}
-                    className="px-8 py-3"
-                  >
-                    Next Card (or press Enter)
-                  </Button>
-                </div>
-              )}
+            <div className="shrink-0 pt-4 mt-4 border-t border-neutral-200 space-y-3">
               {activeInput && !showAnswer && (
-                <div className="flex gap-4 mt-4">
-                  <Button
-                    variant="primary"
-                    onClick={e => {
-                      e.stopPropagation();
-                      onReveal();
-                    }}
-                    className="px-8 py-3"
+                <Input
+                  ref={answerInputRef}
+                  id={`translation-input-${card.id}`}
+                  label={reverseMode ? 'Enter Mandarin' : 'Enter Translation'}
+                  value={userInput}
+                  onChange={e => setUserInput(e.target.value)}
+                  placeholder={
+                    reverseMode ? 'Type Mandarin here...' : 'Type your translation here...'
+                  }
+                />
+              )}
+
+              {showAnswer && activeInput && isCorrect !== null && (
+                <div>
+                  <div
+                    className={`text-lg font-semibold ${
+                      isCorrect ? 'text-success-700' : 'text-error-700'
+                    }`}
                   >
-                    Check Answer (or press Enter)
-                  </Button>
+                    {isCorrect ? '✓ Correct' : '✗ Incorrect'}
+                  </div>
+                  {!isCorrect && userInput.trim() && (
+                    <div className="text-sm text-error-600 mt-1">
+                      Your answer: &quot;{userInput}&quot;
+                    </div>
+                  )}
                 </div>
               )}
-            </>
-          )}
-        </Card>
-      </div>
+
+              <div className="flex items-center justify-between gap-4">
+                <Button variant="primary" onClick={advance} className="px-8 py-3">
+                  {showAnswer ? 'Next Card' : actionLabel}
+                </Button>
+                <span className="text-sm text-neutral-500">Enter or Space</span>
+              </div>
+            </div>
+          </>
+        )}
+      </Card>
 
       <ConfirmModal
         isOpen={showDeleteConfirm}
@@ -450,7 +221,7 @@ export function Flashcard({
         cancelText="Cancel"
         variant="danger"
         onConfirm={handleDeleteConfirm}
-        onCancel={handleDeleteCancel}
+        onCancel={() => setShowDeleteConfirm(false)}
       />
     </>
   );

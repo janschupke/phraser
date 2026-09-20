@@ -1,30 +1,21 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ToastProvider } from './contexts/ToastContext';
-import { Navigation } from './components/layout/Navigation';
-import { Footer } from './components/layout/Footer';
-import AddTranslation from './pages/AddTranslation';
-import Flashcards from './pages/Flashcards';
-import ListTranslations from './pages/ListTranslations';
-import Settings from './pages/Settings';
+import { AppLayout } from './components/layout/AppLayout';
+import NotFound from './pages/NotFound';
+import { ROUTES } from './routes';
 
 function App() {
   return (
     <ToastProvider>
       <Router>
-        <div className="min-h-screen bg-background flex flex-col">
-          <Navigation />
-          <main className="flex-1 w-full pt-16 sm:pt-20">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-              <Routes>
-                <Route path="/" element={<AddTranslation />} />
-                <Route path="/flashcards" element={<Flashcards />} />
-                <Route path="/list" element={<ListTranslations />} />
-                <Route path="/settings" element={<Settings />} />
-              </Routes>
-            </div>
-          </main>
-          <Footer />
-        </div>
+        <AppLayout>
+          <Routes>
+            {ROUTES.map(route => (
+              <Route key={route.path} path={route.path} element={route.element} />
+            ))}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AppLayout>
       </Router>
     </ToastProvider>
   );

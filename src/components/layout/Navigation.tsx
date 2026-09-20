@@ -1,86 +1,106 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useEffect, useRef } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { HiMenu, HiX } from 'react-icons/hi';
 import { useTranslations } from '../../hooks/useStoredState';
-
-const navLinks = [
-  { path: '/', label: 'Add Translation' },
-  { path: '/flashcards', label: 'Flashcards' },
-  { path: '/list', label: 'All Translations' },
-  { path: '/settings', label: 'Settings' },
-];
+import { useHotkeys } from '../../hooks/useHotkeys';
+import { NavList } from './NavList';
 
 export function Navigation() {
   const location = useLocation();
-  const navigate = useNavigate();
-  const navRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const translationCount = useTranslations().length;
+  const [isOpen, setIsOpen] = useState(false);
+  const panelId = useId();
+  const panelRef = useRef<HTMLDivElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
 
-  const navLinkClass = (path: string) => {
-    const baseClass = 'px-4 py-2 rounded-lg transition-colors duration-200';
-    const activeClass =
-      location.pathname === path
-        ? 'bg-primary-600 text-white'
-        : 'text-neutral-700 hover:bg-neutral-100';
-    return `${baseClass} ${activeClass}`;
-  };
+  // A disclosure, not a dialog: focus stays on the toggle and is not trapped.
+  useHotkeys(
+    {
+      Escape: () => {
+        // Only pull focus back if it is actually inside the panel; otherwise we
+        // would yank it from wherever the user really is.
+        const focusWasInside = panelRef.current?.contains(document.activeElement) ?? false;
+        setIsOpen(false);
+        if (focusWasInside) toggleRef.current?.focus();
+      },
+    },
+    { enabled: isOpen }
+  );
+
+  // Close on navigation. The click handler on the links covers the case this
+  // misses: clicking the already-active link does not change pathname.
+  useEffect(() => {
+    setIsOpen(false);
+  }, [location.pathname]);
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Only handle arrow keys when not typing in an input/textarea
-      if (
-        (e.target instanceof HTMLInputElement ||
-          e.target instanceof HTMLTextAreaElement ||
-          e.target instanceof HTMLButtonElement) &&
-        e.target.tagName !== 'A'
-      ) {
-        return;
-      }
+    if (!isOpen) return;
 
-      const currentIndex = navLinks.findIndex(link => link.path === location.pathname);
-      let newIndex = currentIndex;
-
-      if (e.key === 'ArrowLeft' && currentIndex > 0) {
-        e.preventDefault();
-        newIndex = currentIndex - 1;
-      } else if (e.key === 'ArrowRight' && currentIndex < navLinks.length - 1) {
-        e.preventDefault();
-        newIndex = currentIndex + 1;
-      }
-
-      const nextLink = navLinks[newIndex];
-      if (newIndex !== currentIndex && nextLink) {
-        void navigate(nextLink.path);
-        navRefs.current[newIndex]?.focus();
-      }
+    const closeIfOutside = (event: Event) => {
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+      if (panelRef.current?.contains(target)) return;
+      if (toggleRef.current?.contains(target)) return;
+      setIsOpen(false);
     };
 
-    window.addEventListener('keydown', handleKeyDown);
+    // pointerdown fires before focus moves; focusin catches keyboard users
+    // tabbing past the panel.
+    document.addEventListener('pointerdown', closeIfOutside);
+    document.addEventListener('focusin', closeIfOutside);
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('pointerdown', closeIfOutside);
+      document.removeEventListener('focusin', closeIfOutside);
     };
-  }, [location.pathname, navigate]);
+  }, [isOpen]);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 bg-surface shadow-md z-50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="flex gap-2 sm:gap-4">
-          {navLinks.map((link, index) => (
-            <Link
-              key={link.path}
-              to={link.path}
-              ref={el => {
-                navRefs.current[index] = el;
-              }}
-              className={navLinkClass(link.path)}
+    <nav aria-label="Main" className="sticky top-0 z-40 bg-surface shadow-md shrink-0">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative flex items-center justify-between h-16">
+          <Link
+            to="/"
+            className="font-bold text-lg text-neutral-800 rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+          >
+            Phraser
+          </Link>
+
+          <NavList
+            className="hidden md:flex md:items-center md:gap-2"
+            translationCount={translationCount}
+          />
+
+          <button
+            ref={toggleRef}
+            type="button"
+            className="md:hidden p-2 rounded-lg text-neutral-700 hover:bg-neutral-100 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+            aria-expanded={isOpen}
+            aria-controls={panelId}
+            aria-label={isOpen ? 'Close menu' : 'Open menu'}
+            onClick={() => setIsOpen(open => !open)}
+          >
+            {isOpen ? <HiX className="w-6 h-6" /> : <HiMenu className="w-6 h-6" />}
+          </button>
+
+          {/*
+            Absolutely positioned so opening the menu overlays the page rather
+            than pushing it down and shrinking the viewport-fit flashcard. Not
+            rendered at all when closed -- CSS-hiding would leave the links in
+            the tab order.
+          */}
+          {isOpen && (
+            <div
+              ref={panelRef}
+              id={panelId}
+              className="md:hidden absolute top-full inset-x-0 bg-surface shadow-lg rounded-b-lg"
             >
-              {link.label}
-              {link.path === '/list' && translationCount > 0 && (
-                <span className="ml-2 px-1.5 py-0.5 text-xs bg-neutral-200 rounded-sm">
-                  {translationCount}
-                </span>
-              )}
-            </Link>
-          ))}
+              <NavList
+                className="flex flex-col gap-1 p-3"
+                translationCount={translationCount}
+                onNavigate={() => setIsOpen(false)}
+              />
+            </div>
+          )}
         </div>
       </div>
     </nav>
