@@ -1,179 +1,125 @@
 # Phraser - Mandarin Flashcards
 
-A modern, frontend-only flashcard application for learning Mandarin Chinese. Built with TypeScript, Vite, React, TailwindCSS, and React Router. All data persists in browser local storage.
+A frontend-only flashcard app for learning Mandarin Chinese. TypeScript, Vite, React, TailwindCSS and React Router. Everything lives in your browser's local storage; there is no backend and no telemetry.
 
 ## Features
 
-### Core Functionality
-
-- **Add Translations**: Input Mandarin words/phrases/sentences with their English translations
-- **Automatic Pinyin Generation**: Pinyin with tone marks (ā, á, ǎ, à) is automatically generated using the `pinyin-pro` library
-- **Flashcard Practice**: Endless flashcard sequence with random entry selection
-- **Manage Translations**: View, edit, and delete all saved translations with an intuitive interface
-- **Local Storage Persistence**: All data persists in browser local storage (no backend required)
-
-### User Experience
-
-- **Keyboard Shortcuts**:
-  - `Enter` - Reveal answer / Show next card (flashcards)
-  - `Esc` - Cancel editing / Clear input focus
-  - `←` / `→` - Navigate between pages (when not typing)
-- **Toast Notifications**: Success and error notifications appear in the top-right corner
-- **Custom Confirm Modal**: Styled confirmation dialogs for destructive actions
-- **Smooth Animations**: Page transitions, modal animations, and flashcard flip effects
-- **Responsive Design**: Optimized for mobile, tablet, and desktop screens
-- **Auto-focus**: Input fields automatically focus when entering edit mode or adding translations
-
-### Technical Features
-
-- **Type Safety**: Full TypeScript coverage
-- **Component Architecture**: Separated into UI components, layout components, and feature components
-- **Testing**: Comprehensive unit tests with Vitest and React Testing Library
-- **Code Quality**: ESLint, Prettier, and TypeScript type checking
-- **CI/CD**: GitHub Actions workflow for automated testing and validation
+- **Add translations** one at a time, or import many at once from CSV
+- **Automatic pinyin** with tone marks (ā, á, ǎ, à), generated via `pinyin-pro`
+- **Flashcard practice** with weighted random selection, so cards you get wrong come up more often
+- **Active input mode** - type your answer and have it checked, instead of self-grading
+- **Reverse mode** - show the translation and expect the Mandarin, for character recall
+- **Colour-coded cards** - green or red backing for a right or wrong answer in active input mode
+- **Search** the saved list by Mandarin, English or pinyin
+- **Export to CSV**, and reset everything, from Settings
+- **Local storage persistence** - no account, no sync, no server
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 20+ and npm
-
-### Install Dependencies
+Node 24 (see `.nvmrc`; `nvm use` picks it up). The `engines` field enforces it.
 
 ```bash
 npm install
-```
-
-### Development
-
-```bash
 npm run dev
 ```
 
-The app will be available at `http://localhost:5173`
+The app runs at `http://localhost:5173`.
 
-### Available Scripts
+### Scripts
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run test` - Run tests once
-- `npm run test:watch` - Run tests in watch mode
-- `npm run test:ui` - Run tests with UI
-- `npm run lint` - Run ESLint
-- `npm run lint:fix` - Fix ESLint errors
-- `npm run type-check` - Run TypeScript type checking
-- `npm run format` - Format code with Prettier
-- `npm run format:check` - Check code formatting
-- `npm run check` - Run all checks (lint, format, type-check, test, build)
+| Script                  | Does                                              |
+| ----------------------- | ------------------------------------------------- |
+| `npm run dev`           | Start the dev server                              |
+| `npm run build`         | Type-check, then build for production             |
+| `npm run preview`       | Serve the production build                        |
+| `npm test`              | Run tests once                                    |
+| `npm run test:watch`    | Run tests in watch mode                           |
+| `npm run test:ui`       | Run tests with the Vitest UI                      |
+| `npm run test:coverage` | Run tests with coverage, enforcing the thresholds |
+| `npm run lint`          | ESLint, zero warnings tolerated                   |
+| `npm run lint:fix`      | ESLint with `--fix`                               |
+| `npm run type-check`    | Type-check the app and the config project         |
+| `npm run format`        | Format with Prettier                              |
+| `npm run format:check`  | Check formatting                                  |
+| `npm run check`         | Everything CI runs, in the same order             |
 
-## Project Structure
+## Keyboard
 
-```
-src/
-├── components/
-│   ├── features/          # Feature-specific components
-│   │   ├── Flashcard.tsx           # Flashcard display component
-│   │   ├── TranslationCard.tsx     # Translation card in list view
-│   │   ├── TranslationEditor.tsx   # Inline translation editor
-│   │   └── TranslationForm.tsx    # Form for adding/editing translations
-│   ├── layout/            # Layout components
-│   │   ├── Navigation.tsx         # Top navigation with keyboard shortcuts
-│   │   └── Footer.tsx             # Footer with GitHub link
-│   └── ui/                # Reusable UI components
-│       ├── Alert.tsx              # Alert message component
-│       ├── Button.tsx             # Button component with variants
-│       ├── Card.tsx               # Card container component
-│       ├── ConfirmModal.tsx       # Confirmation dialog modal
-│       ├── Input.tsx              # Input field component
-│       ├── PageTitle.tsx          # Page title component
-│       └── Toast.tsx              # Toast notification component
-├── contexts/
-│   └── ToastContext.tsx   # Toast notification context provider
-├── pages/
-│   ├── AddTranslation.tsx    # Add translation page
-│   ├── Flashcards.tsx         # Flashcard practice page
-│   └── ListTranslations.tsx   # List all translations page
-├── utils/
-│   └── storage.ts          # Local storage utilities with pinyin generation
-├── test/
-│   └── setup.ts            # Test setup configuration
-├── types.ts                # TypeScript type definitions
-├── App.tsx                 # Main app component with routing
-├── main.tsx                # Entry point
-└── index.css               # TailwindCSS imports and animations
-```
+| Key                | Where                    | Does                                          |
+| ------------------ | ------------------------ | --------------------------------------------- |
+| `Space` or `Enter` | Flashcards               | Reveal the answer, then move to the next card |
+| `Enter`            | Flashcards, answer field | Check the typed answer                        |
+| `Space`            | Any text field           | Types a space - never triggers a shortcut     |
+| `Enter`            | Edit form                | Save                                          |
+| `Esc`              | Edit form, dialog, menu  | Cancel or close                               |
+| `Tab`              | Dialog                   | Cycles within the dialog while it is open     |
+
+Space and Enter behave identically everywhere except inside a text field, where Space has to type a space and `Enter` is the only reveal key. Shortcuts also stand down while an IME is composing, so a pinyin IME can use Space to commit a candidate.
 
 ## Usage
 
-### Adding Translations
+### Adding translations
 
-1. Navigate to the "Add Translation" page (default home page)
-2. Enter Mandarin text in the first field
-3. Enter English translation in the second field
-4. Click "Add Translation" or press `Enter`
-5. Pinyin with tone marks is automatically generated
+Enter the Mandarin and its English translation on the Add Translation page. Pinyin is generated for you.
 
-### Practicing with Flashcards
+### Batch import
 
-1. Go to the "Flashcards" page
-2. View the Mandarin text
-3. Press `Enter` or click "Click to reveal answer" to see the translation and pinyin
-4. Press `Enter` again or click "Next Card" to move to the next random card
+The Batch Import tab takes CSV, pasted or dropped as a file, in the form `mandarin,translation` - one entry per line. A first row that looks like a header is skipped. Fields containing commas should be quoted. Imported rows are shown for review, where you can edit or drop individual entries, before anything is saved.
 
-### Active Input Mode
+### Practising
 
-Enable "Active Input Mode" in Settings to practice by typing translations:
+Reveal the answer, then move on. With **Active Input Mode** on, you type the answer first and it is checked: comparison ignores case, diacritics and punctuation, and an empty answer counts as wrong. Scores are recorded only in this mode.
 
-1. Go to Settings and enable "Active Input Mode"
-2. Return to Flashcards page
-3. Type your translation answer in the input field
-4. Press `Enter` or click "Check Answer" to see if you're correct
-5. Answers are validated case-insensitively, ignoring accents/diacritics and punctuation
-6. Your score is automatically tracked (correct/incorrect counts)
-7. Items you struggle with appear more frequently (see Probability System below)
+### Managing
 
-### Managing Translations
+The All Translations page lists everything, one row per entry. Expand a row for pinyin, the translation and its score. Search matches Mandarin, English and pinyin, ignoring tone marks, so `ni hao` finds `nǐ hǎo`. The query lives in the URL as `?q=`.
 
-1. Visit "All Translations" to see all saved entries
-2. Click the pencil icon to edit a translation
-3. Click the trash icon to delete a translation
-4. Use `Enter` to save edits, `Esc` to cancel
+## Accessibility
 
-### Keyboard Navigation
+- Skip link, landmark regions, and `aria-current` on the active nav item
+- Focus moves to the main region on navigation, and the route is announced politely
+- Dialogs use `role="dialog"` with a focus trap and focus restored on close
+- Every control is reachable and operable by keyboard, with a visible focus ring
+- Animations are disabled under `prefers-reduced-motion`
+- Checked by `eslint-plugin-jsx-a11y` at lint time and `axe-core` in the test suite
 
-- Use `←` and `→` arrow keys to navigate between pages (when not typing in inputs)
-- Arrow keys work intelligently: they navigate when cursor is at the start/end of input fields
+`axe` runs in jsdom, which has no layout or stylesheet. It checks semantics - roles, names, heading order, nested interactives - and cannot check colour contrast, hit-target size or focus order. Those still need a real browser.
+
+## Data and privacy
+
+Everything is stored under two local-storage keys, `phraser` and `phraser-settings`. Nothing leaves the browser. Clearing site data deletes your translations permanently, so export first if you care about them.
+
+Note: reverse mode with active input previously scored every answer as correct, because Han characters were being stripped before comparison. Scores recorded that way are inflated and were left untouched rather than silently rewritten.
+
+## Project structure
+
+| Path                      | Holds                                                                      |
+| ------------------------- | -------------------------------------------------------------------------- |
+| `src/pages`               | One component per route, plus the 404                                      |
+| `src/routes.tsx`          | The route table - path, label, element, layout mode                        |
+| `src/components/layout`   | App shell, navigation, footer                                              |
+| `src/components/features` | Flashcard, translation rows, editors, batch import                         |
+| `src/components/ui`       | Button, Input, Card, Modal, Toast and friends                              |
+| `src/hooks`               | `useHotkeys`, and the local-storage-backed store                           |
+| `src/utils`               | Storage, translation service, probability, pinyin, CSV, search, comparison |
+| `src/test`                | Test setup, the axe helper, shared helpers                                 |
 
 ## Testing
 
-The project includes comprehensive unit tests for:
-
-- Storage utilities (localStorage operations, pinyin generation)
-- UI components (Button, Input, Card, Alert, etc.)
-- Feature components (Flashcard, TranslationForm, TranslationEditor, etc.)
-- Page components (AddTranslation, ListTranslations)
-
-Run tests with:
+Vitest and React Testing Library, with coverage gated at 80% of lines, functions, branches and statements.
 
 ```bash
-npm run test
+npm test
+npm run test:coverage
 ```
 
 ## Deployment
 
-### Vercel
+`vercel.json` rewrites everything to `index.html` for client-side routing. Connect the repository to Vercel and deploy; make sure the project's Node version matches `.nvmrc`.
 
-The project includes a `vercel.json` configuration file for easy deployment to Vercel. Simply connect your repository to Vercel and deploy.
-
-### GitHub Actions
-
-The project includes a CI workflow (`.github/workflows/ci.yml`) that runs on pull requests:
-
-- Tests
-- Type checking
-- Linting
-- Format checking
+CI runs on pull requests and on pushes to `master`: formatting, lint, type-check, tests with coverage, and a production build, plus a separate `npm audit` job and a weekly scheduled audit.
 
 ## Scoring & Probability System
 
@@ -196,7 +142,7 @@ The system uses a weighted random selection algorithm where items with lower suc
 success_rate = correctCount / (correctCount + incorrectCount)
 ```
 
-**Special case**: Items with no attempts (both counts = 0) get **maximum weight (10.0)** to ensure they appear frequently for initial practice.
+**Special case**: an item with no attempts has no meaningful success rate, so `calculateSuccessRate` returns **0.5**. That value is only used for display reasoning -- `calculateWeight` short-circuits for zero-attempt items and never consults it. See the weight formula below.
 
 #### Weight Calculation
 
@@ -207,7 +153,7 @@ else:
   weight = 1 / (success_rate + 0.1)
 ```
 
-**Special handling**: New items (no attempts) get **maximum weight (10.0)** directly, ensuring they appear most frequently.
+New items take the short-circuit branch, so they get the maximum weight directly rather than the 1.67 that a 0.5 success rate would otherwise produce.
 
 The constant **0.1** in the formula prevents division by zero and ensures even perfect items still have a chance to appear.
 
@@ -258,18 +204,8 @@ New items and items with 0% success rate share the highest probability. As you p
 
 ## Technologies
 
-- **React 18** - UI library
-- **TypeScript** - Type safety
-- **Vite** - Build tool and dev server
-- **TailwindCSS** - Utility-first CSS framework
-- **React Router** - Client-side routing
-- **pinyin-pro** - Pinyin generation with tone marks
-- **Vitest** - Test runner
-- **React Testing Library** - Component testing utilities
-- **ESLint** - Code linting
-- **Prettier** - Code formatting
-- **react-icons** - Icon library (Heroicons)
+React 19, TypeScript 5.9, Vite 7, Tailwind CSS 4, React Router 7, Vitest 5, React Testing Library 16, ESLint 10, Prettier, axe-core, pinyin-pro, react-icons.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT - see [LICENSE](LICENSE).
