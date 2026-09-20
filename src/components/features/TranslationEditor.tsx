@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useHotkeys } from '../../hooks/useHotkeys';
 import type { FormSubmitHandler, Translation } from '../../types';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
@@ -30,19 +31,7 @@ export function TranslationEditor({ translation, onSave, onCancel }: Translation
     onSave(translation.id, mandarin.trim(), translationText.trim());
   }, [mandarin, translationText, translation.id, onSave]);
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        onCancel();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [onCancel]);
+  useHotkeys({ Escape: onCancel }, { allowInEditable: true });
 
   const handleFormSubmit: FormSubmitHandler = e => {
     e.preventDefault();

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useHotkeys } from '../../hooks/useHotkeys';
 import type { FormSubmitHandler } from '../../types';
 import { useToast } from '../../contexts/ToastContext';
 import { Input } from '../ui/Input';
@@ -37,24 +38,18 @@ export function TranslationForm({
 
   const formRef = useRef<HTMLFormElement>(null);
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        // Blur any focused input within this form
-        if (
-          document.activeElement instanceof HTMLInputElement &&
-          formRef.current?.contains(document.activeElement)
-        ) {
-          document.activeElement.blur();
+  // Escape gives up focus without submitting.
+  useHotkeys(
+    {
+      Escape: () => {
+        const active = document.activeElement;
+        if (active instanceof HTMLInputElement && formRef.current?.contains(active)) {
+          active.blur();
         }
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, []);
+      },
+    },
+    { allowInEditable: true }
+  );
 
   const handleSubmit: FormSubmitHandler = e => {
     e.preventDefault();

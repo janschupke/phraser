@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useHotkeys } from '../../hooks/useHotkeys';
 import type { FormSubmitHandler, Translation } from '../../types';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
@@ -144,21 +145,7 @@ export function Flashcard({
     setShowDeleteConfirm(false);
   };
 
-  useEffect(() => {
-    if (!isEditing) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        handleCancel();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isEditing, handleCancel]);
+  useHotkeys({ Escape: handleCancel }, { enabled: isEditing, allowInEditable: true });
 
   const handleFormSubmit: FormSubmitHandler = e => {
     e.preventDefault();
