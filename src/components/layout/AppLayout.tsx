@@ -1,5 +1,5 @@
 import { useEffect, useRef, type ReactNode } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import { Navigation } from './Navigation';
 import { Footer } from './Footer';
 import { ROUTES } from '../../routes';

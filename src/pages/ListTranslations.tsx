@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 import { updateTranslation, deleteTranslation } from '../utils/translationService';
 import { useTranslations } from '../hooks/useStoredState';
 import { filterTranslations } from '../utils/search';

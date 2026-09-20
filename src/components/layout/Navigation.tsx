@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router';
 import { HiMenu, HiX } from 'react-icons/hi';
 import { useTranslations } from '../../hooks/useStoredState';
 import { useHotkeys } from '../../hooks/useHotkeys';
