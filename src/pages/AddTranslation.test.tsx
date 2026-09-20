@@ -37,4 +37,47 @@ describe('AddTranslation', () => {
       expect(storage.addTranslation).toHaveBeenCalledWith('你好', 'Hello');
     });
   });
+
+  it('switches to the batch import tab and back', async () => {
+    const user = userEvent.setup();
+    renderWithToast(<AddTranslation />);
+
+    await user.click(screen.getByRole('button', { name: /batch import/i }));
+    expect(screen.getByLabelText(/paste csv data/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /single entry/i }));
+    expect(screen.getByLabelText(/mandarin/i)).toBeInTheDocument();
+  });
+
+  it('shows the review step after a batch import, and saves it', async () => {
+    const user = userEvent.setup();
+    renderWithToast(<AddTranslation />);
+
+    await user.click(screen.getByRole('button', { name: /batch import/i }));
+    await user.click(screen.getByLabelText(/paste csv data/i));
+    await user.paste('你好,Hello\n貓,Cat');
+    await user.click(screen.getByRole('button', { name: /import from text/i }));
+
+    expect(await screen.findByDisplayValue('你好')).toBeInTheDocument();
+
+    vi.mocked(storage.addBatchTranslations).mockReturnValue([
+      { id: '1', mandarin: '你好', translation: 'Hello' },
+      { id: '2', mandarin: '貓', translation: 'Cat' },
+    ]);
+    await user.click(screen.getByRole('button', { name: /save all/i }));
+    expect(await screen.findByText(/successfully imported 2 translation/i)).toBeInTheDocument();
+  });
+
+  it('cancels out of the review step', async () => {
+    const user = userEvent.setup();
+    renderWithToast(<AddTranslation />);
+
+    await user.click(screen.getByRole('button', { name: /batch import/i }));
+    await user.click(screen.getByLabelText(/paste csv data/i));
+    await user.paste('你好,Hello');
+    await user.click(screen.getByRole('button', { name: /import from text/i }));
+    await user.click(screen.getByRole('button', { name: /^cancel$/i }));
+
+    expect(screen.getByLabelText(/paste csv data/i)).toBeInTheDocument();
+  });
 });

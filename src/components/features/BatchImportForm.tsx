@@ -39,18 +39,20 @@ export function BatchImportForm({ onImport }: BatchImportFormProps) {
         if (char === '"') {
           inQuotes = !inQuotes;
         } else if (char === ',' && !inQuotes) {
-          parts.push(current.trim());
+          parts.push(current);
           current = '';
         } else {
           current += char;
         }
       }
-      parts.push(current.trim());
+      parts.push(current);
 
       if (parts.length >= 2) {
+        // Trim only the assembled values. Trimming each part before rejoining
+        // would turn an unquoted "Hello, world" into "Hello,world".
         const [first = '', ...rest] = parts;
-        const mandarin = first.replace(/^"|"$/g, '');
-        const translation = rest.join(',').replace(/^"|"$/g, '');
+        const mandarin = first.trim().replace(/^"|"$/g, '');
+        const translation = rest.join(',').trim().replace(/^"|"$/g, '');
         if (mandarin && translation) {
           entries.push({ mandarin, translation });
         }

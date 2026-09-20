@@ -6,11 +6,13 @@ export interface Settings {
   colorCodedCards: boolean;
 }
 
-const defaultSettings: Settings = {
+// Frozen: getSettings hands this exact object back when nothing is stored, so
+// anything that mutated its result would corrupt the defaults for the session.
+const defaultSettings: Settings = Object.freeze({
   activeInput: false,
   reverseMode: false,
   colorCodedCards: true,
-};
+});
 
 // getSettings merges over defaults, which would allocate a new object on every
 // call. Memoizing against the (referentially stable) stored value keeps the
@@ -32,7 +34,8 @@ export const saveSettings = (settings: Settings): void => {
 };
 
 export const updateSetting = <K extends keyof Settings>(key: K, value: Settings[K]): void => {
-  const settings = getSettings();
-  settings[key] = value;
-  saveSettings(settings);
+  // Copy rather than mutate: getSettings returns the shared defaults object
+  // when nothing is stored yet, so assigning into it changed the defaults
+  // themselves for the rest of the session.
+  saveSettings({ ...getSettings(), [key]: value });
 };
