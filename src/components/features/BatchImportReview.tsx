@@ -15,9 +15,9 @@ export function BatchImportReview({ entries, onSave, onCancel }: BatchImportRevi
   const { showToast } = useToast();
 
   const handleEntryChange = (index: number, field: 'mandarin' | 'translation', value: string) => {
-    const updated = [...editedEntries];
-    updated[index] = { ...updated[index], [field]: value };
-    setEditedEntries(updated);
+    setEditedEntries(prev =>
+      prev.map((entry, i) => (i === index ? { ...entry, [field]: value } : entry))
+    );
   };
 
   const handleDelete = (index: number) => {

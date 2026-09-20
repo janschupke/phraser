@@ -66,8 +66,9 @@ export function Navigation() {
         newIndex = currentIndex + 1;
       }
 
-      if (newIndex !== currentIndex) {
-        navigate(navLinks[newIndex].path);
+      const nextLink = navLinks[newIndex];
+      if (newIndex !== currentIndex && nextLink) {
+        navigate(nextLink.path);
         navRefs.current[newIndex]?.focus();
       }
     };

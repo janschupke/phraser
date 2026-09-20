@@ -12,6 +12,7 @@ import {
   recordIncorrectAnswer,
 } from './storage';
 import type { Translation } from '../types';
+import { at } from '../test/helpers';
 
 describe('storage utilities', () => {
   beforeEach(() => {
@@ -76,10 +77,10 @@ describe('storage utilities', () => {
       expect(success).toBe(true);
 
       const translations = getTranslations();
-      expect(translations[0].mandarin).toBe('你好吗');
-      expect(translations[0].translation).toBe('How are you');
-      expect(translations[0].pinyin).toBeDefined();
-      expect(translations[0].pinyin).toBeTruthy();
+      expect(at(translations, 0).mandarin).toBe('你好吗');
+      expect(at(translations, 0).translation).toBe('How are you');
+      expect(at(translations, 0).pinyin).toBeDefined();
+      expect(at(translations, 0).pinyin).toBeTruthy();
     });
 
     it('should return false for non-existent translation', () => {
@@ -98,7 +99,7 @@ describe('storage utilities', () => {
 
       const translations = getTranslations();
       expect(translations).toHaveLength(1);
-      expect(translations[0].mandarin).toBe('谢谢');
+      expect(at(translations, 0).mandarin).toBe('谢谢');
     });
 
     it('should return false for non-existent translation', () => {
@@ -323,16 +324,16 @@ describe('storage utilities', () => {
       const counts: Record<string, number> = { [bad.id]: 0, [medium.id]: 0, [good.id]: 0 };
       for (let i = 0; i < 1000; i++) {
         const card = getRandomTranslation();
-        if (card) counts[card.id]++;
+        if (card) counts[card.id] = (counts[card.id] ?? 0) + 1;
       }
 
       // Bad item (weight 10.0) should appear most often
       // Medium item (weight 1.67) should appear more than good item (weight 0.91)
-      expect(counts[bad.id]).toBeGreaterThan(counts[medium.id]);
-      expect(counts[medium.id]).toBeGreaterThan(counts[good.id]);
+      expect(counts[bad.id] ?? 0).toBeGreaterThan(counts[medium.id] ?? 0);
+      expect(counts[medium.id] ?? 0).toBeGreaterThan(counts[good.id] ?? 0);
 
       // Verify bad item appears significantly more often (should be ~6x more than medium)
-      expect(counts[bad.id]).toBeGreaterThan(counts[medium.id] * 3);
+      expect(counts[bad.id] ?? 0).toBeGreaterThan((counts[medium.id] ?? 0) * 3);
     });
 
     it('should handle items with no attempts', () => {
@@ -367,14 +368,14 @@ describe('storage utilities', () => {
       const counts: Record<string, number> = { [newItem.id]: 0, [medium.id]: 0 };
       for (let i = 0; i < 1000; i++) {
         const card = getRandomTranslation();
-        if (card) counts[card.id]++;
+        if (card) counts[card.id] = (counts[card.id] ?? 0) + 1;
       }
 
       // New item (weight 10.0) should appear more often than medium item (weight 1.67)
-      expect(counts[newItem.id]).toBeGreaterThan(counts[medium.id]);
+      expect(counts[newItem.id] ?? 0).toBeGreaterThan(counts[medium.id] ?? 0);
 
       // New item should appear significantly more often (~6x more)
-      expect(counts[newItem.id]).toBeGreaterThan(counts[medium.id] * 3);
+      expect(counts[newItem.id] ?? 0).toBeGreaterThan((counts[medium.id] ?? 0) * 3);
     });
   });
 });

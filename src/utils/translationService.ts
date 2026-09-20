@@ -62,6 +62,8 @@ export const updateTranslation = (id: string, mandarin: string, translation: str
   if (index === -1) return false;
 
   const existing = translations[index];
+  if (!existing) return false;
+
   translations[index] = {
     id,
     mandarin: mandarin.trim(),
@@ -108,11 +110,12 @@ export const addBatchTranslations = (
 export const recordCorrectAnswer = (id: string): boolean => {
   const translations = getTranslations();
   const index = translations.findIndex(t => t.id === id);
-  if (index === -1) return false;
+  const existing = translations[index];
+  if (!existing) return false;
 
   translations[index] = {
-    ...translations[index],
-    correctCount: (translations[index].correctCount ?? 0) + 1,
+    ...existing,
+    correctCount: (existing.correctCount ?? 0) + 1,
   };
   saveTranslations(translations);
   return true;
@@ -124,11 +127,12 @@ export const recordCorrectAnswer = (id: string): boolean => {
 export const recordIncorrectAnswer = (id: string): boolean => {
   const translations = getTranslations();
   const index = translations.findIndex(t => t.id === id);
-  if (index === -1) return false;
+  const existing = translations[index];
+  if (!existing) return false;
 
   translations[index] = {
-    ...translations[index],
-    incorrectCount: (translations[index].incorrectCount ?? 0) + 1,
+    ...existing,
+    incorrectCount: (existing.incorrectCount ?? 0) + 1,
   };
   saveTranslations(translations);
   return true;

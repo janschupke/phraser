@@ -54,23 +54,23 @@ export const calculateWeight = (translation: Translation): number => {
 export const selectRandomTranslation = (translations: Translation[]): Translation | null => {
   if (translations.length === 0) return null;
 
-  // Calculate weights for all translations
-  const weights = translations.map(calculateWeight);
+  // Pair each translation with its weight so the two can never drift apart.
+  const weighted = translations.map(translation => ({
+    translation,
+    weight: calculateWeight(translation),
+  }));
 
-  // Calculate total weight
-  const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+  const totalWeight = weighted.reduce((sum, entry) => sum + entry.weight, 0);
 
-  // Generate random number between 0 and totalWeight
+  // Walk the cumulative distribution until the random draw is used up.
   let random = Math.random() * totalWeight;
-
-  // Find the translation corresponding to the random number
-  for (let i = 0; i < translations.length; i++) {
-    random -= weights[i];
+  for (const entry of weighted) {
+    random -= entry.weight;
     if (random <= 0) {
-      return translations[i];
+      return entry.translation;
     }
   }
 
-  // Fallback to last translation (shouldn't happen, but safety)
-  return translations[translations.length - 1];
+  // Only reachable through floating-point drift at the very top of the range.
+  return weighted.at(-1)?.translation ?? null;
 };

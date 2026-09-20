@@ -5,6 +5,7 @@ import { ToastProvider } from '../contexts/ToastContext';
 import ListTranslations from './ListTranslations';
 import * as storage from '../utils/storage';
 import type { Translation } from '../types';
+import { at } from '../test/helpers';
 
 vi.mock('../utils/storage');
 
@@ -37,13 +38,13 @@ describe('ListTranslations', () => {
 
     // Expand first card
     const expandButtons = screen.getAllByLabelText(/expand/i);
-    await user.click(expandButtons[0]);
+    await user.click(at(expandButtons, 0));
 
     // Now translation should be visible
     expect(screen.getByText('Hello')).toBeInTheDocument();
 
     // Expand second card
-    await user.click(expandButtons[1]);
+    await user.click(at(expandButtons, 1));
     expect(screen.getByText('Thank you')).toBeInTheDocument();
   });
 
@@ -59,7 +60,7 @@ describe('ListTranslations', () => {
     renderWithToast(<ListTranslations />);
 
     const editButtons = screen.getAllByLabelText(/edit translation/i);
-    await user.click(editButtons[0]);
+    await user.click(at(editButtons, 0));
 
     expect(screen.getByDisplayValue('你好')).toBeInTheDocument();
     expect(screen.getByDisplayValue('Hello')).toBeInTheDocument();
@@ -70,7 +71,7 @@ describe('ListTranslations', () => {
     renderWithToast(<ListTranslations />);
 
     const editButtons = screen.getAllByLabelText(/edit translation/i);
-    await user.click(editButtons[0]);
+    await user.click(at(editButtons, 0));
 
     const mandarinInput = screen.getByDisplayValue('你好');
     await user.clear(mandarinInput);
@@ -88,7 +89,7 @@ describe('ListTranslations', () => {
     renderWithToast(<ListTranslations />);
 
     const editButtons = screen.getAllByLabelText(/edit translation/i);
-    await user.click(editButtons[0]);
+    await user.click(at(editButtons, 0));
 
     await user.click(screen.getByRole('button', { name: /cancel/i }));
 
@@ -101,7 +102,7 @@ describe('ListTranslations', () => {
     renderWithToast(<ListTranslations />);
 
     const deleteButtons = screen.getAllByLabelText(/delete translation/i);
-    await user.click(deleteButtons[0]);
+    await user.click(at(deleteButtons, 0));
 
     // Confirm modal should appear
     expect(screen.getByText(/delete translation/i)).toBeInTheDocument();
@@ -110,7 +111,7 @@ describe('ListTranslations', () => {
     // Click delete button in modal - use getAllByRole and filter for the one in the modal
     const allDeleteButtons = screen.getAllByRole('button', { name: /delete/i });
     // The last one should be the confirm button in the modal
-    const confirmButton = allDeleteButtons[allDeleteButtons.length - 1];
+    const confirmButton = at(allDeleteButtons, allDeleteButtons.length - 1);
     await user.click(confirmButton);
 
     await waitFor(() => {

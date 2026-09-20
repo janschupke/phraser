@@ -49,8 +49,9 @@ export function BatchImportForm({ onImport }: BatchImportFormProps) {
       parts.push(current.trim());
 
       if (parts.length >= 2) {
-        const mandarin = parts[0].replace(/^"|"$/g, '');
-        const translation = parts.slice(1).join(',').replace(/^"|"$/g, '');
+        const [first = '', ...rest] = parts;
+        const mandarin = first.replace(/^"|"$/g, '');
+        const translation = rest.join(',').replace(/^"|"$/g, '');
         if (mandarin && translation) {
           entries.push({ mandarin, translation });
         }
