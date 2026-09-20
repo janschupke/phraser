@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import type { Translation } from '../../types';
+import type { FormSubmitHandler, Translation } from '../../types';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 
@@ -44,7 +44,7 @@ export function TranslationEditor({ translation, onSave, onCancel }: Translation
     };
   }, [onCancel]);
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit: FormSubmitHandler = e => {
     e.preventDefault();
     handleSave();
   };

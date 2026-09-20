@@ -42,6 +42,8 @@ describe('storage utilities', () => {
   describe('saveTranslations', () => {
     it('should save translations to localStorage', () => {
       const translations: Translation[] = [{ id: '1', mandarin: '你好', translation: 'Hello' }];
+      // TODO: this test disappears along with the storage.ts shim it exercises.
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       saveTranslations(translations);
       const stored = localStorage.getItem('phraser');
       expect(stored).toBe(JSON.stringify(translations));
@@ -196,18 +198,21 @@ describe('storage utilities', () => {
         setAttribute: vi.fn(),
         click: mockClick,
         style: {},
+        // typeof document.createElement pulls in the deprecated tag-name overload.
+        // eslint-disable-next-line @typescript-eslint/no-deprecated
       })) as unknown as typeof document.createElement;
 
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       document.createElement = mockCreateElement;
-      document.body.appendChild = mockAppendChild as unknown as typeof document.body.appendChild;
-      document.body.removeChild = mockRemoveChild as unknown as typeof document.body.removeChild;
+      document.body.appendChild = mockAppendChild;
+      document.body.removeChild = mockRemoveChild;
 
       // Mock URL.createObjectURL and revokeObjectURL
       const mockRevokeObjectURL = vi.fn();
       const originalCreateObjectURL = URL.createObjectURL;
       const originalRevokeObjectURL = URL.revokeObjectURL;
-      URL.createObjectURL = vi.fn(() => 'blob:mock-url') as unknown as typeof URL.createObjectURL;
-      URL.revokeObjectURL = mockRevokeObjectURL as unknown as typeof URL.revokeObjectURL;
+      URL.createObjectURL = vi.fn(() => 'blob:mock-url');
+      URL.revokeObjectURL = mockRevokeObjectURL;
 
       downloadTranslationsAsCSV();
 
@@ -343,15 +348,17 @@ describe('storage utilities', () => {
       recordCorrectAnswer(attempted.id);
       recordIncorrectAnswer(attempted.id);
 
-      // Both should be selectable
-      const selections = new Set<string>();
-      for (let i = 0; i < 20; i++) {
-        const card = getRandomTranslation();
-        if (card) selections.add(card.id);
-      }
+      // Both must be reachable. Driving Math.random to each end of the range
+      // proves that directly; sampling 20 random draws does not, because the
+      // attempted item only carries weight 1.67 against the new item's 10.0,
+      // so it is missed entirely in roughly 1 run in 20.
+      const randomSpy = vi.spyOn(Math, 'random');
 
-      expect(selections.has(newItem.id)).toBe(true);
-      expect(selections.has(attempted.id)).toBe(true);
+      randomSpy.mockReturnValue(0);
+      expect(getRandomTranslation()?.id).toBe(newItem.id);
+
+      randomSpy.mockReturnValue(0.999999);
+      expect(getRandomTranslation()?.id).toBe(attempted.id);
     });
 
     it('should favor new items with maximum weight', () => {

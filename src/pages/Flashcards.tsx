@@ -70,7 +70,7 @@ function Flashcards() {
       if (updateTranslation(id, mandarin.trim(), translation.trim())) {
         showToast('success', 'Translation updated successfully!');
         // Reload the current card if it's the one being edited
-        if (currentCard && currentCard.id === id) {
+        if (currentCard?.id === id) {
           const translations = getTranslations();
           const updatedCard = translations.find(t => t.id === id);
           if (updatedCard) {
@@ -89,7 +89,7 @@ function Flashcards() {
       if (deleteTranslation(id)) {
         showToast('success', 'Translation deleted successfully!');
         // If the deleted card is the current card, load a new one
-        if (currentCard && currentCard.id === id) {
+        if (currentCard?.id === id) {
           loadRandomCard();
         }
       } else {

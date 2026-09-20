@@ -11,21 +11,24 @@ type TabType = 'single' | 'batch';
 
 function AddTranslation() {
   const [activeTab, setActiveTab] = useState<TabType>('single');
-  const [reviewEntries, setReviewEntries] = useState<Array<{
-    mandarin: string;
-    translation: string;
-  }> | null>(null);
+  const [reviewEntries, setReviewEntries] = useState<
+    | {
+        mandarin: string;
+        translation: string;
+      }[]
+    | null
+  >(null);
   const { showToast } = useToast();
 
   const handleSingleSubmit = (mandarin: string, translation: string) => {
     addTranslation(mandarin, translation);
   };
 
-  const handleBatchImport = (entries: Array<{ mandarin: string; translation: string }>) => {
+  const handleBatchImport = (entries: { mandarin: string; translation: string }[]) => {
     setReviewEntries(entries);
   };
 
-  const handleBatchSave = (entries: Array<{ mandarin: string; translation: string }>) => {
+  const handleBatchSave = (entries: { mandarin: string; translation: string }[]) => {
     try {
       const saved = addBatchTranslations(entries);
       showToast('success', `Successfully imported ${saved.length} translation(s)!`);

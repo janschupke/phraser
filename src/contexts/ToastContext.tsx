@@ -14,7 +14,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const timersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
   const showToast = useCallback((type: 'success' | 'error', message: string) => {
-    const id = Date.now().toString() + Math.random().toString(36).substr(2, 9);
+    const id = Date.now().toString() + Math.random().toString(36).slice(2, 11);
     const newToast: Toast = { id, type, message };
     setToasts(prev => [...prev, newToast]);
 

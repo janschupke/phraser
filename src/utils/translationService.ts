@@ -10,7 +10,7 @@ import { generatePinyin } from './pinyin';
  * Generates a unique ID for a translation
  */
 const generateId = (): string => {
-  return Date.now().toString() + Math.random().toString(36).substr(2, 9);
+  return Date.now().toString() + Math.random().toString(36).slice(2, 11);
 };
 
 /**
@@ -32,7 +32,7 @@ const createTranslation = (mandarin: string, translation: string): Translation =
  */
 export const getTranslations = (): Translation[] => {
   const stored = storageManager.get<Translation[]>(storageManager.getTranslationsKey());
-  return stored || [];
+  return stored ?? [];
 };
 
 /**
@@ -92,7 +92,7 @@ export const deleteTranslation = (id: string): boolean => {
  * Adds multiple translations in batch
  */
 export const addBatchTranslations = (
-  entries: Array<{ mandarin: string; translation: string }>
+  entries: { mandarin: string; translation: string }[]
 ): Translation[] => {
   const existingTranslations = getTranslations();
   const newTranslations: Translation[] = entries.map(({ mandarin, translation }) =>

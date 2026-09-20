@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import type { Translation } from '../../types';
+import type { FormSubmitHandler, Translation } from '../../types';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
@@ -160,7 +160,7 @@ export function Flashcard({
     };
   }, [isEditing, handleCancel]);
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit: FormSubmitHandler = e => {
     e.preventDefault();
     handleSave();
   };

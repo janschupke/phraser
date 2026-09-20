@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect, type FormEvent } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import type { FormSubmitHandler } from '../../types';
 import { useToast } from '../../contexts/ToastContext';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
@@ -25,11 +26,12 @@ export function TranslationForm({
   const translationInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (autoFocus && mandarinInputRef.current) {
-      // Small delay to ensure the page transition has completed
-      setTimeout(() => {
-        mandarinInputRef.current?.focus();
-      }, 100);
+    // Focus synchronously on mount. This used to run behind a 100ms timer,
+    // which stole focus back from whatever the user had already tabbed or
+    // clicked into -- typing straight after navigating would drop the rest of
+    // your keystrokes into the wrong field. The timer was never cleared either.
+    if (autoFocus) {
+      mandarinInputRef.current?.focus();
     }
   }, [autoFocus]);
 
@@ -54,7 +56,7 @@ export function TranslationForm({
     };
   }, []);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit: FormSubmitHandler = e => {
     e.preventDefault();
 
     if (!mandarin.trim() || !translation.trim()) {

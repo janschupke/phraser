@@ -3,7 +3,7 @@ import { useToast } from '../../contexts/ToastContext';
 import { Button } from '../ui/Button';
 
 interface BatchImportFormProps {
-  onImport: (entries: Array<{ mandarin: string; translation: string }>) => void;
+  onImport: (entries: { mandarin: string; translation: string }[]) => void;
 }
 
 export function BatchImportForm({ onImport }: BatchImportFormProps) {
@@ -12,12 +12,12 @@ export function BatchImportForm({ onImport }: BatchImportFormProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { showToast } = useToast();
 
-  const parseCSV = (text: string): Array<{ mandarin: string; translation: string }> => {
+  const parseCSV = (text: string): { mandarin: string; translation: string }[] => {
     const lines = text
       .trim()
       .split('\n')
       .filter(line => line.trim());
-    const entries: Array<{ mandarin: string; translation: string }> = [];
+    const entries: { mandarin: string; translation: string }[] = [];
 
     lines.forEach((line, index) => {
       // Skip header row if it looks like headers
@@ -35,8 +35,7 @@ export function BatchImportForm({ onImport }: BatchImportFormProps) {
       let current = '';
       let inQuotes = false;
 
-      for (let i = 0; i < line.length; i++) {
-        const char = line[i];
+      for (const char of line) {
         if (char === '"') {
           inQuotes = !inQuotes;
         } else if (char === ',' && !inQuotes) {
@@ -118,7 +117,7 @@ export function BatchImportForm({ onImport }: BatchImportFormProps) {
     e.stopPropagation();
     setIsDragging(false);
 
-    const file = e.dataTransfer.files?.[0];
+    const file = e.dataTransfer.files[0];
     if (!file) return;
 
     if (!file.name.endsWith('.csv')) {

@@ -26,7 +26,7 @@ export const exportTranslationsToCSV = (translations: Translation[]): string => 
   const rows = translations.map(t => {
     const mandarin = escapeCsvField(t.mandarin);
     const translation = escapeCsvField(t.translation);
-    const pinyin = escapeCsvField(t.pinyin || '');
+    const pinyin = escapeCsvField(t.pinyin ?? '');
     return `${mandarin},${translation},${pinyin}`;
   });
 

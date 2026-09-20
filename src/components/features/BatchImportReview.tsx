@@ -5,8 +5,8 @@ import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
 
 interface BatchImportReviewProps {
-  entries: Array<{ mandarin: string; translation: string }>;
-  onSave: (entries: Array<{ mandarin: string; translation: string }>) => void;
+  entries: { mandarin: string; translation: string }[];
+  onSave: (entries: { mandarin: string; translation: string }[]) => void;
   onCancel: () => void;
 }
 

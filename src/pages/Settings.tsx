@@ -25,7 +25,7 @@ function SettingsPage() {
 
   const handleToggle = (key: keyof Settings) => {
     const newValue = !settings[key];
-    updateSetting(key, newValue as Settings[keyof Settings]);
+    updateSetting(key, newValue);
     setSettings({ ...settings, [key]: newValue });
   };
 
