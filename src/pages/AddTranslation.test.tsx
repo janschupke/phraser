@@ -3,9 +3,9 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ToastProvider } from '../contexts/ToastContext';
 import AddTranslation from './AddTranslation';
-import * as storage from '../utils/storage';
+import * as storage from '../utils/translationService';
 
-vi.mock('../utils/storage');
+vi.mock('../utils/translationService');
 
 const renderWithToast = (component: React.ReactElement) => {
   return render(<ToastProvider>{component}</ToastProvider>);

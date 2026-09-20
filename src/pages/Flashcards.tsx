@@ -4,7 +4,7 @@ import {
   getTranslations,
   updateTranslation,
   deleteTranslation,
-} from '../utils/storage';
+} from '../utils/translationService';
 import { getSettings } from '../utils/settings';
 import { PageTitle } from '../components/ui/PageTitle';
 import { Card } from '../components/ui/Card';

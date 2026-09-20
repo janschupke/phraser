@@ -5,7 +5,7 @@ import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
 import { HiOutlineCog, HiOutlineTrash } from 'react-icons/hi';
 import { validateTranslation } from '../../utils/stringComparison';
-import { recordCorrectAnswer, recordIncorrectAnswer } from '../../utils/storage';
+import { recordCorrectAnswer, recordIncorrectAnswer } from '../../utils/translationService';
 
 interface FlashcardProps {
   card: Translation;

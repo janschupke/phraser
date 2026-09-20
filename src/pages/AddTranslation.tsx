@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { addTranslation, addBatchTranslations } from '../utils/storage';
+import { addTranslation, addBatchTranslations } from '../utils/translationService';
 import { PageTitle } from '../components/ui/PageTitle';
 import { Card } from '../components/ui/Card';
 import { TranslationForm } from '../components/features/TranslationForm';

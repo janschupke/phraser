@@ -4,7 +4,8 @@ import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { ConfirmModal } from '../components/ui/ConfirmModal';
 import { getSettings, updateSetting, type Settings } from '../utils/settings';
-import { downloadTranslationsAsCSV, getTranslations, resetAllTranslations } from '../utils/storage';
+import { getTranslations, resetAllTranslations } from '../utils/translationService';
+import { downloadTranslationsAsCSV } from '../utils/csvExport';
 import { useToast } from '../contexts/ToastContext';
 
 function SettingsPage() {
@@ -37,7 +38,7 @@ function SettingsPage() {
     }
 
     try {
-      downloadTranslationsAsCSV();
+      downloadTranslationsAsCSV(translations);
       showToast('success', `Exported ${translations.length} translation(s) as CSV`);
     } catch {
       showToast('error', 'Failed to export translations');

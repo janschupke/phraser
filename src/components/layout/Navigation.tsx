@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
-import { getTranslations } from '../../utils/storage';
+import { getTranslations } from '../../utils/translationService';
 
 const navLinks = [
   { path: '/', label: 'Add Translation' },

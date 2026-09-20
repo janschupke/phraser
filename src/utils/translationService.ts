@@ -5,6 +5,7 @@
 import type { Translation } from '../types';
 import { storageManager } from './storageManager';
 import { generatePinyin } from './pinyin';
+import { selectRandomTranslation } from './probability';
 
 /**
  * Generates a unique ID for a translation
@@ -144,4 +145,12 @@ export const recordIncorrectAnswer = (id: string): boolean => {
  */
 export const resetAllTranslations = (): void => {
   saveTranslations([]);
+};
+
+/**
+ * Picks a translation at random, weighted so that cards you get wrong more
+ * often come up more often.
+ */
+export const getRandomTranslation = (): Translation | null => {
+  return selectRandomTranslation(getTranslations());
 };

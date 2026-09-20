@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getTranslations, updateTranslation, deleteTranslation } from '../utils/storage';
+import { getTranslations, updateTranslation, deleteTranslation } from '../utils/translationService';
 import type { Translation } from '../types';
 import { useToast } from '../contexts/ToastContext';
 import { PageTitle } from '../components/ui/PageTitle';
