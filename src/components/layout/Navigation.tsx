@@ -93,7 +93,7 @@ export function Navigation() {
             >
               {link.label}
               {link.path === '/list' && translationCount > 0 && (
-                <span className="ml-2 px-1.5 py-0.5 text-xs bg-neutral-200 rounded">
+                <span className="ml-2 px-1.5 py-0.5 text-xs bg-neutral-200 rounded-sm">
                   {translationCount}
                 </span>
               )}

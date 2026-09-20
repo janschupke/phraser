@@ -456,7 +456,7 @@ export function Flashcard({
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 animate-fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 animate-fade-in">
           <div className="bg-surface rounded-lg shadow-xl max-w-md w-full mx-4 p-6 animate-scale-in">
             <h2 className="text-xl font-bold text-neutral-800 mb-4">Delete Translation</h2>
             <p className="text-neutral-700 mb-6">
@@ -468,7 +468,7 @@ export function Flashcard({
               </Button>
               <button
                 onClick={handleDeleteConfirm}
-                className="px-5 py-2.5 rounded-lg font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-error-600 text-white hover:bg-error-700 focus:ring-error-500"
+                className="px-5 py-2.5 rounded-lg font-medium transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 bg-error-600 text-white hover:bg-error-700 focus:ring-error-500"
               >
                 Delete
               </button>

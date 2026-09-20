@@ -40,7 +40,7 @@ export function TranslationCard({ translation, onEdit, onDelete }: TranslationCa
         <div className="flex items-start gap-3">
           <button
             onClick={toggleExpand}
-            className="mt-1 p-1 text-neutral-400 hover:text-neutral-600 transition-colors duration-200 flex-shrink-0"
+            className="mt-1 p-1 text-neutral-400 hover:text-neutral-600 transition-colors duration-200 shrink-0"
             aria-label={isExpanded ? 'Collapse' : 'Expand'}
             title={isExpanded ? 'Collapse' : 'Expand'}
           >
@@ -110,7 +110,7 @@ export function TranslationCard({ translation, onEdit, onDelete }: TranslationCa
           </div>
         </div>
       </div>
-      <div className="flex gap-3 sm:gap-4 flex-shrink-0" onClick={handleActionClick}>
+      <div className="flex gap-3 sm:gap-4 shrink-0" onClick={handleActionClick}>
         <Button
           variant="icon"
           onClick={e => {

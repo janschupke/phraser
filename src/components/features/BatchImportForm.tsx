@@ -218,7 +218,7 @@ export function BatchImportForm({ onImport }: BatchImportFormProps) {
           value={csvText}
           onChange={e => setCsvText(e.target.value)}
           placeholder="mandarin,translation&#10;你好,Hello&#10;谢谢,Thank you"
-          className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-colors duration-200 font-mono text-sm min-h-[120px]"
+          className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-hidden transition-colors duration-200 font-mono text-sm min-h-[120px]"
           rows={6}
         />
         <p className="mt-1 text-xs text-neutral-500">
