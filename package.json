@@ -3,20 +3,24 @@
   "private": true,
   "version": "0.0.0",
   "license": "MIT",
+  "engines": {
+    "node": "24.x"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "npm run type-check && vite build",
+    "preview": "vite preview",
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
-    "preview": "vite preview",
-    "type-check": "tsc --noEmit",
-    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "type-check": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.node.json --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
-    "check": "npm run lint && npm run format && npm run type-check && npm run test && npm run build"
+    "test:coverage": "vitest run --coverage",
+    "check": "npm run format:check && npm run lint && npm run type-check && npm run test && npm run build"
   },
   "dependencies": {
     "pinyin-pro": "^3.27.0",

@@ -1,54 +1,67 @@
 name: CI
 
 on:
+  push:
+    branches: [master]
   pull_request:
     branches: ['**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  test:
-    name: Test
+  verify:
+    name: Verify
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
         with:
-          node-version: '20'
-          cache: 'npm'
-      - run: npm ci
-      - run: npm run test
+          persist-credentials: false
 
-  type-check:
-    name: Type Check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
-          node-version: '20'
-          cache: 'npm'
-      - run: npm ci
-      - run: npm run type-check
+          node-version-file: .nvmrc
+          cache: npm
 
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
       - run: npm ci
-      - run: npm run lint
 
-  format-check:
-    name: Prettier Check
+      # Each check is its own step so the failing gate is obvious in the UI,
+      # but they share one install -- npm ci dominates the wall time.
+      - name: Format
+        run: npm run format:check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Types
+        run: npm run type-check
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+  audit:
+    name: Audit
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
         with:
-          node-version: '20'
-          cache: 'npm'
+          persist-credentials: false
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
       - run: npm ci
-      - run: npm run format:check
+
+      - run: npm audit --audit-level=high
