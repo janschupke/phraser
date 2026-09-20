@@ -1,121 +1,159 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router-dom';
 import { ToastProvider } from '../contexts/ToastContext';
 import ListTranslations from './ListTranslations';
-import * as storage from '../utils/translationService';
+import * as service from '../utils/translationService';
 import type { Translation } from '../types';
 import { at } from '../test/helpers';
 
 vi.mock('../utils/translationService');
 
-const renderWithToast = (component: React.ReactElement) => {
-  return render(<ToastProvider>{component}</ToastProvider>);
-};
+const mockTranslations: Translation[] = [
+  { id: '1', mandarin: '你好', translation: 'Hello', pinyin: 'ní hǎo' },
+  { id: '2', mandarin: '谢谢', translation: 'Thank you', pinyin: 'xiè xie' },
+];
+
+const renderPage = () =>
+  render(
+    <MemoryRouter>
+      <ToastProvider>
+        <ListTranslations />
+      </ToastProvider>
+    </MemoryRouter>
+  );
+
+const disclosures = () =>
+  screen.getAllByRole('button').filter(button => button.hasAttribute('aria-expanded'));
 
 describe('ListTranslations', () => {
-  const mockTranslations: Translation[] = [
-    { id: '1', mandarin: '你好', translation: 'Hello', pinyin: 'ní hǎo' },
-    { id: '2', mandarin: '谢谢', translation: 'Thank you', pinyin: 'xiè xie' },
-  ];
-
   beforeEach(() => {
-    vi.clearAllMocks();
-    vi.mocked(storage.getTranslations).mockReturnValue(mockTranslations);
-    vi.mocked(storage.updateTranslation).mockReturnValue(true);
-    vi.mocked(storage.deleteTranslation).mockReturnValue(true);
+    vi.mocked(service.getTranslations).mockReturnValue(mockTranslations);
+    vi.mocked(service.updateTranslation).mockReturnValue(true);
+    vi.mocked(service.deleteTranslation).mockReturnValue(true);
   });
 
-  it('renders all translations', async () => {
-    const user = userEvent.setup();
-    renderWithToast(<ListTranslations />);
+  it('lists every translation, collapsed', () => {
+    renderPage();
 
-    // Cards are collapsed by default, so only mandarin should be visible
     expect(screen.getByText('你好')).toBeInTheDocument();
-    expect(screen.queryByText('Hello')).not.toBeInTheDocument();
     expect(screen.getByText('谢谢')).toBeInTheDocument();
+    expect(screen.queryByText('Hello')).not.toBeInTheDocument();
     expect(screen.queryByText('Thank you')).not.toBeInTheDocument();
-
-    // Expand first card
-    const expandButtons = screen.getAllByLabelText(/expand/i);
-    await user.click(at(expandButtons, 0));
-
-    // Now translation should be visible
-    expect(screen.getByText('Hello')).toBeInTheDocument();
-
-    // Expand second card
-    await user.click(at(expandButtons, 1));
-    expect(screen.getByText('Thank you')).toBeInTheDocument();
   });
 
-  it('shows empty state when no translations', () => {
-    vi.mocked(storage.getTranslations).mockReturnValue([]);
-    renderWithToast(<ListTranslations />);
+  it('expands a row on demand', async () => {
+    const user = userEvent.setup();
+    renderPage();
 
+    await user.click(at(disclosures(), 0));
+    expect(screen.getByText('Hello')).toBeInTheDocument();
+  });
+
+  it('shows the empty state when there is nothing saved', () => {
+    vi.mocked(service.getTranslations).mockReturnValue([]);
+    renderPage();
     expect(screen.getByText(/no translations saved yet/i)).toBeInTheDocument();
   });
 
-  it('enters edit mode when edit button is clicked', async () => {
-    const user = userEvent.setup();
-    renderWithToast(<ListTranslations />);
+  describe('search', () => {
+    it('filters by english translation', async () => {
+      const user = userEvent.setup();
+      renderPage();
 
-    const editButtons = screen.getAllByLabelText(/edit translation/i);
-    await user.click(at(editButtons, 0));
+      await user.type(screen.getByLabelText(/search translations/i), 'thank');
 
-    expect(screen.getByDisplayValue('你好')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('Hello')).toBeInTheDocument();
-  });
+      expect(screen.getByText('谢谢')).toBeInTheDocument();
+      expect(screen.queryByText('你好')).not.toBeInTheDocument();
+    });
 
-  it('saves translation when save button is clicked', async () => {
-    const user = userEvent.setup();
-    renderWithToast(<ListTranslations />);
+    it('filters by pinyin without tone marks', async () => {
+      const user = userEvent.setup();
+      renderPage();
 
-    const editButtons = screen.getAllByLabelText(/edit translation/i);
-    await user.click(at(editButtons, 0));
+      await user.type(screen.getByLabelText(/search translations/i), 'ni hao');
 
-    const mandarinInput = screen.getByDisplayValue('你好');
-    await user.clear(mandarinInput);
-    await user.type(mandarinInput, '你好吗');
+      expect(screen.getByText('你好')).toBeInTheDocument();
+      expect(screen.queryByText('谢谢')).not.toBeInTheDocument();
+    });
 
-    await user.click(screen.getByRole('button', { name: /save/i }));
+    it('filters by Han characters', async () => {
+      const user = userEvent.setup();
+      renderPage();
 
-    await waitFor(() => {
-      expect(storage.updateTranslation).toHaveBeenCalledWith('1', '你好吗', 'Hello');
+      await user.type(screen.getByLabelText(/search translations/i), '谢');
+
+      expect(screen.getByText('谢谢')).toBeInTheDocument();
+      expect(screen.queryByText('你好')).not.toBeInTheDocument();
+    });
+
+    it('reports the result count in a live region', async () => {
+      const user = userEvent.setup();
+      renderPage();
+
+      await user.type(screen.getByLabelText(/search translations/i), 'thank');
+      // Scoped by text: the toast container is also a status region.
+      const count = screen.getByText('Showing 1 of 2');
+      expect(count).toHaveAttribute('aria-live', 'polite');
+    });
+
+    it('distinguishes no-matches from no-data, and clears', async () => {
+      const user = userEvent.setup();
+      renderPage();
+
+      await user.type(screen.getByLabelText(/search translations/i), 'zzz');
+      expect(screen.getByText(/no translations match/i)).toBeInTheDocument();
+      expect(screen.queryByText(/no translations saved yet/i)).not.toBeInTheDocument();
+
+      await user.click(screen.getByRole('button', { name: 'Clear search' }));
+      expect(screen.getByText('你好')).toBeInTheDocument();
+    });
+
+    it('shows the translation on collapsed rows while searching', async () => {
+      const user = userEvent.setup();
+      renderPage();
+
+      await user.type(screen.getByLabelText(/search translations/i), 'thank');
+      expect(screen.getByText('Thank you')).toBeInTheDocument();
     });
   });
 
-  it('cancels edit when cancel button is clicked', async () => {
+  it('edits a translation', async () => {
     const user = userEvent.setup();
-    renderWithToast(<ListTranslations />);
+    renderPage();
 
-    const editButtons = screen.getAllByLabelText(/edit translation/i);
-    await user.click(at(editButtons, 0));
-
-    await user.click(screen.getByRole('button', { name: /cancel/i }));
-
-    expect(screen.queryByDisplayValue('你好')).not.toBeInTheDocument();
-    expect(screen.getByText('你好')).toBeInTheDocument();
-  });
-
-  it('deletes translation when delete button is clicked', async () => {
-    const user = userEvent.setup();
-    renderWithToast(<ListTranslations />);
-
-    const deleteButtons = screen.getAllByLabelText(/delete translation/i);
-    await user.click(at(deleteButtons, 0));
-
-    // Confirm modal should appear
-    expect(screen.getByText(/delete translation/i)).toBeInTheDocument();
-    expect(screen.getByText(/are you sure/i)).toBeInTheDocument();
-
-    // Click delete button in modal - use getAllByRole and filter for the one in the modal
-    const allDeleteButtons = screen.getAllByRole('button', { name: /delete/i });
-    // The last one should be the confirm button in the modal
-    const confirmButton = at(allDeleteButtons, allDeleteButtons.length - 1);
-    await user.click(confirmButton);
+    await user.click(screen.getByRole('button', { name: /edit 你好/i }));
+    const field = screen.getByDisplayValue('你好');
+    await user.clear(field);
+    await user.type(field, '您好');
+    await user.click(screen.getByRole('button', { name: /^save$/i }));
 
     await waitFor(() => {
-      expect(storage.deleteTranslation).toHaveBeenCalledWith('1');
+      expect(service.updateTranslation).toHaveBeenCalledWith('1', '您好', 'Hello');
+    });
+  });
+
+  it('cancels an edit', async () => {
+    const user = userEvent.setup();
+    renderPage();
+
+    await user.click(screen.getByRole('button', { name: /edit 你好/i }));
+    await user.click(screen.getByRole('button', { name: /^cancel$/i }));
+
+    expect(screen.queryByDisplayValue('你好')).not.toBeInTheDocument();
+  });
+
+  it('deletes a translation after confirming', async () => {
+    const user = userEvent.setup();
+    renderPage();
+
+    await user.click(screen.getByRole('button', { name: /delete 你好/i }));
+    const dialog = screen.getByRole('dialog');
+    await user.click(within(dialog).getByRole('button', { name: /^delete$/i }));
+
+    await waitFor(() => {
+      expect(service.deleteTranslation).toHaveBeenCalledWith('1');
     });
   });
 });

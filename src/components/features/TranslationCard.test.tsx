@@ -15,99 +15,92 @@ describe('TranslationCard', () => {
   const mockOnEdit = vi.fn();
   const mockOnDelete = vi.fn();
 
-  it('renders mandarin in collapsed state', () => {
+  const renderCard = (translation = mockTranslation, showSecondary = false) =>
     render(
-      <TranslationCard translation={mockTranslation} onEdit={mockOnEdit} onDelete={mockOnDelete} />
+      <TranslationCard
+        translation={translation}
+        onEdit={mockOnEdit}
+        onDelete={mockOnDelete}
+        showSecondary={showSecondary}
+      />
     );
 
-    expect(screen.getByText('你好')).toBeInTheDocument();
-    // Translation and pinyin should not be visible when collapsed
+  // The row header is a disclosure button named by the Mandarin it reveals, so
+  // it needs no aria-label of its own -- adding one would override the visible
+  // text, which is an accessibility anti-pattern.
+  const disclosure = (): HTMLElement => {
+    const button = screen
+      .getAllByRole('button')
+      .find(candidate => candidate.hasAttribute('aria-expanded'));
+    if (!button) throw new Error('no disclosure button found');
+    return button;
+  };
+
+  it('shows only the mandarin when collapsed', () => {
+    renderCard();
+    expect(disclosure()).toHaveAttribute('aria-expanded', 'false');
     expect(screen.queryByText('Hello')).not.toBeInTheDocument();
-    expect(screen.queryByText('ní hǎo')).not.toBeInTheDocument();
   });
 
-  it('shows full details when expanded', async () => {
+  it('shows the translation when expanded', async () => {
     const user = userEvent.setup();
-    render(
-      <TranslationCard translation={mockTranslation} onEdit={mockOnEdit} onDelete={mockOnDelete} />
-    );
+    renderCard();
 
-    // Expand the card
-    const expandButton = screen.getByLabelText(/expand/i);
-    await user.click(expandButton);
+    await user.click(disclosure());
 
-    // Now all details should be visible
-    expect(screen.getByText('你好')).toBeInTheDocument();
+    expect(disclosure()).toHaveAttribute('aria-expanded', 'true');
     expect(screen.getByText('Hello')).toBeInTheDocument();
     expect(screen.getByText('ní hǎo')).toBeInTheDocument();
   });
 
-  it('calls onEdit when edit button is clicked', async () => {
+  it('collapses again', async () => {
     const user = userEvent.setup();
-    render(
-      <TranslationCard translation={mockTranslation} onEdit={mockOnEdit} onDelete={mockOnDelete} />
-    );
+    renderCard();
 
-    const editButton = screen.getByLabelText(/edit translation/i);
-    await user.click(editButton);
+    await user.click(disclosure());
+    await user.click(disclosure());
 
-    expect(mockOnEdit).toHaveBeenCalledWith(mockTranslation);
+    expect(disclosure()).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByText('Hello')).not.toBeInTheDocument();
   });
 
-  it('calls onDelete when delete button is clicked', async () => {
+  it('shows the translation on the collapsed row while searching', () => {
+    // Otherwise a search matched by English returns rows showing only Mandarin,
+    // and every hit has to be expanded to check it.
+    renderCard(mockTranslation, true);
+    expect(screen.getByText('Hello')).toBeInTheDocument();
+  });
+
+  it('exposes the details panel to the disclosure button', async () => {
     const user = userEvent.setup();
-    render(
-      <TranslationCard translation={mockTranslation} onEdit={mockOnEdit} onDelete={mockOnDelete} />
-    );
+    renderCard();
+    await user.click(disclosure());
 
-    const deleteButton = screen.getByLabelText(/delete translation/i);
-    await user.click(deleteButton);
+    const controls = disclosure().getAttribute('aria-controls');
+    expect(controls).toBeTruthy();
+    expect(document.getElementById(controls!)).toBeInTheDocument();
+  });
 
+  it('renders no pinyin when there is none', () => {
+    renderCard({ id: '2', mandarin: '猫', translation: 'Cat' });
+    expect(screen.queryByText('ní hǎo')).not.toBeInTheDocument();
+  });
+
+  it('calls onEdit and onDelete from their own buttons', async () => {
+    const user = userEvent.setup();
+    renderCard();
+
+    await user.click(screen.getByRole('button', { name: /edit 你好/i }));
+    expect(mockOnEdit).toHaveBeenCalledWith(mockTranslation);
+
+    await user.click(screen.getByRole('button', { name: /delete 你好/i }));
     expect(mockOnDelete).toHaveBeenCalledWith(mockTranslation);
   });
 
-  it('does not render pinyin when not available', async () => {
-    const user = userEvent.setup();
-    const translationWithoutPinyin: Translation = {
-      id: '2',
-      mandarin: '谢谢',
-      translation: 'Thank you',
-    };
-
-    render(
-      <TranslationCard
-        translation={translationWithoutPinyin}
-        onEdit={mockOnEdit}
-        onDelete={mockOnDelete}
-      />
-    );
-
-    expect(screen.getByText('谢谢')).toBeInTheDocument();
-    // Translation should not be visible when collapsed
-    expect(screen.queryByText('Thank you')).not.toBeInTheDocument();
-
-    // Expand to see translation
-    const expandButton = screen.getByLabelText(/expand/i);
-    await user.click(expandButton);
-
-    expect(screen.getByText('Thank you')).toBeInTheDocument();
-    expect(screen.queryByText(/pinyin/i)).not.toBeInTheDocument();
-  });
-
-  it('can collapse after expanding', async () => {
-    const user = userEvent.setup();
-    render(
-      <TranslationCard translation={mockTranslation} onEdit={mockOnEdit} onDelete={mockOnDelete} />
-    );
-
-    // Expand
-    const expandButton = screen.getByLabelText(/expand/i);
-    await user.click(expandButton);
-    expect(screen.getByText('Hello')).toBeInTheDocument();
-
-    // Collapse
-    const collapseButton = screen.getByLabelText(/collapse/i);
-    await user.click(collapseButton);
-    expect(screen.queryByText('Hello')).not.toBeInTheDocument();
+  it('does not nest the action buttons inside the disclosure button', () => {
+    // Nested interactive content is invalid HTML and was why the old row needed
+    // stopPropagation on every action.
+    renderCard();
+    expect(disclosure()).not.toContainElement(screen.getByRole('button', { name: /edit 你好/i }));
   });
 });
