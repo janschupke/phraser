@@ -1,14 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
-import {
-  createContext,
-  useContext,
-  useState,
-  useCallback,
-  ReactNode,
-  useEffect,
-  useRef,
-} from 'react';
-import { Toast } from '../components/ui/Toast';
+import type { ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
+import type { Toast } from '../components/ui/Toast';
 
 interface ToastContextType {
   showToast: (type: 'success' | 'error', message: string) => void;

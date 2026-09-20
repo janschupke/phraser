@@ -3,7 +3,7 @@ import { PageTitle } from '../components/ui/PageTitle';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { ConfirmModal } from '../components/ui/ConfirmModal';
-import { getSettings, updateSetting, Settings } from '../utils/settings';
+import { getSettings, updateSetting, type Settings } from '../utils/settings';
 import { downloadTranslationsAsCSV, getTranslations, resetAllTranslations } from '../utils/storage';
 import { useToast } from '../contexts/ToastContext';
 

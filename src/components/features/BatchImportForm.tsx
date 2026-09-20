@@ -1,4 +1,4 @@
-import { useState, useRef, DragEvent, ChangeEvent } from 'react';
+import { useState, useRef, type DragEvent, type ChangeEvent } from 'react';
 import { useToast } from '../../contexts/ToastContext';
 import { Button } from '../ui/Button';
 

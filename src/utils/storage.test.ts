@@ -11,7 +11,7 @@ import {
   recordCorrectAnswer,
   recordIncorrectAnswer,
 } from './storage';
-import { Translation } from '../types';
+import type { Translation } from '../types';
 
 describe('storage utilities', () => {
   beforeEach(() => {

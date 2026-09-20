@@ -1,7 +1,7 @@
 /**
  * CSV export utilities for translations
  */
-import { Translation } from '../types';
+import type { Translation } from '../types';
 
 /**
  * Escapes a CSV field value, wrapping in quotes if necessary

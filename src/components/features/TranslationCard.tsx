@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Translation } from '../../types';
+import type { Translation } from '../../types';
 import { HiOutlinePencil, HiOutlineTrash, HiChevronDown, HiChevronUp } from 'react-icons/hi';
 import { Button } from '../ui/Button';
 

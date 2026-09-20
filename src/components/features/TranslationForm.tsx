@@ -1,4 +1,4 @@
-import { useState, FormEvent, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, type FormEvent } from 'react';
 import { useToast } from '../../contexts/ToastContext';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';

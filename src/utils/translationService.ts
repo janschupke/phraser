@@ -2,7 +2,7 @@
  * Business logic for translation operations
  * Separated from storage concerns
  */
-import { Translation } from '../types';
+import type { Translation } from '../types';
 import { storageManager } from './storageManager';
 import { generatePinyin } from './pinyin';
 

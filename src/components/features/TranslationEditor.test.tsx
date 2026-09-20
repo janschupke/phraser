@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { TranslationEditor } from './TranslationEditor';
-import { Translation } from '../../types';
+import type { Translation } from '../../types';
 
 describe('TranslationEditor', () => {
   const mockTranslation: Translation = {

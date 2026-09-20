@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Translation } from '../../types';
+import type { Translation } from '../../types';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 

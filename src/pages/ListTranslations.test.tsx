@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { ToastProvider } from '../contexts/ToastContext';
 import ListTranslations from './ListTranslations';
 import * as storage from '../utils/storage';
-import { Translation } from '../types';
+import type { Translation } from '../types';
 
 vi.mock('../utils/storage');
 

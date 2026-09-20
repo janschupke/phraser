@@ -1,7 +1,7 @@
 /**
  * Probability and weight calculation utilities for translation selection
  */
-import { Translation } from '../types';
+import type { Translation } from '../types';
 
 /**
  * Calculates success rate for a translation

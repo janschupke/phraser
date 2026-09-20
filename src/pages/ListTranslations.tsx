@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getTranslations, updateTranslation, deleteTranslation } from '../utils/storage';
-import { Translation } from '../types';
+import type { Translation } from '../types';
 import { useToast } from '../contexts/ToastContext';
 import { PageTitle } from '../components/ui/PageTitle';
 import { Card } from '../components/ui/Card';
