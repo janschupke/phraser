@@ -6,17 +6,21 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export function Button({ variant = 'primary', children, className = '', ...props }: ButtonProps) {
-  const baseClasses = 'rounded-lg font-medium transition-colors duration-200 focus:outline-hidden';
+  // The focus ring lives in the base, including for the icon variant, which
+  // previously had none at all -- every edit, delete and cog button in the app
+  // was invisible to a keyboard user. focus-visible rather than focus so a
+  // mouse click does not leave a ring behind.
+  const baseClasses =
+    'rounded-lg font-medium transition-colors duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2';
   const variantClasses = {
     primary:
-      'px-5 py-2.5 bg-primary-600 text-white hover:bg-primary-700 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2',
+      'px-5 py-2.5 bg-primary-600 text-white hover:bg-primary-700 focus-visible:ring-primary-500',
     success:
-      'px-5 py-2.5 bg-success-600 text-white hover:bg-success-700 focus:ring-2 focus:ring-success-500 focus:ring-offset-2',
+      'px-5 py-2.5 bg-success-600 text-white hover:bg-success-700 focus-visible:ring-success-500',
     neutral:
-      'px-5 py-2.5 bg-neutral-300 text-neutral-700 hover:bg-neutral-400 focus:ring-2 focus:ring-neutral-500 focus:ring-offset-2',
-    danger:
-      'px-5 py-2.5 bg-error-600 text-white hover:bg-error-700 focus:ring-2 focus:ring-error-500 focus:ring-offset-2',
-    icon: 'p-1',
+      'px-5 py-2.5 bg-neutral-300 text-neutral-700 hover:bg-neutral-400 focus-visible:ring-neutral-500',
+    danger: 'px-5 py-2.5 bg-error-600 text-white hover:bg-error-700 focus-visible:ring-error-500',
+    icon: 'p-2 focus-visible:ring-primary-500',
   };
 
   return (

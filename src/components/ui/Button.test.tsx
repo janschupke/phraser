@@ -36,10 +36,17 @@ describe('Button', () => {
     expect(button?.className).toContain('bg-neutral-300');
   });
 
-  it('applies icon variant', () => {
-    const { container } = render(<Button variant="icon">Click me</Button>);
-    const button = container.querySelector('button');
-    expect(button?.className).toContain('p-1');
+  it('gives every variant a visible focus ring, icon included', () => {
+    // The icon variant previously had no ring at all, which made every edit,
+    // delete and cog button in the app invisible to a keyboard user.
+    const variants = ['primary', 'success', 'neutral', 'danger', 'icon'] as const;
+    for (const variant of variants) {
+      const { container, unmount } = render(<Button variant={variant}>Click me</Button>);
+      const button = container.querySelector('button');
+      expect(button?.className, variant).toContain('focus-visible:ring-2');
+      expect(button?.className, variant).toMatch(/focus-visible:ring-\w+-\d+/);
+      unmount();
+    }
   });
 
   it('passes through additional props', () => {

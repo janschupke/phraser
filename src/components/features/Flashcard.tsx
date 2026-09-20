@@ -3,6 +3,7 @@ import { useHotkeys } from '../../hooks/useHotkeys';
 import type { FormSubmitHandler, Translation } from '../../types';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
+import { ConfirmModal } from '../ui/ConfirmModal';
 import { Input } from '../ui/Input';
 import { HiOutlineCog, HiOutlineTrash } from 'react-icons/hi';
 import { validateTranslation } from '../../utils/stringComparison';
@@ -441,28 +442,16 @@ export function Flashcard({
         </Card>
       </div>
 
-      {/* Delete Confirmation Modal */}
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 animate-fade-in">
-          <div className="bg-surface rounded-lg shadow-xl max-w-md w-full mx-4 p-6 animate-scale-in">
-            <h2 className="text-xl font-bold text-neutral-800 mb-4">Delete Translation</h2>
-            <p className="text-neutral-700 mb-6">
-              Are you sure you want to delete "{card.mandarin}"? This action cannot be undone.
-            </p>
-            <div className="flex gap-3 justify-end">
-              <Button variant="neutral" onClick={handleDeleteCancel}>
-                Cancel
-              </Button>
-              <button
-                onClick={handleDeleteConfirm}
-                className="px-5 py-2.5 rounded-lg font-medium transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 bg-error-600 text-white hover:bg-error-700 focus:ring-error-500"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmModal
+        isOpen={showDeleteConfirm}
+        title="Delete Translation"
+        message={`Are you sure you want to delete "${card.mandarin}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+      />
     </>
   );
 }
