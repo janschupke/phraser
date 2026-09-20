@@ -3,6 +3,7 @@ import { PageTitle } from '../components/ui/PageTitle';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { ConfirmModal } from '../components/ui/ConfirmModal';
+import { ToggleSetting } from '../components/ui/ToggleSetting';
 import { updateSetting, type Settings } from '../utils/settings';
 import { useSettings, useTranslations } from '../hooks/useStoredState';
 import { resetAllTranslations } from '../utils/translationService';
@@ -60,91 +61,31 @@ function SettingsPage() {
       <PageTitle>Settings</PageTitle>
       <Card className="p-6 sm:p-8">
         <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <label
-                htmlFor="active-input"
-                className="text-base font-medium text-neutral-800 cursor-pointer"
-              >
-                Active Input Mode
-              </label>
-              <p className="text-sm text-neutral-600 mt-1">
-                Enable text input for translations in flashcards. Your answers will be validated and
-                shown as correct/incorrect.
-              </p>
-            </div>
-            <div className="ml-4">
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  id="active-input"
-                  type="checkbox"
-                  checked={settings.activeInput}
-                  onChange={() => handleToggle('activeInput')}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-neutral-300 peer-focus:outline-hidden peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
-              </label>
-            </div>
-          </div>
+          <ToggleSetting
+            label="Active Input Mode"
+            description="Enable text input for translations in flashcards. Your answers will be validated and shown as correct/incorrect."
+            checked={settings.activeInput}
+            onChange={() => handleToggle('activeInput')}
+          />
 
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <label
-                htmlFor="reverse-mode"
-                className="text-base font-medium text-neutral-800 cursor-pointer"
-              >
-                Reverse Mode
-              </label>
-              <p className="text-sm text-neutral-600 mt-1">
-                Show translations and expect Mandarin as input. Useful for practicing character
-                recognition.
-              </p>
-            </div>
-            <div className="ml-4">
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  id="reverse-mode"
-                  type="checkbox"
-                  checked={settings.reverseMode}
-                  onChange={() => handleToggle('reverseMode')}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-neutral-300 peer-focus:outline-hidden peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
-              </label>
-            </div>
-          </div>
+          <ToggleSetting
+            label="Reverse Mode"
+            description="Show translations and expect Mandarin as input. Useful for practicing character recognition."
+            checked={settings.reverseMode}
+            onChange={() => handleToggle('reverseMode')}
+          />
 
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <label
-                htmlFor="color-coded-cards"
-                className="text-base font-medium text-neutral-800 cursor-pointer"
-              >
-                Color Coded Cards
-              </label>
-              <p className="text-sm text-neutral-600 mt-1">
-                Show green background for correct answers and red background for incorrect answers
-                in active input mode.
-              </p>
-            </div>
-            <div className="ml-4">
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  id="color-coded-cards"
-                  type="checkbox"
-                  checked={settings.colorCodedCards}
-                  onChange={() => handleToggle('colorCodedCards')}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-neutral-300 peer-focus:outline-hidden peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
-              </label>
-            </div>
-          </div>
+          <ToggleSetting
+            label="Color Coded Cards"
+            description="Show green background for correct answers and red background for incorrect answers in active input mode."
+            checked={settings.colorCodedCards}
+            onChange={() => handleToggle('colorCodedCards')}
+          />
 
           <div className="pt-6 border-t border-neutral-200">
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <h3 className="text-base font-medium text-neutral-800 mb-1">Export Data</h3>
+                <h2 className="text-base font-medium text-neutral-800 mb-1">Export Data</h2>
                 <p className="text-sm text-neutral-600">
                   Download all translations as a CSV file. Format: mandarin,translation,pinyin
                 </p>
@@ -160,7 +101,7 @@ function SettingsPage() {
           <div className="pt-6 border-t border-error-200">
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <h3 className="text-base font-medium text-error-700 mb-1">Danger Zone</h3>
+                <h2 className="text-base font-medium text-error-700 mb-1">Danger Zone</h2>
                 <p className="text-sm text-error-600 mt-1">
                   Permanently delete all translations. This action cannot be undone. Make sure to
                   export your data first if you want to keep a backup.

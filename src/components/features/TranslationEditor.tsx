@@ -55,7 +55,7 @@ export function TranslationEditor({
     <form onSubmit={handleFormSubmit} className="space-y-4 sm:space-y-6 animate-fade-in">
       {(title ?? onDelete) && (
         <div className="flex items-center justify-between">
-          {title && <h3 className="text-lg font-semibold text-neutral-800">{title}</h3>}
+          {title && <h2 className="text-lg font-semibold text-neutral-800">{title}</h2>}
           {onDelete && (
             <Button
               type="button"

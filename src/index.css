@@ -187,3 +187,26 @@ html[data-fit] body {
   overflow: hidden;
   overscroll-behavior: none;
 }
+
+/*
+ * Respect a reduced-motion preference. The card flip in particular is exactly
+ * the kind of rotation that triggers vestibular symptoms.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .animate-slide-in-right,
+  .animate-fade-in,
+  .animate-scale-in,
+  .animate-fade-out,
+  .animate-flip-out,
+  .animate-flip-in,
+  .page-transition-enter,
+  .page-transition-exit {
+    animation: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
+}

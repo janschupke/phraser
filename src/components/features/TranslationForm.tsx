@@ -10,7 +10,7 @@ interface TranslationFormProps {
   initialMandarin?: string;
   initialTranslation?: string;
   submitLabel?: string;
-  autoFocus?: boolean;
+  focusOnMount?: boolean;
 }
 
 export function TranslationForm({
@@ -18,7 +18,7 @@ export function TranslationForm({
   initialMandarin = '',
   initialTranslation = '',
   submitLabel = 'Add Translation',
-  autoFocus = false,
+  focusOnMount = false,
 }: TranslationFormProps) {
   const [mandarin, setMandarin] = useState(initialMandarin);
   const [translation, setTranslation] = useState(initialTranslation);
@@ -31,10 +31,10 @@ export function TranslationForm({
     // which stole focus back from whatever the user had already tabbed or
     // clicked into -- typing straight after navigating would drop the rest of
     // your keystrokes into the wrong field. The timer was never cleared either.
-    if (autoFocus) {
+    if (focusOnMount) {
       mandarinInputRef.current?.focus();
     }
-  }, [autoFocus]);
+  }, [focusOnMount]);
 
   const formRef = useRef<HTMLFormElement>(null);
 

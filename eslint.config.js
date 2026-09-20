@@ -4,6 +4,7 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 import reactHooks from 'eslint-plugin-react-hooks';
 import { reactRefresh } from 'eslint-plugin-react-refresh';
+import jsxA11y from 'eslint-plugin-jsx-a11y';
 import prettier from 'eslint-config-prettier/flat';
 
 export default defineConfig([
@@ -27,6 +28,7 @@ export default defineConfig([
       js.configs.recommended,
       tseslint.configs.recommendedTypeChecked,
       tseslint.configs.stylisticTypeChecked,
+      jsxA11y.flatConfigs.recommended,
       reactHooks.configs.flat.recommended,
       reactRefresh.configs.vite(),
     ],
@@ -45,6 +47,10 @@ export default defineConfig([
       '@typescript-eslint/no-deprecated': 'error',
       '@typescript-eslint/no-unnecessary-template-expression': 'error',
       '@typescript-eslint/switch-exhaustiveness-check': 'error',
+
+      // The default depth of 2 does not reach label text nested inside a
+      // wrapper span, which is how the toggle rows are laid out.
+      'jsx-a11y/label-has-associated-control': ['error', { depth: 4 }],
 
       // TODO: re-enable once the derived-state-in-effect components are
       // reworked. These are React Compiler rules, new in react-hooks 7, and

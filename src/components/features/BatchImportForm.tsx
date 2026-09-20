@@ -148,7 +148,9 @@ export function BatchImportForm({ onImport }: BatchImportFormProps) {
     <div className="space-y-6">
       {/* File Upload Section */}
       <div>
-        <label className="block text-sm font-medium text-neutral-700 mb-2">Upload CSV File</label>
+        <label htmlFor="csv-file-input" className="block text-sm font-medium text-neutral-700 mb-2">
+          Upload CSV File
+        </label>
         <div
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}

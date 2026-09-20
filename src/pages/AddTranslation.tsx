@@ -85,7 +85,7 @@ function AddTranslation() {
             onCancel={handleBatchCancel}
           />
         ) : activeTab === 'single' ? (
-          <TranslationForm onSubmit={handleSingleSubmit} autoFocus={true} />
+          <TranslationForm onSubmit={handleSingleSubmit} focusOnMount />
         ) : (
           <BatchImportForm onImport={handleBatchImport} />
         )}
