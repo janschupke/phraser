@@ -57,6 +57,64 @@ describe('ListTranslations', () => {
     expect(screen.getByText(/no translations saved yet/i)).toBeInTheDocument();
   });
 
+  describe('long lists', () => {
+    const many: Translation[] = Array.from({ length: 250 }, (_, i) => ({
+      id: String(i),
+      mandarin: `词${i}`,
+      translation: `word ${i}`,
+    }));
+
+    beforeEach(() => {
+      vi.mocked(service.getTranslations).mockReturnValue(many);
+    });
+
+    it('mounts the first 100 rows and offers the rest', () => {
+      renderPage();
+      expect(disclosures()).toHaveLength(100);
+      expect(screen.getByRole('button', { name: 'Show more (150 remaining)' })).toBeInTheDocument();
+      expect(screen.getByText('250 translations')).toBeInTheDocument();
+    });
+
+    it('loads a page at a time, moving focus to the first new row', async () => {
+      const user = userEvent.setup();
+      renderPage();
+
+      await user.click(screen.getByRole('button', { name: /show more/i }));
+      expect(disclosures()).toHaveLength(200);
+      expect(at(disclosures(), 100)).toHaveFocus();
+
+      await user.click(screen.getByRole('button', { name: 'Show more (50 remaining)' }));
+      expect(disclosures()).toHaveLength(250);
+      expect(screen.queryByRole('button', { name: /show more/i })).not.toBeInTheDocument();
+      // The button is gone; focus went to row 201 rather than to <body>.
+      expect(at(disclosures(), 200)).toHaveFocus();
+    });
+
+    it('searches every translation, not only the mounted ones', async () => {
+      const user = userEvent.setup();
+      renderPage();
+      expect(screen.queryByText('词240')).not.toBeInTheDocument();
+
+      await user.type(screen.getByLabelText(/search translations/i), 'word 240');
+
+      expect(screen.getByText('词240')).toBeInTheDocument();
+      expect(screen.getByText('Showing 1 of 250')).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /show more/i })).not.toBeInTheDocument();
+    });
+
+    it('starts over at one page when the search changes', async () => {
+      const user = userEvent.setup();
+      renderPage();
+      await user.click(screen.getByRole('button', { name: /show more/i }));
+      expect(disclosures()).toHaveLength(200);
+
+      // Well over one page of matches, so the reset is observable.
+      await user.type(screen.getByLabelText(/search translations/i), 'word');
+      expect(disclosures()).toHaveLength(100);
+      expect(screen.getByRole('button', { name: 'Show more (150 remaining)' })).toBeInTheDocument();
+    });
+  });
+
   describe('search', () => {
     it('filters by english translation', async () => {
       const user = userEvent.setup();

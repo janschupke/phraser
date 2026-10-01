@@ -259,6 +259,21 @@ describe('contrast in a real browser', () => {
     expect(deltaE(rest, hovered)).toBeGreaterThanOrEqual(HOVER_FLOOR);
   });
 
+  it('a long word list loads more rows on scroll, without a click', async () => {
+    for (let i = 0; i < 250; i++) await addTranslation(`词${i}`, `word ${i}`);
+    renderApp('/list');
+    const rows = () => document.querySelectorAll('[data-row]').length;
+    // Two frames give the observer its initial callback: the sentinel is far
+    // below the fold, so nothing may load until the user scrolls.
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    expect(rows()).toBe(100);
+
+    const last = [...document.querySelectorAll('[data-row]')].at(-1);
+    last?.scrollIntoView();
+
+    await expect.poll(rows).toBe(200);
+  });
+
   describe('tooltips', () => {
     it('open on pointer hover and pass axe while open', async () => {
       renderApp('/list');

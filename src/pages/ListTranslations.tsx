@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { updateTranslation, deleteTranslation } from '../utils/translationService';
 import { useTranslations } from '../hooks/useStoredState';
+import { useIncrementalList } from '../hooks/useIncrementalList';
 import { filterTranslations } from '../utils/search';
 import type { Translation } from '../types';
 import { useToast } from '../contexts/ToastContext';
@@ -13,6 +14,9 @@ import { ConfirmModal } from '../components/ui/ConfirmModal';
 import { TranslationCard } from '../components/features/TranslationCard';
 import { TranslationEditor } from '../components/features/TranslationEditor';
 
+/** Rows mounted per page; search still covers every translation. */
+const PAGE_SIZE = 100;
+
 function ListTranslations() {
   const translations = useTranslations();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -21,7 +25,31 @@ function ListTranslations() {
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; mandarin: string } | null>(null);
   const { showToast } = useToast();
 
+  // Filter the whole list first, then page the result: a match far past the
+  // first page is found as soon as it is typed.
   const visible = useMemo(() => filterTranslations(translations, query), [translations, query]);
+  const {
+    visible: rendered,
+    hasMore,
+    remaining,
+    loadMore,
+    sentinelRef,
+  } = useIncrementalList(visible, { pageSize: PAGE_SIZE, resetKey: query });
+
+  // After "Show more", move focus to the first new row. The button unmounts
+  // with the last page, which would otherwise drop focus to <body>.
+  const listRef = useRef<HTMLUListElement>(null);
+  const focusRowRef = useRef<number | null>(null);
+  const showMore = () => {
+    focusRowRef.current = rendered.length;
+    loadMore();
+  };
+  useEffect(() => {
+    const index = focusRowRef.current;
+    if (index === null) return;
+    focusRowRef.current = null;
+    listRef.current?.children[index]?.querySelector<HTMLElement>('button')?.focus();
+  }, [rendered.length]);
 
   // replace: true so typing does not fill the history stack with keystrokes.
   const setQuery = (next: string) => {
@@ -108,8 +136,8 @@ function ListTranslations() {
         </Card>
       ) : (
         <Card className="p-0 overflow-hidden">
-          <ul className="divide-y divide-neutral-200">
-            {visible.map(translation => (
+          <ul ref={listRef} className="divide-y divide-neutral-200">
+            {rendered.map(translation => (
               <li key={translation.id}>
                 {editingId === translation.id ? (
                   <div className="p-4">
@@ -132,6 +160,13 @@ function ListTranslations() {
               </li>
             ))}
           </ul>
+          {hasMore && (
+            <div ref={sentinelRef} className="border-t border-neutral-200 p-3 text-center">
+              <Button variant="neutral" onClick={showMore}>
+                Show more ({remaining} remaining)
+              </Button>
+            </div>
+          )}
         </Card>
       )}
 
