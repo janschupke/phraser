@@ -33,7 +33,7 @@ export function TranslationCard({
     <div className="px-2 py-1 sm:px-3">
       {/* min-h-11 keeps the row at the 44px pointer-target minimum; density and
           WCAG 2.5.5 trade directly against each other here. */}
-      <div className="flex min-h-11 items-center gap-2">
+      <div data-row className="flex min-h-11 items-center gap-2 rounded-lg hover:bg-hover">
         {/*
           A real disclosure button, named by the Mandarin text it reveals. This
           replaces an onClick on a plain div wrapping the whole row, which meant
@@ -45,7 +45,7 @@ export function TranslationCard({
           onClick={() => setIsExpanded(open => !open)}
           aria-expanded={isExpanded}
           aria-controls={detailsId}
-          className="flex-1 min-w-0 flex items-center gap-2 text-left rounded-lg px-1 py-1 hover:bg-neutral-50 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary-500"
+          className="flex-1 min-w-0 flex items-center gap-2 text-left rounded-lg px-1 py-1 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary-500"
         >
           <span className="shrink-0 text-neutral-500">
             {isExpanded ? (
@@ -65,7 +65,7 @@ export function TranslationCard({
             )}
           </span>
           {translation.pinyin && !isExpanded && (
-            <span className="hidden sm:block shrink-0 max-w-[40%] truncate text-sm text-neutral-500">
+            <span className="hidden sm:block shrink-0 max-w-[40%] truncate text-sm text-neutral-600">
               {translation.pinyin}
             </span>
           )}

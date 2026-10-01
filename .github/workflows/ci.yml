@@ -53,6 +53,12 @@ jobs:
           path: coverage/
           retention-days: 7
 
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Browser tests
+        run: npm run test:browser
+
       - name: Build
         run: npm run build
 

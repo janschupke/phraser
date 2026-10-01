@@ -61,7 +61,7 @@ export function TranslationEditor({
               type="button"
               variant="icon"
               onClick={onDelete}
-              className="ml-auto text-error-600 hover:text-error-700 hover:bg-error-50"
+              className="ml-auto text-error-600 hover:text-error-700 hover:bg-error-100"
               aria-label="Delete translation"
               title="Delete"
             >

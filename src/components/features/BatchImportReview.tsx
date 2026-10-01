@@ -82,7 +82,7 @@ export function BatchImportReview({ entries, onSave, onCancel }: BatchImportRevi
               <Button
                 variant="icon"
                 onClick={() => handleDelete(index)}
-                className="text-error-600 hover:text-error-700 hover:bg-error-50"
+                className="text-error-600 hover:text-error-700 hover:bg-error-100"
                 type="button"
                 aria-label={`Remove entry ${String(index + 1)}`}
                 title="Remove entry"

@@ -15,6 +15,9 @@ import axe, { type Result, type RunOptions } from 'axe-core';
  * Tailwind classes are inert. An element with `hidden` or `sr-only` is fully
  * visible to axe here. Treat a green run as a statement about semantics only.
  * Contrast, focus order and hit targets need a real browser.
+ *
+ * Contrast does get one: src/test/browser/a11y.browser.test.tsx runs axe with
+ * colour contrast on in real Chromium, and audits every control's hover state.
  */
 const OPTIONS: RunOptions = {
   runOnly: {

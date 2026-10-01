@@ -25,4 +25,5 @@ dist-ssr
 
 # Build / test artefacts
 coverage
+.vitest
 *.tsbuildinfo

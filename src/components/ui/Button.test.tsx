@@ -33,7 +33,7 @@ describe('Button', () => {
   it('applies neutral variant', () => {
     const { container } = render(<Button variant="neutral">Click me</Button>);
     const button = container.querySelector('button');
-    expect(button?.className).toContain('bg-neutral-300');
+    expect(button?.className).toContain('bg-neutral-200');
   });
 
   it('gives every variant a visible focus ring, icon included', () => {

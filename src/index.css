@@ -55,6 +55,20 @@
 
   --color-background: #f9fafb;
   --color-surface: #ffffff;
+
+  /*
+   * Hover states. Opaque, since everything they sit on is a white surface.
+   * Picked against the browser suite's gate (src/test/browser): at least 0.05
+   * OKLab ΔE from what they sit on, so the change is visible -- neutral-50 and
+   * neutral-100, used before, were 0.015 and 0.03. The blue tint spends chroma
+   * rather than lightness, which keeps muted ink on top legible.
+   *
+   * hover:        rows, menu links, on a white surface
+   * hover-strong: icon buttons and filled neutral buttons, so an icon still
+   *               reacts inside a row that is already showing its hover
+   */
+  --color-hover: #e3ebf7;
+  --color-hover-strong: #cad3df;
 }
 
 /*

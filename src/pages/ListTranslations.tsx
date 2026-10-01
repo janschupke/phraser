@@ -79,7 +79,7 @@ function ListTranslations() {
                 type="button"
                 onClick={() => setQuery('')}
                 aria-label="Clear search field"
-                className="absolute right-2 bottom-1.5 p-1.5 text-neutral-500 hover:text-neutral-700 rounded-lg focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary-500"
+                className="absolute right-2 bottom-1.5 p-1.5 text-neutral-500 hover:text-neutral-700 hover:bg-hover rounded-lg focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary-500"
               >
                 ×
               </button>

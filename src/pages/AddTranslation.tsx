@@ -53,6 +53,7 @@ function AddTranslation() {
       {/* Tabs */}
       <div className="flex gap-2 mb-6 border-b border-neutral-300">
         <button
+          aria-pressed={activeTab === 'single'}
           onClick={() => {
             setActiveTab('single');
             setReviewEntries(null);
@@ -66,6 +67,7 @@ function AddTranslation() {
           Single Entry
         </button>
         <button
+          aria-pressed={activeTab === 'batch'}
           onClick={() => {
             setActiveTab('batch');
             setReviewEntries(null);

@@ -60,7 +60,7 @@ export function Navigation() {
         <div className="relative flex items-center justify-between h-16">
           <Link
             to="/"
-            className="font-bold text-lg text-neutral-800 rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+            className="font-bold text-lg text-neutral-800 hover:text-primary-700 rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
           >
             Phraser
           </Link>
@@ -73,7 +73,7 @@ export function Navigation() {
           <button
             ref={toggleRef}
             type="button"
-            className="md:hidden p-2 rounded-lg text-neutral-700 hover:bg-neutral-100 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+            className="md:hidden p-2 rounded-lg text-neutral-700 hover:bg-hover focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
             aria-expanded={isOpen}
             aria-controls={panelId}
             aria-label={isOpen ? 'Close menu' : 'Open menu'}

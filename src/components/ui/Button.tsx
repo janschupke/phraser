@@ -18,9 +18,9 @@ export function Button({ variant = 'primary', children, className = '', ...props
     success:
       'px-5 py-2.5 bg-success-600 text-white hover:bg-success-700 focus-visible:ring-success-500',
     neutral:
-      'px-5 py-2.5 bg-neutral-300 text-neutral-700 hover:bg-neutral-400 focus-visible:ring-neutral-500',
+      'px-5 py-2.5 bg-neutral-200 text-neutral-800 hover:bg-hover-strong focus-visible:ring-neutral-500',
     danger: 'px-5 py-2.5 bg-error-600 text-white hover:bg-error-700 focus-visible:ring-error-500',
-    icon: 'p-2 focus-visible:ring-primary-500',
+    icon: 'p-2 hover:bg-hover-strong focus-visible:ring-primary-500',
   };
 
   return (
