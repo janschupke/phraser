@@ -29,9 +29,9 @@ const renderRoute = (ui: React.ReactElement, path = '/') =>
   );
 
 describe('accessibility', () => {
-  beforeEach(() => {
-    addTranslation('你好', 'Hello');
-    addTranslation('謝謝', 'Thank you');
+  beforeEach(async () => {
+    await addTranslation('你好', 'Hello');
+    await addTranslation('謝謝', 'Thank you');
   });
 
   it('Add Translation, single entry', async () => {

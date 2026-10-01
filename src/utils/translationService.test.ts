@@ -37,8 +37,8 @@ describe('translationService', () => {
   });
 
   describe('addTranslation', () => {
-    it('should add a new translation with pinyin', () => {
-      const translation = addTranslation('你好', 'Hello');
+    it('should add a new translation with pinyin', async () => {
+      const translation = await addTranslation('你好', 'Hello');
       expect(translation.mandarin).toBe('你好');
       expect(translation.translation).toBe('Hello');
       expect(translation.id).toBeDefined();
@@ -50,18 +50,18 @@ describe('translationService', () => {
       expect(translations[0]).toEqual(translation);
     });
 
-    it('should add multiple translations', () => {
-      addTranslation('你好', 'Hello');
-      addTranslation('谢谢', 'Thank you');
+    it('should add multiple translations', async () => {
+      await addTranslation('你好', 'Hello');
+      await addTranslation('谢谢', 'Thank you');
       const translations = getTranslations();
       expect(translations).toHaveLength(2);
     });
   });
 
   describe('updateTranslation', () => {
-    it('should update an existing translation with new pinyin', () => {
-      const translation = addTranslation('你好', 'Hello');
-      const success = updateTranslation(translation.id, '你好吗', 'How are you');
+    it('should update an existing translation with new pinyin', async () => {
+      const translation = await addTranslation('你好', 'Hello');
+      const success = await updateTranslation(translation.id, '你好吗', 'How are you');
       expect(success).toBe(true);
 
       const translations = getTranslations();
@@ -71,16 +71,16 @@ describe('translationService', () => {
       expect(at(translations, 0).pinyin).toBeTruthy();
     });
 
-    it('should return false for non-existent translation', () => {
-      const success = updateTranslation('non-existent-id', '你好', 'Hello');
+    it('should return false for non-existent translation', async () => {
+      const success = await updateTranslation('non-existent-id', '你好', 'Hello');
       expect(success).toBe(false);
     });
   });
 
   describe('deleteTranslation', () => {
-    it('should delete an existing translation', () => {
-      const translation = addTranslation('你好', 'Hello');
-      addTranslation('谢谢', 'Thank you');
+    it('should delete an existing translation', async () => {
+      const translation = await addTranslation('你好', 'Hello');
+      await addTranslation('谢谢', 'Thank you');
 
       const success = deleteTranslation(translation.id);
       expect(success).toBe(true);
@@ -101,18 +101,18 @@ describe('translationService', () => {
       expect(getRandomTranslation()).toBeNull();
     });
 
-    it('should return a translation when translations exist', () => {
-      addTranslation('你好', 'Hello');
+    it('should return a translation when translations exist', async () => {
+      await addTranslation('你好', 'Hello');
       const random = getRandomTranslation();
       expect(random).not.toBeNull();
       expect(random?.mandarin).toBe('你好');
       expect(random?.translation).toBe('Hello');
     });
 
-    it('should return one of the existing translations', () => {
-      addTranslation('你好', 'Hello');
-      addTranslation('谢谢', 'Thank you');
-      addTranslation('再见', 'Goodbye');
+    it('should return one of the existing translations', async () => {
+      await addTranslation('你好', 'Hello');
+      await addTranslation('谢谢', 'Thank you');
+      await addTranslation('再见', 'Goodbye');
 
       // Run multiple times to ensure randomness
       const results = new Set();
@@ -130,14 +130,14 @@ describe('translationService', () => {
   });
 
   describe('scoring system', () => {
-    it('should initialize new translations with zero scores', () => {
-      const translation = addTranslation('你好', 'Hello');
+    it('should initialize new translations with zero scores', async () => {
+      const translation = await addTranslation('你好', 'Hello');
       expect(translation.correctCount).toBe(0);
       expect(translation.incorrectCount).toBe(0);
     });
 
-    it('should record correct answers', () => {
-      const translation = addTranslation('你好', 'Hello');
+    it('should record correct answers', async () => {
+      const translation = await addTranslation('你好', 'Hello');
       recordCorrectAnswer(translation.id);
 
       const updated = getTranslations().find(t => t.id === translation.id);
@@ -145,8 +145,8 @@ describe('translationService', () => {
       expect(updated?.incorrectCount).toBe(0);
     });
 
-    it('should record incorrect answers', () => {
-      const translation = addTranslation('你好', 'Hello');
+    it('should record incorrect answers', async () => {
+      const translation = await addTranslation('你好', 'Hello');
       recordIncorrectAnswer(translation.id);
 
       const updated = getTranslations().find(t => t.id === translation.id);
@@ -154,8 +154,8 @@ describe('translationService', () => {
       expect(updated?.incorrectCount).toBe(1);
     });
 
-    it('should increment correct count multiple times', () => {
-      const translation = addTranslation('你好', 'Hello');
+    it('should increment correct count multiple times', async () => {
+      const translation = await addTranslation('你好', 'Hello');
       recordCorrectAnswer(translation.id);
       recordCorrectAnswer(translation.id);
       recordCorrectAnswer(translation.id);
@@ -165,8 +165,8 @@ describe('translationService', () => {
       expect(updated?.incorrectCount).toBe(0);
     });
 
-    it('should increment incorrect count multiple times', () => {
-      const translation = addTranslation('你好', 'Hello');
+    it('should increment incorrect count multiple times', async () => {
+      const translation = await addTranslation('你好', 'Hello');
       recordIncorrectAnswer(translation.id);
       recordIncorrectAnswer(translation.id);
 
@@ -175,12 +175,12 @@ describe('translationService', () => {
       expect(updated?.incorrectCount).toBe(2);
     });
 
-    it('should preserve scores when updating translation', () => {
-      const translation = addTranslation('你好', 'Hello');
+    it('should preserve scores when updating translation', async () => {
+      const translation = await addTranslation('你好', 'Hello');
       recordCorrectAnswer(translation.id);
       recordIncorrectAnswer(translation.id);
 
-      updateTranslation(translation.id, '你好世界', 'Hello world');
+      await updateTranslation(translation.id, '你好世界', 'Hello world');
 
       const updated = getTranslations().find(t => t.id === translation.id);
       expect(updated?.correctCount).toBe(1);

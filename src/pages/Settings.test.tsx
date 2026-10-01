@@ -50,7 +50,7 @@ describe('Settings', () => {
     });
 
     it('exports and confirms', async () => {
-      addTranslation('你好', 'Hello');
+      await addTranslation('你好', 'Hello');
       const download = vi.spyOn(csvExport, 'downloadTranslationsAsCSV').mockImplementation(() => {
         /* no-op */
       });
@@ -63,7 +63,7 @@ describe('Settings', () => {
     });
 
     it('reports a failed export', async () => {
-      addTranslation('你好', 'Hello');
+      await addTranslation('你好', 'Hello');
       vi.spyOn(csvExport, 'downloadTranslationsAsCSV').mockImplementation(() => {
         throw new Error('nope');
       });
@@ -86,7 +86,7 @@ describe('Settings', () => {
     });
 
     it('asks for confirmation and can be cancelled', async () => {
-      addTranslation('你好', 'Hello');
+      await addTranslation('你好', 'Hello');
       const user = userEvent.setup();
       renderPage();
 
@@ -99,7 +99,7 @@ describe('Settings', () => {
     });
 
     it('clears everything once confirmed', async () => {
-      addTranslation('你好', 'Hello');
+      await addTranslation('你好', 'Hello');
       const user = userEvent.setup();
       renderPage();
 

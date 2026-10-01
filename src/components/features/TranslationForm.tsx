@@ -6,7 +6,8 @@ import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 
 interface TranslationFormProps {
-  onSubmit: (mandarin: string, translation: string) => void;
+  /** Resolves once saved; a rejection shows the error toast. */
+  onSubmit: (mandarin: string, translation: string) => Promise<unknown>;
   initialMandarin?: string;
   initialTranslation?: string;
   submitLabel?: string;
@@ -59,8 +60,12 @@ export function TranslationForm({
       return;
     }
 
+    void save(mandarin.trim(), translation.trim());
+  };
+
+  const save = async (mandarinText: string, translationText: string) => {
     try {
-      onSubmit(mandarin.trim(), translation.trim());
+      await onSubmit(mandarinText, translationText);
       showToast('success', 'Translation saved successfully!');
       if (!initialMandarin && !initialTranslation) {
         setMandarin('');

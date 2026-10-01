@@ -23,8 +23,8 @@ describe('Flashcards', () => {
     expect(screen.getByText(/no translations available yet/i)).toBeInTheDocument();
   });
 
-  it('shows a card and the deck size', () => {
-    service.addTranslation('你好', 'Hello');
+  it('shows a card and the deck size', async () => {
+    await service.addTranslation('你好', 'Hello');
     renderPage();
 
     expect(screen.getByText('你好')).toBeInTheDocument();
@@ -32,7 +32,7 @@ describe('Flashcards', () => {
   });
 
   it('reveals then advances', async () => {
-    service.addTranslation('你好', 'Hello');
+    await service.addTranslation('你好', 'Hello');
     const user = userEvent.setup();
     renderPage();
 
@@ -45,8 +45,8 @@ describe('Flashcards', () => {
     });
   });
 
-  it('shows the prompt reversed in reverse mode', () => {
-    service.addTranslation('你好', 'Hello');
+  it('shows the prompt reversed in reverse mode', async () => {
+    await service.addTranslation('你好', 'Hello');
     updateSetting('reverseMode', true);
     renderPage();
 
@@ -55,7 +55,7 @@ describe('Flashcards', () => {
   });
 
   it('grades typed answers and tracks the session score in active input mode', async () => {
-    service.addTranslation('你好', 'Hello');
+    await service.addTranslation('你好', 'Hello');
     updateSetting('activeInput', true);
     const user = userEvent.setup();
     renderPage();
@@ -69,7 +69,7 @@ describe('Flashcards', () => {
   it('marks a wrong Mandarin answer incorrect in reverse mode', async () => {
     // The regression that mattered: with the old ASCII-only normalizer this
     // scored correct no matter what was typed.
-    service.addTranslation('你好', 'Hello');
+    await service.addTranslation('你好', 'Hello');
     updateSetting('activeInput', true);
     updateSetting('reverseMode', true);
     const user = userEvent.setup();
@@ -82,8 +82,8 @@ describe('Flashcards', () => {
   });
 
   it('reports a failed edit', async () => {
-    service.addTranslation('你好', 'Hello');
-    vi.spyOn(service, 'updateTranslation').mockReturnValue(false);
+    await service.addTranslation('你好', 'Hello');
+    vi.spyOn(service, 'updateTranslation').mockResolvedValue(false);
     const user = userEvent.setup();
     renderPage();
 
@@ -94,7 +94,7 @@ describe('Flashcards', () => {
   });
 
   it('rejects an edit that empties a field', async () => {
-    service.addTranslation('你好', 'Hello');
+    await service.addTranslation('你好', 'Hello');
     const user = userEvent.setup();
     renderPage();
 
@@ -107,7 +107,7 @@ describe('Flashcards', () => {
   });
 
   it('deletes the current card', async () => {
-    service.addTranslation('你好', 'Hello');
+    await service.addTranslation('你好', 'Hello');
     const user = userEvent.setup();
     renderPage();
 
@@ -120,7 +120,7 @@ describe('Flashcards', () => {
   });
 
   it('reports a failed delete', async () => {
-    service.addTranslation('你好', 'Hello');
+    await service.addTranslation('你好', 'Hello');
     vi.spyOn(service, 'deleteTranslation').mockReturnValue(false);
     const user = userEvent.setup();
     renderPage();

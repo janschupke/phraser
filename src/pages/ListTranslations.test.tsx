@@ -30,7 +30,7 @@ const disclosures = () =>
 describe('ListTranslations', () => {
   beforeEach(() => {
     vi.mocked(service.getTranslations).mockReturnValue(mockTranslations);
-    vi.mocked(service.updateTranslation).mockReturnValue(true);
+    vi.mocked(service.updateTranslation).mockResolvedValue(true);
     vi.mocked(service.deleteTranslation).mockReturnValue(true);
   });
 

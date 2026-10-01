@@ -11,10 +11,10 @@ describe('probability-based selection', () => {
     localStorage.clear();
   });
 
-  it('should select from all translations when scores are equal', () => {
-    addTranslation('你好', 'Hello');
-    addTranslation('谢谢', 'Thank you');
-    addTranslation('再见', 'Goodbye');
+  it('should select from all translations when scores are equal', async () => {
+    await addTranslation('你好', 'Hello');
+    await addTranslation('谢谢', 'Thank you');
+    await addTranslation('再见', 'Goodbye');
 
     // All have default success rate of 0.5, so equal weights
     const selections = new Set<string>();
@@ -27,10 +27,10 @@ describe('probability-based selection', () => {
     expect(selections.size).toBeGreaterThanOrEqual(1);
   });
 
-  it('should favor items with lower success rates', () => {
-    const bad = addTranslation('难', 'Hard');
-    const medium = addTranslation('中', 'Medium');
-    const good = addTranslation('易', 'Easy');
+  it('should favor items with lower success rates', async () => {
+    const bad = await addTranslation('难', 'Hard');
+    const medium = await addTranslation('中', 'Medium');
+    const good = await addTranslation('易', 'Easy');
 
     // Set up scores: bad (0%), medium (50%), good (100%)
     for (let i = 0; i < 5; i++) {
@@ -60,9 +60,9 @@ describe('probability-based selection', () => {
     expect(counts[bad.id] ?? 0).toBeGreaterThan((counts[medium.id] ?? 0) * 3);
   });
 
-  it('should handle items with no attempts', () => {
-    const newItem = addTranslation('新', 'New');
-    const attempted = addTranslation('旧', 'Old');
+  it('should handle items with no attempts', async () => {
+    const newItem = await addTranslation('新', 'New');
+    const attempted = await addTranslation('旧', 'Old');
 
     recordCorrectAnswer(attempted.id);
     recordIncorrectAnswer(attempted.id);
@@ -80,9 +80,9 @@ describe('probability-based selection', () => {
     expect(getRandomTranslation()?.id).toBe(attempted.id);
   });
 
-  it('should favor new items with maximum weight', () => {
-    const newItem = addTranslation('新', 'New');
-    const medium = addTranslation('中', 'Medium');
+  it('should favor new items with maximum weight', async () => {
+    const newItem = await addTranslation('新', 'New');
+    const medium = await addTranslation('中', 'Medium');
 
     // Set up medium item with 50% success rate (weight 1.67)
     for (let i = 0; i < 5; i++) {

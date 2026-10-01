@@ -57,6 +57,20 @@ describe('TranslationForm', () => {
     expect(await screen.findByText(/translation saved successfully/i)).toBeInTheDocument();
   });
 
+  it('reports a save that fails asynchronously and keeps the input', async () => {
+    mockOnSubmit.mockRejectedValueOnce(new Error('quota exceeded'));
+    const user = userEvent.setup();
+    renderWithToast(<TranslationForm onSubmit={mockOnSubmit} />);
+
+    await user.type(screen.getByLabelText(/mandarin/i), '你好');
+    await user.type(screen.getByLabelText(/translation/i), 'Hello');
+    await user.click(screen.getByRole('button', { name: /add translation/i }));
+
+    expect(await screen.findByText(/failed to save translation/i)).toBeInTheDocument();
+    expect(screen.queryByText(/translation saved successfully/i)).not.toBeInTheDocument();
+    expect(screen.getByLabelText(/mandarin/i)).toHaveValue('你好');
+  });
+
   it('clears form after submission when no initial values', async () => {
     const user = userEvent.setup();
     renderWithToast(<TranslationForm onSubmit={mockOnSubmit} />);

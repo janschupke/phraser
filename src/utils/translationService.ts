@@ -11,12 +11,12 @@ import { selectRandomTranslation } from './probability';
 /**
  * Creates a new translation object with default values
  */
-const createTranslation = (mandarin: string, translation: string): Translation => {
+const createTranslation = async (mandarin: string, translation: string): Promise<Translation> => {
   return {
     id: createId(),
     mandarin: mandarin.trim(),
     translation: translation.trim(),
-    pinyin: generatePinyin(mandarin.trim()),
+    pinyin: await generatePinyin(mandarin.trim()),
     correctCount: 0,
     incorrectCount: 0,
   };
@@ -41,11 +41,18 @@ const saveTranslations = (translations: Translation[]): void => {
   storageManager.set(storageManager.getTranslationsKey(), translations);
 };
 
+// The writes below that need pinyin generate it before reading storage, so
+// the read-modify-write stays synchronous: a write that lands while pinyin-pro
+// is loading cannot be overwritten by a stale snapshot.
+
 /**
  * Adds a new translation
  */
-export const addTranslation = (mandarin: string, translation: string): Translation => {
-  const newTranslation = createTranslation(mandarin, translation);
+export const addTranslation = async (
+  mandarin: string,
+  translation: string
+): Promise<Translation> => {
+  const newTranslation = await createTranslation(mandarin, translation);
   saveTranslations([...getTranslations(), newTranslation]);
   return newTranslation;
 };
@@ -53,7 +60,12 @@ export const addTranslation = (mandarin: string, translation: string): Translati
 /**
  * Updates an existing translation
  */
-export const updateTranslation = (id: string, mandarin: string, translation: string): boolean => {
+export const updateTranslation = async (
+  id: string,
+  mandarin: string,
+  translation: string
+): Promise<boolean> => {
+  const pinyin = await generatePinyin(mandarin.trim());
   const translations = getTranslations();
   const index = translations.findIndex(t => t.id === id);
   if (index === -1) return false;
@@ -66,7 +78,7 @@ export const updateTranslation = (id: string, mandarin: string, translation: str
     id,
     mandarin: mandarin.trim(),
     translation: translation.trim(),
-    pinyin: generatePinyin(mandarin.trim()),
+    pinyin,
     correctCount: existing.correctCount ?? 0,
     incorrectCount: existing.incorrectCount ?? 0,
   };
@@ -89,11 +101,11 @@ export const deleteTranslation = (id: string): boolean => {
 /**
  * Adds multiple translations in batch
  */
-export const addBatchTranslations = (
+export const addBatchTranslations = async (
   entries: { mandarin: string; translation: string }[]
-): Translation[] => {
-  const newTranslations: Translation[] = entries.map(({ mandarin, translation }) =>
-    createTranslation(mandarin, translation)
+): Promise<Translation[]> => {
+  const newTranslations = await Promise.all(
+    entries.map(({ mandarin, translation }) => createTranslation(mandarin, translation))
   );
 
   saveTranslations([...getTranslations(), ...newTranslations]);

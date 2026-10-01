@@ -20,17 +20,20 @@ function AddTranslation() {
   >(null);
   const { showToast } = useToast();
 
-  const handleSingleSubmit = (mandarin: string, translation: string) => {
+  const handleSingleSubmit = (mandarin: string, translation: string) =>
     addTranslation(mandarin, translation);
-  };
 
   const handleBatchImport = (entries: { mandarin: string; translation: string }[]) => {
     setReviewEntries(entries);
   };
 
   const handleBatchSave = (entries: { mandarin: string; translation: string }[]) => {
+    void saveBatch(entries);
+  };
+
+  const saveBatch = async (entries: { mandarin: string; translation: string }[]) => {
     try {
-      const saved = addBatchTranslations(entries);
+      const saved = await addBatchTranslations(entries);
       showToast('success', `Successfully imported ${saved.length} translation(s)!`);
       setReviewEntries(null);
       setActiveTab('single');

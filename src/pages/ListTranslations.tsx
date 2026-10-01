@@ -34,7 +34,11 @@ function ListTranslations() {
       return;
     }
 
-    if (updateTranslation(id, mandarin.trim(), translation.trim())) {
+    void saveEdit(id, mandarin.trim(), translation.trim());
+  };
+
+  const saveEdit = async (id: string, mandarin: string, translation: string) => {
+    if (await updateTranslation(id, mandarin, translation)) {
       setEditingId(null);
       showToast('success', 'Translation updated successfully!');
     } else {

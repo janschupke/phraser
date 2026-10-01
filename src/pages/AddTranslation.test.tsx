@@ -60,7 +60,7 @@ describe('AddTranslation', () => {
 
     expect(await screen.findByDisplayValue('你好')).toBeInTheDocument();
 
-    vi.mocked(storage.addBatchTranslations).mockReturnValue([
+    vi.mocked(storage.addBatchTranslations).mockResolvedValue([
       { id: '1', mandarin: '你好', translation: 'Hello' },
       { id: '2', mandarin: '貓', translation: 'Cat' },
     ]);

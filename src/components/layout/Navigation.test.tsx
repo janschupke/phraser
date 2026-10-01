@@ -27,8 +27,8 @@ describe('Navigation', () => {
     expect(link.textContent).toBe('All Translations');
   });
 
-  it('shows the count badge once there are translations', () => {
-    addTranslation('你好', 'Hello');
+  it('shows the count badge once there are translations', async () => {
+    await addTranslation('你好', 'Hello');
     renderNav('/list');
     const link = screen.getByRole('link', { name: /all translations/i });
     expect(link.textContent).toContain('1');

@@ -30,15 +30,15 @@ describe('useStoredState', () => {
     expect(renders).toBeLessThanOrEqual(initialRenders + 2);
   });
 
-  it('re-renders when a translation is written', () => {
+  it('re-renders when a translation is written', async () => {
     function Probe() {
       return <span data-testid="count">{useTranslations().length}</span>;
     }
     render(<Probe />);
     expect(screen.getByTestId('count')).toHaveTextContent('0');
 
-    act(() => {
-      addTranslation('你好', 'Hello');
+    await act(async () => {
+      await addTranslation('你好', 'Hello');
     });
     expect(screen.getByTestId('count')).toHaveTextContent('1');
   });

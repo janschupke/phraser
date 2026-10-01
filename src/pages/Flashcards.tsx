@@ -30,6 +30,23 @@ function Flashcards() {
     }
   }, []);
 
+  const saveEdit = useCallback(
+    async (id: string, mandarin: string, translation: string) => {
+      if (!(await updateTranslation(id, mandarin, translation))) {
+        showToast('error', 'Failed to update translation');
+        return;
+      }
+      showToast('success', 'Translation updated successfully!');
+      // Reload the current card if it's the one being edited. A functional
+      // update, because the user may have moved to another card meanwhile.
+      const updatedCard = getTranslations().find(t => t.id === id);
+      if (updatedCard) {
+        setCurrentCard(card => (card?.id === id ? updatedCard : card));
+      }
+    },
+    [showToast]
+  );
+
   const handleEdit = useCallback(
     (id: string, mandarin: string, translation: string) => {
       if (!mandarin.trim() || !translation.trim()) {
@@ -37,20 +54,9 @@ function Flashcards() {
         return;
       }
 
-      if (updateTranslation(id, mandarin.trim(), translation.trim())) {
-        showToast('success', 'Translation updated successfully!');
-        // Reload the current card if it's the one being edited
-        if (currentCard?.id === id) {
-          const updatedCard = getTranslations().find(t => t.id === id);
-          if (updatedCard) {
-            setCurrentCard(updatedCard);
-          }
-        }
-      } else {
-        showToast('error', 'Failed to update translation');
-      }
+      void saveEdit(id, mandarin.trim(), translation.trim());
     },
-    [currentCard, showToast]
+    [saveEdit, showToast]
   );
 
   const handleDelete = useCallback(
