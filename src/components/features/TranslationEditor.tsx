@@ -4,6 +4,7 @@ import { useHotkeys } from '../../hooks/useHotkeys';
 import type { FormSubmitHandler, Translation } from '../../types';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
+import { Tooltip } from '../ui/Tooltip';
 
 interface TranslationEditorProps {
   translation: Translation;
@@ -57,16 +58,17 @@ export function TranslationEditor({
         <div className="flex items-center justify-between">
           {title && <h2 className="text-lg font-semibold text-neutral-800">{title}</h2>}
           {onDelete && (
-            <Button
-              type="button"
-              variant="icon"
-              onClick={onDelete}
-              className="ml-auto text-error-600 hover:text-error-700 hover:bg-error-100"
-              aria-label="Delete translation"
-              title="Delete"
-            >
-              <HiOutlineTrash className="w-5 h-5" />
-            </Button>
+            <Tooltip label="Delete">
+              <Button
+                type="button"
+                variant="icon"
+                onClick={onDelete}
+                className="ml-auto text-error-600 hover:text-error-700 hover:bg-error-100"
+                aria-label="Delete translation"
+              >
+                <HiOutlineTrash className="w-5 h-5" />
+              </Button>
+            </Tooltip>
           )}
         </div>
       )}

@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { cleanup, render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router';
-import axe, { type Result } from 'axe-core';
+import axe, { type NodeResult, type Result } from 'axe-core';
 import { ToastProvider } from '../../contexts/ToastContext';
 import { AppLayout } from '../../components/layout/AppLayout';
 import { ROUTES } from '../../routes';
@@ -65,8 +65,24 @@ async function expectAxeClean(root: Element = document.body) {
     },
     resultTypes: ['violations'],
   });
-  expect(violations, formatViolations(violations)).toEqual([]);
+  const real = violations
+    .map(v => (v.id === 'region' ? { ...v, nodes: v.nodes.filter(n => !isTooltip(n)) } : v))
+    .filter(v => v.nodes.length > 0);
+  expect(real, formatViolations(real)).toEqual([]);
 }
+
+/**
+ * A tooltip is portalled to <body>, so it sits outside every landmark and trips
+ * the best-practice `region` rule. That rule is about content a screen-reader
+ * user navigates to; a tooltip is supplementary text the trigger already
+ * references through aria-describedby. Only `region` is waived -- the tooltip's
+ * colour contrast is still checked.
+ */
+const isTooltip = (node: NodeResult) => {
+  const selector = node.target[0];
+  if (typeof selector !== 'string') return false;
+  return document.querySelector(selector)?.closest('[data-radix-popper-content-wrapper]') != null;
+};
 
 // More than a 1px box: sr-only content (the skip link) is clipped to 1px and
 // cannot be hovered.
@@ -241,6 +257,27 @@ describe('contrast in a real browser', () => {
     const hovered = effectiveBackground(row);
 
     expect(deltaE(rest, hovered)).toBeGreaterThanOrEqual(HOVER_FLOOR);
+  });
+
+  describe('tooltips', () => {
+    it('open on pointer hover and pass axe while open', async () => {
+      renderApp('/list');
+      const edit = screen.getAllByRole('button', { name: /^edit /i })[0];
+      if (!edit) throw new Error('no edit button');
+
+      await userEvent.hover(edit);
+      const tooltip = await screen.findByRole('tooltip');
+      expect(tooltip.textContent).toBe('Edit');
+      await expectAxeClean();
+    });
+
+    it('open on keyboard focus, which a title attribute never did', async () => {
+      renderApp('/flashcards');
+      screen.getByRole('button', { name: 'Edit flashcard' }).focus();
+
+      const tooltip = await screen.findByRole('tooltip');
+      expect(tooltip.textContent).toBe('Edit flashcard');
+    });
   });
 
   it('the mobile menu passes axe and hover', async () => {

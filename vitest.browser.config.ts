@@ -14,6 +14,11 @@ export default defineConfig({
   // Without dedupe the test file and the pre-bundled components can each get
   // their own React, and the first hook call dies on a null dispatcher.
   resolve: { dedupe: ['react', 'react-dom'] },
+  // Pre-bundle up front. A dependency discovered mid-run (Radix, reached only
+  // through components) is optimised on its own and pulls in a second React.
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-dom/client', '@radix-ui/react-tooltip'],
+  },
   test: {
     include: ['src/**/*.browser.test.tsx'],
     // One browser, one file at a time.

@@ -1,6 +1,7 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import type { ComponentPropsWithRef, ReactNode } from 'react';
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+// WithRef so a wrapping Radix trigger (Tooltip's asChild) can attach its ref.
+interface ButtonProps extends ComponentPropsWithRef<'button'> {
   variant?: 'primary' | 'success' | 'neutral' | 'danger' | 'icon';
   children: ReactNode;
 }

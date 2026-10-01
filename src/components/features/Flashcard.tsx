@@ -10,6 +10,7 @@ import { validateTranslation } from '../../utils/stringComparison';
 import { recordCorrectAnswer, recordIncorrectAnswer } from '../../utils/translationService';
 import { FlashcardFace } from './FlashcardFace';
 import { TranslationEditor } from './TranslationEditor';
+import { Tooltip } from '../ui/Tooltip';
 
 interface FlashcardProps {
   card: Translation;
@@ -129,15 +130,16 @@ export function Flashcard({
         style={{ transformStyle: 'preserve-3d' }}
       >
         {!isEditing && (
-          <Button
-            variant="icon"
-            onClick={() => setIsEditing(true)}
-            className="absolute top-3 right-3 text-neutral-500 hover:text-primary-600 z-10"
-            aria-label="Edit flashcard"
-            title="Edit flashcard"
-          >
-            <HiOutlineCog className="w-6 h-6" />
-          </Button>
+          <Tooltip label="Edit flashcard">
+            <Button
+              variant="icon"
+              onClick={() => setIsEditing(true)}
+              className="absolute top-3 right-3 text-neutral-500 hover:text-primary-600 z-10"
+              aria-label="Edit flashcard"
+            >
+              <HiOutlineCog className="w-6 h-6" />
+            </Button>
+          </Tooltip>
         )}
 
         {isEditing ? (

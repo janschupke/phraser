@@ -2,6 +2,7 @@ import { useId, useState } from 'react';
 import type { Translation } from '../../types';
 import { HiOutlinePencil, HiOutlineTrash, HiChevronDown, HiChevronUp } from 'react-icons/hi';
 import { Button } from '../ui/Button';
+import { Tooltip } from '../ui/Tooltip';
 
 interface TranslationCardProps {
   translation: Translation;
@@ -72,24 +73,26 @@ export function TranslationCard({
         </button>
 
         <div className="flex shrink-0 gap-1">
-          <Button
-            variant="icon"
-            onClick={() => onEdit(translation)}
-            aria-label={`Edit ${translation.mandarin}`}
-            title="Edit"
-            className="text-neutral-500 hover:text-primary-600"
-          >
-            <HiOutlinePencil className="w-5 h-5" />
-          </Button>
-          <Button
-            variant="icon"
-            onClick={() => onDelete(translation)}
-            aria-label={`Delete ${translation.mandarin}`}
-            title="Delete"
-            className="text-neutral-500 hover:text-error-600"
-          >
-            <HiOutlineTrash className="w-5 h-5" />
-          </Button>
+          <Tooltip label="Edit">
+            <Button
+              variant="icon"
+              onClick={() => onEdit(translation)}
+              aria-label={`Edit ${translation.mandarin}`}
+              className="text-neutral-500 hover:text-primary-600"
+            >
+              <HiOutlinePencil className="w-5 h-5" />
+            </Button>
+          </Tooltip>
+          <Tooltip label="Delete">
+            <Button
+              variant="icon"
+              onClick={() => onDelete(translation)}
+              aria-label={`Delete ${translation.mandarin}`}
+              className="text-neutral-500 hover:text-error-600"
+            >
+              <HiOutlineTrash className="w-5 h-5" />
+            </Button>
+          </Tooltip>
         </div>
       </div>
 

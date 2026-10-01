@@ -4,6 +4,7 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
 import { HiOutlineTrash } from 'react-icons/hi';
+import { Tooltip } from '../ui/Tooltip';
 
 interface BatchImportReviewProps {
   entries: { mandarin: string; translation: string }[];
@@ -79,16 +80,17 @@ export function BatchImportReview({ entries, onSave, onCancel }: BatchImportRevi
                   />
                 </div>
               </div>
-              <Button
-                variant="icon"
-                onClick={() => handleDelete(index)}
-                className="text-error-600 hover:text-error-700 hover:bg-error-100"
-                type="button"
-                aria-label={`Remove entry ${String(index + 1)}`}
-                title="Remove entry"
-              >
-                <HiOutlineTrash className="w-5 h-5" />
-              </Button>
+              <Tooltip label="Remove entry">
+                <Button
+                  variant="icon"
+                  onClick={() => handleDelete(index)}
+                  className="text-error-600 hover:text-error-700 hover:bg-error-100"
+                  type="button"
+                  aria-label={`Remove entry ${String(index + 1)}`}
+                >
+                  <HiOutlineTrash className="w-5 h-5" />
+                </Button>
+              </Tooltip>
             </div>
           </Card>
         ))}
