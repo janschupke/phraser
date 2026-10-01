@@ -13,6 +13,13 @@ const renderNav = (path = '/') =>
   );
 
 describe('Navigation', () => {
+  it('shows the logo mark without adding it to the home link name', () => {
+    renderNav();
+    const home = screen.getByRole('link', { name: 'Phraser' });
+    expect(home).toHaveAttribute('href', '/');
+    expect(home).toHaveTextContent('語');
+  });
+
   it('marks the current route with aria-current', () => {
     renderNav('/flashcards');
     expect(screen.getByRole('link', { name: 'Flashcards' })).toHaveAttribute(

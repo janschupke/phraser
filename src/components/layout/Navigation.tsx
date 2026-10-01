@@ -4,6 +4,7 @@ import { HiMenu, HiX } from 'react-icons/hi';
 import { useTranslations } from '../../hooks/useStoredState';
 import { useHotkeys } from '../../hooks/useHotkeys';
 import { NavList } from './NavList';
+import { Logo } from '../ui/Logo';
 
 export function Navigation() {
   const location = useLocation();
@@ -60,8 +61,9 @@ export function Navigation() {
         <div className="relative flex items-center justify-between h-16">
           <Link
             to="/"
-            className="font-bold text-lg text-neutral-800 hover:text-primary-700 rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+            className="flex items-center gap-2 font-bold text-lg text-neutral-800 hover:text-primary-700 rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
           >
+            <Logo />
             Phraser
           </Link>
 
